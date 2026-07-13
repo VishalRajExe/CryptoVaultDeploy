@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: cryptovault-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: crypto_trading_platform
+      MYSQL_ROOT_PASSWORD: admin
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: cryptovault-backend
+    restart: always
+    ports:
+      - "5454:5454"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/crypto_trading_platform?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=admin
+      # You can override keys/endpoints here:
+      - MAIL_USERNAME=your_email@gmail.com
+      - MAIL_PASSWORD=your_mail_app_password
+      - COINGECKO_API_KEY=your_coingecko_key_here
+      - GEMINI_API_KEY=your_gemini_key_here
+      - RAZORPAY_API_KEY=your_razorpay_key_here
+      - RAZORPAY_API_SECRET=your_razorpay_secret_here
+      - STRIPE_API_KEY=your_stripe_key_here
+      - GOOGLE_CLIENT_ID=your_google_client_id_here
+      - GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+      - FRONTEND_URL=http://localhost
+
+  frontend:
+    build:
+      context: ./f2
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=http://localhost:5454
+    container_name: cryptovault-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
