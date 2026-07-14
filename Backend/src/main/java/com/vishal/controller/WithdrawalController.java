@@ -13,6 +13,8 @@ import com.vishal.service.WalletService;
 import com.vishal.service.WalletTransactionService;
 import com.vishal.service.WithdrawalService;
 import com.vishal.service.NotificationService;
+import com.vishal.model.PaymentDetails;
+import com.vishal.service.PaymentDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +40,9 @@ public class WithdrawalController {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private PaymentDetailsService paymentDetailsService;
+
     @PostMapping("/api/withdrawal/{amount}")
     public ResponseEntity<?> withdrawalRequest(
             @PathVariable java.math.BigDecimal amount,
@@ -50,6 +55,14 @@ public class WithdrawalController {
         }
 
         User user=userService.findUserProfileByJwt(jwt);
+
+        // Withdrawals require bank details to be linked. Admin accounts are exempt.
+        if (user.getRole() != USER_ROLE.ROLE_ADMIN) {
+            PaymentDetails paymentDetails = paymentDetailsService.getUsersPaymentDetails(user);
+            if (paymentDetails == null || paymentDetails.getAccountNumber() == null || paymentDetails.getAccountNumber().isBlank()) {
+                throw new UserException("Please add your bank account details before requesting a withdrawal.");
+            }
+        }
 
         // Withdrawals require email verification. Admin accounts are exempt.
         if (user.getRole() != USER_ROLE.ROLE_ADMIN && !user.isVerified()) {
