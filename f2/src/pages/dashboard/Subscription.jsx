@@ -293,6 +293,10 @@ export default function SubscriptionPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {plans.map((p) => {
           const isCurrent = subscription?.plan === p.id;
+          const planTiers = { 'FREE': 0, 'PRO': 1, 'ELITE': 2 };
+          const currentPlanTier = planTiers[subscription?.plan || 'FREE'];
+          const cardPlanTier = planTiers[p.id];
+          const isHigher = currentPlanTier > cardPlanTier;
           const PlanIcon = p.icon;
 
           return (
@@ -332,12 +336,11 @@ export default function SubscriptionPage() {
                 {p.desc}
               </p>
 
-              {/* Action Button */}
               {isCurrent ? (
                 <div className="w-full py-3 rounded-xl border border-white/10 bg-white/[0.02] text-center text-ink-muted text-sm font-semibold font-display">
                   Current Plan
                 </div>
-              ) : p.id === 'FREE' ? (
+              ) : isHigher || p.id === 'FREE' ? (
                 <div className="w-full py-3 rounded-xl border border-white/10 bg-white/[0.02] text-center text-ink-muted text-sm font-semibold font-display">
                   Included
                 </div>

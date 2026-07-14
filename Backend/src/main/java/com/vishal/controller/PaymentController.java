@@ -46,8 +46,8 @@ public class PaymentController {
         if (amount == null || amount <= 0) {
             throw new UserException("Deposit amount must be greater than zero.");
         }
-        if (paymentMethod.equals(PaymentMethod.RAZORPAY) && amount > 1000000) {
-            throw new UserException("Deposit amount cannot exceed ₹10,00,000 (1,000,000 INR) per transaction.");
+        if (paymentMethod.equals(PaymentMethod.RAZORPAY) && amount > 200000) {
+            throw new UserException("Deposit amount cannot exceed ₹2,00,000 (200,000 INR) per transaction.");
         }
         if (paymentMethod.equals(PaymentMethod.STRIPE) && amount > 10000) {
             throw new UserException("Deposit amount cannot exceed $10,000 USD per transaction.");
