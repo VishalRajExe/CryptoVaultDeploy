@@ -1,6 +1,7 @@
 package com.vishal.service;
 
 import com.vishal.domain.WithdrawalStatus;
+import com.vishal.domain.NotificationType;
 import com.vishal.model.User;
 import com.vishal.model.Withdrawal;
 import com.vishal.repository.WithdrawalRepository;
@@ -18,6 +19,9 @@ public class WithdrawalServiceImpl implements WithdrawalService{
     private WithdrawalRepository withdrawalRepository;
 
 
+    @Autowired
+    private CentralNotificationService centralNotificationService;
+
     @Override
     public Withdrawal requestWithdrawal(java.math.BigDecimal amount,User user) {
         Withdrawal withdrawal=new Withdrawal();
@@ -25,7 +29,17 @@ public class WithdrawalServiceImpl implements WithdrawalService{
         withdrawal.setStatus(WithdrawalStatus.PENDING);
         withdrawal.setDate(LocalDateTime.now());
         withdrawal.setUser(user);
-        return withdrawalRepository.save(withdrawal);
+        
+        Withdrawal saved = withdrawalRepository.save(withdrawal);
+        
+        // Notify user and admin
+        centralNotificationService.sendNotification(user, NotificationType.WALLET, "Withdrawal Requested", "You have requested a withdrawal of $" + amount + " USD.");
+        centralNotificationService.sendAdminNotification(NotificationType.ADMIN, "Withdrawal Request", "A new withdrawal request of $" + amount + " USD from user: " + user.getEmail());
+        if (amount.compareTo(new java.math.BigDecimal("5000")) >= 0) {
+            centralNotificationService.sendAdminNotification(NotificationType.ADMIN, "Large Withdrawal", "Large withdrawal request from " + user.getEmail() + " of amount: $" + amount);
+        }
+
+        return saved;
     }
 
     @Override
@@ -43,9 +57,12 @@ public class WithdrawalServiceImpl implements WithdrawalService{
 
         if(accept){
             withdrawal.setStatus(WithdrawalStatus.SUCCESS);
+            centralNotificationService.sendNotification(withdrawal.getUser(), NotificationType.WALLET, "Withdrawal Approved", "Your withdrawal request of $" + withdrawal.getAmount() + " USD was approved and completed successfully.");
         }
         else{
             withdrawal.setStatus(WithdrawalStatus.DECLINE);
+            centralNotificationService.sendNotification(withdrawal.getUser(), NotificationType.WALLET, "Withdrawal Rejected", "Your withdrawal request of $" + withdrawal.getAmount() + " USD was declined/rejected.");
+            centralNotificationService.sendAdminNotification(NotificationType.ADMIN, "Withdrawal Request Rejected", "A withdrawal request for user " + withdrawal.getUser().getEmail() + " of amount $" + withdrawal.getAmount() + " USD was rejected.");
         }
 
         return withdrawalRepository.save(withdrawal);

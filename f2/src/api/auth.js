@@ -46,3 +46,12 @@ export const getMyNotifications = () => client.get('/api/notifications').then((r
 
 export const markNotificationsRead = () =>
   client.patch('/api/notifications/mark-read').then((r) => r.data);
+
+export const getNotificationPreferences = () =>
+  client.get('/api/notifications/preferences').then((r) => r.data);
+
+export const updateNotificationPreferences = (payload) =>
+  client.put('/api/notifications/preferences', payload).then((r) => r.data);
+
+export const getNotificationHistory = () =>
+  client.get('/api/notifications/history').then((r) => r.data);

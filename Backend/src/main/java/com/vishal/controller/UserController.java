@@ -3,6 +3,7 @@ package com.vishal.controller;
 import com.vishal.domain.OtpVerificationResult;
 import com.vishal.domain.UserStatus;
 import com.vishal.domain.VerificationType;
+import com.vishal.domain.NotificationType;
 import com.vishal.exception.UserException;
 import com.vishal.model.ForgotPasswordToken;
 import com.vishal.model.User;
@@ -15,6 +16,7 @@ import com.vishal.service.EmailService;
 import com.vishal.service.ForgotPasswordService;
 import com.vishal.service.UserService;
 import com.vishal.service.VerificationService;
+import com.vishal.service.CentralNotificationService;
 import com.vishal.utils.OtpUtils;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,9 @@ public class UserController {
 
 	@Autowired
 	private com.vishal.repository.UserRepository userRepository;
+
+	@Autowired
+	private CentralNotificationService centralNotificationService;
 
 
 	@GetMapping("/api/users/profile")
@@ -108,6 +113,15 @@ public class UserController {
 		User updatedUser = userService.enabledTwoFactorAuthentication(
 				verificationCode.getVerificationType(), sendTo, user);
 		verificationService.deleteVerification(verificationCode);
+
+		// Send 2FA update alert
+		centralNotificationService.sendNotification(
+				user,
+				NotificationType.SECURITY,
+				"Two-Factor Authentication Updated",
+				"Two-Factor Authentication status has been successfully updated on your CryptoVault account."
+		);
+
 		return ResponseEntity.ok(updatedUser);
 
 	}
@@ -129,6 +143,15 @@ public class UserController {
 			if (isVerified) {
 
 				userService.updatePassword(forgotPasswordToken.getUser(),req.getPassword());
+				
+				// Send password updated alert
+				centralNotificationService.sendNotification(
+						forgotPasswordToken.getUser(),
+						NotificationType.SECURITY,
+						"Password Reset Complete",
+						"The password for your CryptoVault account has been successfully reset. If you did not make this change, please contact support immediately."
+				);
+
 				ApiResponse apiResponse=new ApiResponse();
 				apiResponse.setMessage("password updated successfully");
 				return ResponseEntity.ok(apiResponse);
@@ -156,9 +179,11 @@ public class UserController {
 		}
 
 		if(req.getVerificationType().equals(VerificationType.EMAIL)){
-			emailService.sendVerificationOtpEmail(
-					user.getEmail(),
-					token.getOtp()
+			centralNotificationService.sendNotification(
+					user,
+					NotificationType.SECURITY,
+					"Password Reset Verification Code",
+					"Your password reset verification code is: <strong>" + token.getOtp() + "</strong>. This code will expire in 10 minutes."
 			);
 		}
 

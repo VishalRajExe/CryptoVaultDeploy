@@ -2,12 +2,14 @@ package com.vishal.controller;
 
 import com.vishal.domain.OtpVerificationResult;
 import com.vishal.domain.VerificationType;
+import com.vishal.domain.NotificationType;
 import com.vishal.exception.UserException;
 import com.vishal.model.User;
 import com.vishal.model.VerificationCode;
 import com.vishal.service.EmailService;
 import com.vishal.service.UserService;
 import com.vishal.service.VerificationService;
+import com.vishal.service.CentralNotificationService;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,9 @@ public class VerificationController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private CentralNotificationService centralNotificationService;
 
     @Autowired
     public VerificationController(VerificationService verificationService, UserService userService, com.vishal.repository.UserRepository userRepository) {
@@ -54,7 +59,12 @@ public class VerificationController {
         VerificationCode verificationCode = verificationService.sendVerificationOTP(user, verificationType);
 
         if (verificationType.equals(VerificationType.EMAIL)) {
-            emailService.sendVerificationOtpEmail(user.getEmail(), verificationCode.getOtp());
+            centralNotificationService.sendNotification(
+                    user,
+                    NotificationType.AUTHENTICATION,
+                    "Email Verification Code",
+                    "Your verification code is: <strong>" + verificationCode.getOtp() + "</strong>. This code will expire in 10 minutes."
+            );
         }
         // For mobile, we would integrate with SMS service here
         // For now, just logging or storing the OTP (in a real app, you'd send via SMS)
@@ -93,10 +103,18 @@ public class VerificationController {
             verifiedUser = userRepository.save(verifiedUser);
             verifiedUser.setPassword(null);
 
+            // Send notification
+            centralNotificationService.sendNotification(
+                    verifiedUser,
+                    NotificationType.AUTHENTICATION,
+                    "Email Verified Successfully",
+                    "Your email address has been verified successfully. Welcome to CryptoVault!"
+            );
+
             return ResponseEntity.ok(verifiedUser);
         } else if (result == OtpVerificationResult.EXPIRED) {
             verificationService.deleteVerification(verificationCode);
-            throw new Exception("OTP has expired. Please request a new one.");
+            throw new Exception("OTP has expired. Please request a one.");
         } else {
             throw new Exception("Invalid OTP. Please check and try again.");
         }
@@ -127,7 +145,12 @@ public class VerificationController {
         VerificationCode verificationCode = verificationService.sendVerificationOTP(user, verificationType);
 
         if (verificationType.equals(VerificationType.EMAIL)) {
-            emailService.sendVerificationOtpEmail(user.getEmail(), verificationCode.getOtp());
+            centralNotificationService.sendNotification(
+                    user,
+                    NotificationType.AUTHENTICATION,
+                    "Verification Code Resent",
+                    "Your verification code is: <strong>" + verificationCode.getOtp() + "</strong>. This code will expire in 10 minutes."
+            );
         }
         // For mobile, we would integrate with SMS service here
 

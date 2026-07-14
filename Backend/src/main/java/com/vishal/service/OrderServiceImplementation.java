@@ -2,6 +2,7 @@ package com.vishal.service;
 
 import com.vishal.domain.OrderStatus;
 import com.vishal.domain.OrderType;
+import com.vishal.domain.NotificationType;
 import com.vishal.model.*;
 import com.vishal.repository.*;
 
@@ -21,6 +22,9 @@ import java.util.stream.Collectors;
 public class OrderServiceImplementation implements OrderService {
     private final OrderRepository orderRepository;
     private final AssetService assetService;
+
+    @Autowired
+    private CentralNotificationService centralNotificationService;
 
     @Autowired
     private WalletService walletService;
@@ -88,6 +92,12 @@ public class OrderServiceImplementation implements OrderService {
         if (order.getStatus() == OrderStatus.PENDING) {
             order.setStatus(OrderStatus.CANCELLED);
             orderRepository.save(order);
+            centralNotificationService.sendNotification(
+                    order.getUser(),
+                    NotificationType.TRADING,
+                    "Order Cancelled",
+                    "Your order #" + order.getId() + " to " + order.getOrderType() + " " + order.getOrderItem().getCoin().getName() + " was cancelled."
+            );
         } else {
             throw new IllegalStateException("Cannot cancel order, it is already processed or cancelled.");
         }
@@ -150,6 +160,14 @@ public class OrderServiceImplementation implements OrderService {
             );
         }
 
+        // Send trading email notification
+        centralNotificationService.sendNotification(
+                user,
+                NotificationType.TRADING,
+                "Buy Order Executed",
+                "Your buy order for " + quantity + " " + coin.getName() + " has been successfully executed at $" + buyPrice + " per coin."
+        );
+
         return savedOrder;
     }
 
@@ -195,6 +213,15 @@ public class OrderServiceImplementation implements OrderService {
         if(updatedAsset.getQuantity()*coin.getCurrentPrice()<=1){
             assetService.deleteAsset(updatedAsset.getId());
         }
+
+        // Send trading email notification
+        centralNotificationService.sendNotification(
+                user,
+                NotificationType.TRADING,
+                "Sell Order Executed",
+                "Your sell order for " + quantity + " " + coin.getName() + " has been successfully executed at $" + sellPrice + " per coin."
+        );
+
         return savedOrder;
     }
 

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil } from 'lucide-react';
+import { ShieldCheck, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import { useAuth } from '../../context/AuthContext';
-import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile } from '../../api/auth';
+import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences } from '../../api/auth';
 import { useToast } from '../../context/ToastContext';
 
 function OtpInline({ onSubmit, loading, onCancel }) {
@@ -133,6 +133,47 @@ export default function Security() {
   const [sending2fa, setSending2fa] = useState(false);
   const [twoFaStep, setTwoFaStep] = useState(false);
   const [twoFaLoading, setTwoFaLoading] = useState(false);
+
+  const [preferences, setPreferences] = useState({
+    trading: true,
+    wallet: true,
+    security: true,
+    replay: true,
+    subscription: true,
+    marketing: false
+  });
+  const [prefLoading, setPrefLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPrefs = async () => {
+      try {
+        const data = await getNotificationPreferences();
+        if (data) {
+          setPreferences(data);
+        }
+      } catch (err) {
+        console.error("Failed to load preferences", err);
+      } finally {
+        setPrefLoading(false);
+      }
+    };
+    fetchPrefs();
+  }, []);
+
+  const handleTogglePref = async (key) => {
+    if (key === 'security') return;
+    const previousValue = preferences[key];
+    const newPrefs = { ...preferences, [key]: !previousValue };
+    // Optimistically update UI
+    setPreferences(newPrefs);
+    try {
+      await updateNotificationPreferences(newPrefs);
+      push('Notification preference updated.', 'success');
+    } catch (err) {
+      push('Failed to update preference.', 'error');
+      setPreferences((prev) => ({ ...prev, [key]: previousValue }));
+    }
+  };
 
   const isEmailVerified = !!(user?.isVerified || user?.verified);
   const is2faEnabled = !!(user?.twoFactorAuth?.isEnabled || user?.twoFactorAuth?.enabled);
@@ -313,6 +354,64 @@ export default function Security() {
           </div>
         </motion.div>
         )}
+
+        {/* Notification Preferences */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6"
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-lg bg-mint/15 text-mint flex items-center justify-center shrink-0">
+              <Bell size={17} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="font-display text-sm font-semibold text-ink block mb-1">Email Notifications</span>
+              <p className="text-sm text-ink-muted mb-4">
+                Choose the emails you want to receive. Security notifications cannot be disabled.
+              </p>
+
+              {prefLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="animate-spin text-mint" size={18} />
+                </div>
+              ) : (
+                <div className="space-y-3.5 max-w-md">
+                  {[
+                    { key: 'trading', label: 'Trading Notifications', desc: 'Alerts on buy, sell and filled limit orders.' },
+                    { key: 'wallet', label: 'Wallet Transactions', desc: 'Updates on deposits, withdrawals and transfers.' },
+                    { key: 'replay', label: 'Replay Session Summary', desc: 'Summaries and outcomes of market replay sessions.' },
+                    { key: 'subscription', label: 'Subscription & Billings', desc: 'Invoices, upgrade confirmations and billing history.' },
+                    { key: 'marketing', label: 'Marketing Emails', desc: 'Exclusive offers, feature updates and weekly digests.' },
+                    { key: 'security', label: 'Security & Auth (Required)', desc: 'Password resets, new device logins, and 2FA codes.', required: true }
+                  ].map(({ key, label, desc, required }) => (
+                    <div key={key} className="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                      <div className="min-w-0 flex-1">
+                        <span className="text-xs font-semibold text-ink block">{label}</span>
+                        <span className="text-[10px] text-ink-faint">{desc}</span>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={required}
+                        onClick={() => handleTogglePref(key)}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                          preferences[key] ? 'bg-mint' : 'bg-white/10'
+                        } ${required ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-void-950 shadow ring-0 transition duration-200 ease-in-out ${
+                            preferences[key] ? 'translate-x-4' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
 
         {/* Info cards */}
         <motion.div

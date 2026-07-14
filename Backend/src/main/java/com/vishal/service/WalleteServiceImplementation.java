@@ -9,6 +9,7 @@ import com.vishal.model.*;
 
 import com.vishal.repository.WalletRepository;
 import com.vishal.repository.WalletTransactionRepository;
+import com.vishal.domain.NotificationType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class WalleteServiceImplementation implements WalletService {
 
     @Autowired
     private WalletTransactionRepository walletTransactionRepository;
+
+    @Autowired
+    private CentralNotificationService centralNotificationService;
 
 
 
@@ -95,6 +99,10 @@ public class WalleteServiceImplementation implements WalletService {
         receiverBalance = receiverBalance.add(amount);
         receiverWallet.setBalance(receiverBalance);
         walletRepository.save(receiverWallet);
+
+        // Send notifications
+        centralNotificationService.sendNotification(sender, NotificationType.WALLET, "Wallet Transfer Sent", "You have successfully sent $" + amount + " USD to " + receiverWallet.getUser().getEmail() + ".");
+        centralNotificationService.sendNotification(receiverWallet.getUser(), NotificationType.WALLET, "Wallet Transfer Received", "You have received a transfer of $" + amount + " USD from " + sender.getEmail() + ".");
 
         return senderWallet;
     }

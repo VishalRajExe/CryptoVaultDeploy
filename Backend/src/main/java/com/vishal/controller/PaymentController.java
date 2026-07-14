@@ -4,6 +4,7 @@ import com.razorpay.RazorpayException;
 import com.stripe.exception.StripeException;
 import com.vishal.domain.PaymentMethod;
 import com.vishal.domain.PaymentOrderStatus;
+import com.vishal.domain.NotificationType;
 import com.vishal.exception.UserException;
 import com.vishal.model.PaymentOrder;
 import com.vishal.model.User;
@@ -11,6 +12,7 @@ import com.vishal.repository.PaymentOrderRepository;
 import com.vishal.response.PaymentResponse;
 import com.vishal.service.PaymentService;
 import com.vishal.service.UserService;
+import com.vishal.service.CentralNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,9 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private CentralNotificationService centralNotificationService;
 
 
 
@@ -55,9 +60,11 @@ public class PaymentController {
         if(paymentMethod.equals(PaymentMethod.RAZORPAY)){
             paymentResponse=paymentService.createRazorpayPaymentLink(user,amount,
                     order.getId());
+            centralNotificationService.sendNotification(user, NotificationType.WALLET, "Deposit Initiated", "You have initiated a deposit of ₹" + amount + " INR via RAZORPAY.");
         }
         else{
             paymentResponse=paymentService.createStripePaymentLink(user,amount, order.getId());
+            centralNotificationService.sendNotification(user, NotificationType.WALLET, "Deposit Initiated", "You have initiated a deposit of $" + amount + " USD via STRIPE.");
         }
 
         return new ResponseEntity<>(paymentResponse, HttpStatus.CREATED);

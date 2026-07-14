@@ -5,6 +5,7 @@ import com.razorpay.PaymentLink;
 import com.razorpay.RazorpayClient;
 import com.vishal.domain.SubscriptionPlan;
 import com.vishal.domain.SubscriptionStatus;
+import com.vishal.domain.NotificationType;
 import com.vishal.exception.UserException;
 import com.vishal.model.Subscription;
 import com.vishal.model.SubscriptionHistory;
@@ -38,6 +39,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Autowired
     private WalletTransactionRepository walletTransactionRepository;
+
+    @Autowired
+    private CentralNotificationService centralNotificationService;
 
     @Value("${razorpay.api.key}")
     private String apiKey;
@@ -81,6 +85,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 subscription.setActive(true);
                 subscription.setStatus(SubscriptionStatus.ACTIVE);
                 subscription = subscriptionRepository.save(subscription);
+
+                // Notify user
+                centralNotificationService.sendNotification(
+                        subscription.getUser(),
+                        NotificationType.SUBSCRIPTION,
+                        "Subscription Expired",
+                        "Your premium subscription has expired. Your account has been reverted to the Free plan. Upgrade today to continue enjoying premium benefits."
+                );
             }
         }
         return subscription;
@@ -203,6 +215,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         history.setStatus("SUCCESS");
         subscriptionHistoryRepository.save(history);
 
+        // Send subscription purchased notifications
+        centralNotificationService.sendNotification(
+                user,
+                NotificationType.SUBSCRIPTION,
+                "Subscription Purchased Successfully",
+                "Thank you for upgrading! Your account has been upgraded to the " + plan + " plan using your wallet balance."
+        );
+        centralNotificationService.sendAdminNotification(
+                NotificationType.ADMIN,
+                "Subscription Purchase Completed",
+                "User " + user.getEmail() + " purchased subscription plan " + plan + " ($" + priceInUsd + " USD) via wallet."
+        );
+
         return updated;
     }
 
@@ -250,10 +275,22 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscription.setRazorpayOrderId(razorpayOrderId);
         Subscription updated = subscriptionRepository.save(subscription);
 
-        // Update history log
         pendingHistory.setStatus("SUCCESS");
         pendingHistory.setPaymentId(paymentId);
         subscriptionHistoryRepository.save(pendingHistory);
+
+        // Send notifications
+        centralNotificationService.sendNotification(
+                user,
+                NotificationType.SUBSCRIPTION,
+                "Subscription Upgraded Successfully",
+                "Thank you for upgrading! Your account has been upgraded to the " + newPlan + " plan."
+        );
+        centralNotificationService.sendAdminNotification(
+                NotificationType.ADMIN,
+                "Subscription Upgrade Completed",
+                "User " + user.getEmail() + " successfully upgraded to " + newPlan + " plan via Razorpay."
+        );
 
         return updated;
     }
@@ -268,7 +305,17 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             throw new Exception("Subscription is already cancelled.");
         }
         subscription.setStatus(SubscriptionStatus.CANCELLED);
-        return subscriptionRepository.save(subscription);
+        Subscription saved = subscriptionRepository.save(subscription);
+
+        // Notify user
+        centralNotificationService.sendNotification(
+                saved.getUser(),
+                NotificationType.SUBSCRIPTION,
+                "Subscription Cancelled",
+                "Your premium subscription has been successfully cancelled. You will continue to have access to your plan benefits until " + saved.getExpiryDate() + "."
+        );
+
+        return saved;
     }
 
     @Override
@@ -306,7 +353,17 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
         subscription.setActive(true);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
-        return subscriptionRepository.save(subscription);
+        Subscription saved = subscriptionRepository.save(subscription);
+
+        // Notify user
+        centralNotificationService.sendNotification(
+                saved.getUser(),
+                NotificationType.SUBSCRIPTION,
+                "Subscription Extended",
+                "Your premium subscription has been extended by " + days + " days by an administrator. Your new expiry date is " + saved.getExpiryDate() + "."
+        );
+
+        return saved;
     }
 
     @Override
@@ -328,6 +385,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscription.setExpiryDate(null);
         subscription.setActive(true);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
-        return subscriptionRepository.save(subscription);
+        Subscription saved = subscriptionRepository.save(subscription);
+
+        // Notify user
+        centralNotificationService.sendNotification(
+                saved.getUser(),
+                NotificationType.SUBSCRIPTION,
+                "Subscription Cancelled By Admin",
+                "Your premium subscription has been cancelled by an administrator. Your account has been reverted to the Free plan."
+        );
+
+        return saved;
     }
 }

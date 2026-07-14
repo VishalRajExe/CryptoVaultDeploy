@@ -9,6 +9,7 @@ import com.vishal.repository.UserRepository;
 import com.vishal.request.LoginRequest;
 import com.vishal.response.AuthResponse;
 import com.vishal.service.*;
+import com.vishal.domain.NotificationType;
 import com.vishal.utils.OtpUtils;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,6 +63,9 @@ public class AuthController {
 	@Autowired
 	private NotificationService notificationService;
 
+	@Autowired
+	private CentralNotificationService centralNotificationService;
+
 	
 
 	@PostMapping("/signup")
@@ -98,6 +102,10 @@ public class AuthController {
 		watchlistService.createWatchList(savedUser);
 
 		notificationService.create(savedUser, "SIGNUP", "Welcome to CryptoVault! Your account was created.", null);
+
+		// Send email notifications
+		centralNotificationService.sendNotification(savedUser, NotificationType.AUTHENTICATION, "Welcome to CryptoVault!", "Your account has been registered successfully on CryptoVault.");
+		centralNotificationService.sendAdminNotification(NotificationType.ADMIN, "New User Registration", "A new user registered: " + savedUser.getEmail() + " (" + savedUser.getFullName() + ")");
 
 		// BUGFIX: previously this Authentication carried NO authorities, so the
 		// JWT issued right after signup never contained the user's role claim.
@@ -158,6 +166,9 @@ public class AuthController {
 		authResponse.setMessage("Login Success");
 		authResponse.setJwt(token);
 
+		// Send successful login alert
+		centralNotificationService.sendNotification(user, NotificationType.SECURITY, "Successful Login", "You have successfully logged into your CryptoVault account.");
+
 		return new ResponseEntity<>(authResponse, HttpStatus.OK);
 	}
 
@@ -172,6 +183,11 @@ public class AuthController {
 		}
 		if (!passwordEncoder.matches(password, userDetails.getPassword())) {
 			System.out.println("sign in userDetails - password not match " + userDetails);
+			User user = userRepository.findByEmail(username);
+			if (user != null) {
+				centralNotificationService.sendNotification(user, NotificationType.SECURITY, "Failed Login Attempt", "A failed login attempt was detected on your account. If this wasn't you, please secure your account immediately.");
+				centralNotificationService.sendAdminNotification(NotificationType.ADMIN, "Suspicious Login Attempt", "A failed login attempt was made for email: " + username);
+			}
 			throw new BadCredentialsException("Invalid username or password");
 		}
 		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

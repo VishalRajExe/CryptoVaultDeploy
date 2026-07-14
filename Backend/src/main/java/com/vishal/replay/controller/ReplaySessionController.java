@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.vishal.service.SubscriptionService;
+import com.vishal.service.CentralNotificationService;
 import com.vishal.domain.SubscriptionPlan;
+import com.vishal.domain.NotificationType;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 
@@ -28,6 +30,9 @@ public class ReplaySessionController {
 
     @Autowired
     private SubscriptionService subscriptionService;
+
+    @Autowired
+    private CentralNotificationService centralNotificationService;
 
     /**
      * Extracts the user ID from the JWT token.
@@ -69,6 +74,17 @@ public class ReplaySessionController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         ReplaySession session = replaySessionService.createSession(userId, name, description, symbol, timeframe, startTime, endTime, initialBalance, replaySpeed);
+        try {
+            User user = userService.findUserProfileByJwt(jwt);
+            centralNotificationService.sendNotification(
+                    user,
+                    NotificationType.REPLAY,
+                    "Replay Session Saved",
+                    "Your replay session \"" + name + "\" has been created successfully for symbol: " + symbol + "."
+            );
+        } catch (Exception e) {
+            // Ignore failure to send notification
+        }
         return ResponseEntity.ok(session);
     }
 
@@ -154,6 +170,17 @@ public class ReplaySessionController {
         ReplaySession session = replaySessionService.stopSession(sessionId, userId);
         if (session == null) {
             return ResponseEntity.notFound().build();
+        }
+        try {
+            User user = userService.findUserProfileByJwt(jwt);
+            centralNotificationService.sendNotification(
+                    user,
+                    NotificationType.REPLAY,
+                    "Replay Session Completed",
+                    "Your replay session \"" + session.getName() + "\" has been completed successfully."
+            );
+        } catch (Exception e) {
+            // Ignore email errors
         }
         return ResponseEntity.ok(session);
     }

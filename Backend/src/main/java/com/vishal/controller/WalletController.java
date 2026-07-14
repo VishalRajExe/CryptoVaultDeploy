@@ -2,6 +2,7 @@ package com.vishal.controller;
 
 import com.vishal.domain.USER_ROLE;
 import com.vishal.domain.WalletTransactionType;
+import com.vishal.domain.NotificationType;
 import com.vishal.exception.UserException;
 import com.vishal.model.*;
 import com.vishal.response.PaymentResponse;
@@ -38,6 +39,9 @@ public class WalletController {
 
     @Autowired
     private ExchangeRateService exchangeRateService;
+
+    @Autowired
+    private CentralNotificationService centralNotificationService;
 
     // -----------------------------------------------------------------------
     // GET /api/wallet
@@ -130,6 +134,15 @@ public class WalletController {
             wallet = walleteService.addBalanceToWallet(wallet, usdAmount);
             notificationService.create(user, "DEPOSIT",
                     "Deposited ₹" + order.getAmount() + " (≈ $" + usdAmount + " USD) via " + order.getPaymentMethod() + ".", usdAmount);
+            
+            // Email notifications
+            centralNotificationService.sendNotification(user, NotificationType.WALLET, "Deposit Successful", "Your deposit of ₹" + order.getAmount() + " INR (≈ $" + usdAmount + " USD) has been credited to your wallet.");
+            if (order.getAmount() >= 100000) {
+                centralNotificationService.sendAdminNotification(NotificationType.ADMIN, "Large Deposit Completed", "User " + user.getEmail() + " successfully completed a deposit of ₹" + order.getAmount() + " INR.");
+            }
+        } else {
+            centralNotificationService.sendNotification(user, NotificationType.WALLET, "Deposit Failed", "Your deposit request of ₹" + order.getAmount() + " INR has failed.");
+            centralNotificationService.sendAdminNotification(NotificationType.ADMIN, "Failed Payment", "Deposit payment failed for user " + user.getEmail() + " of amount ₹" + order.getAmount() + " INR.");
         }
 
         return new ResponseEntity<>(wallet, HttpStatus.OK);
