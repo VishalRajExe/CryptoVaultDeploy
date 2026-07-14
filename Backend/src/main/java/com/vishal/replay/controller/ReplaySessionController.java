@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.vishal.service.SubscriptionService;
+import com.vishal.domain.SubscriptionPlan;
+import org.springframework.http.HttpStatus;
 import java.util.List;
 
 /**
@@ -22,6 +25,9 @@ public class ReplaySessionController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SubscriptionService subscriptionService;
 
     /**
      * Extracts the user ID from the JWT token.
@@ -55,6 +61,12 @@ public class ReplaySessionController {
         Long userId = getUserId(jwt);
         if (userId == null) {
             return ResponseEntity.badRequest().build();
+        }
+        try {
+            User user = userService.findUserProfileByJwt(jwt);
+            subscriptionService.checkPremiumFeatureAccess(user, SubscriptionPlan.PRO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         ReplaySession session = replaySessionService.createSession(userId, name, description, symbol, timeframe, startTime, endTime, initialBalance, replaySpeed);
         return ResponseEntity.ok(session);

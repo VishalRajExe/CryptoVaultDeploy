@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Search,
   Sparkles,
+  CreditCard,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -35,6 +36,7 @@ const userNavItems = [
   { to: '/app/watchlist', label: 'Watchlist', icon: Star },
   { to: '/app/wallet', label: 'Wallet', icon: WalletIcon },
   { to: '/app/security', label: 'Security', icon: ShieldCheck },
+  { to: '/app/subscription', label: 'Subscription', icon: CreditCard },
 ];
 
 const adminNavItems = [
@@ -44,6 +46,7 @@ const adminNavItems = [
   { to: '/app/admin/wallets', label: 'Wallets', icon: WalletIcon },
   { to: '/app/admin/withdrawals', label: 'Withdrawals', icon: Banknote },
   { to: '/app/admin/activity', label: 'Activity', icon: Activity },
+  { to: '/app/admin/subscriptions', label: 'Subscriptions', icon: CreditCard },
 ];
 
 function SidebarContent({ onNavigate, collapsed }) {

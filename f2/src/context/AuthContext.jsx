@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { getProfile } from '../api/auth';
+import { getCurrentSubscription } from '../api/subscription';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [subscription, setSubscription] = useState(null);
   const [jwt, setJwt] = useState(() => localStorage.getItem('cv_jwt'));
   const [loading, setLoading] = useState(true);
 
@@ -12,16 +14,22 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem('cv_jwt');
     if (!token) {
       setUser(null);
+      setSubscription(null);
       setLoading(false);
       return;
     }
     try {
-      const profile = await getProfile();
+      const [profile, sub] = await Promise.all([
+        getProfile(),
+        getCurrentSubscription().catch(() => null)
+      ]);
       setUser(profile);
+      setSubscription(sub);
     } catch {
       localStorage.removeItem('cv_jwt');
       setJwt(null);
       setUser(null);
+      setSubscription(null);
     } finally {
       setLoading(false);
     }
@@ -31,6 +39,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('cv_jwt');
     setJwt(null);
     setUser(null);
+    setSubscription(null);
   }, []);
 
   useEffect(() => {
@@ -55,7 +64,7 @@ export function AuthProvider({ children }) {
 
 
   return (
-    <AuthContext.Provider value={{ user, jwt, loading, login, logout, refresh: loadProfile, setUser }}>
+    <AuthContext.Provider value={{ user, jwt, loading, login, logout, refresh: loadProfile, setUser, subscription, refreshSubscription: loadProfile }}>
       {children}
     </AuthContext.Provider>
   );

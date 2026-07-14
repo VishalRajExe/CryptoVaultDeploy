@@ -21,6 +21,7 @@ import Orders from './pages/dashboard/Orders';
 import Watchlist from './pages/dashboard/Watchlist';
 import WalletPage from './pages/dashboard/Wallet';
 import Security from './pages/dashboard/Security';
+import SubscriptionPage from './pages/dashboard/Subscription';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminOverview from './pages/admin/AdminOverview';
@@ -29,6 +30,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminWallets from './pages/admin/AdminWallets';
 import AdminWithdrawals from './pages/admin/AdminWithdrawals';
 import AdminActivity from './pages/admin/AdminActivity';
+import AdminSubscriptions from './pages/admin/AdminSubscriptions';
 
 export default function App() {
   return (
@@ -70,6 +72,7 @@ export default function App() {
                 <Route path="watchlist" element={<Watchlist />} />
                 <Route path="wallet" element={<WalletPage />} />
                 <Route path="security" element={<Security />} />
+                <Route path="subscription" element={<SubscriptionPage />} />
 
                 <Route
                   path="admin"
@@ -85,6 +88,7 @@ export default function App() {
                   <Route path="wallets" element={<AdminWallets />} />
                   <Route path="withdrawals" element={<AdminWithdrawals />} />
                   <Route path="activity" element={<AdminActivity />} />
+                  <Route path="subscriptions" element={<AdminSubscriptions />} />
                 </Route>
               </Route>
 

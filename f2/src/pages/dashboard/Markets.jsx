@@ -4,6 +4,8 @@ import {
   Search, Star, Loader2, ArrowUpRight, ArrowDownRight, ChevronDown, Play, Pause, SkipForward, SkipBack, X, Settings2, FastForward, Trash2, Clock
 } from 'lucide-react';
 import { useReplay } from '../../context/ReplayContext';
+import { useAuth } from '../../context/AuthContext';
+import UpgradeModal from '../../components/UpgradeModal';
 import InteractiveChart from '../../components/InteractiveChart';
 import { getCoinList, searchCoins, getTop50, getMarketChart } from '../../api/coins';
 import {
@@ -71,6 +73,9 @@ export default function Markets() {
     isReplayMode, activeSession, replayCandles, replayWallet, replayOrders,
     loadSession, exitReplayMode, executeControl, placeVirtualOrder
   } = useReplay();
+
+  const { subscription, user } = useAuth();
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   const [replayModalOpen, setReplayModalOpen] = useState(false);
   const [replayModalTab, setReplayModalTab] = useState('new');
@@ -467,7 +472,17 @@ export default function Markets() {
                       </button>
                     ))}
                   </div>
-                  <button onClick={() => setReplayModalOpen(true)} className="px-3 py-1.5 text-[11px] bg-void-800 border border-white/10 rounded-md hover:border-mint/50 transition-colors text-mint font-semibold flex items-center gap-1.5 shadow-mint-sm hover:shadow-mint">
+                  <button 
+                    onClick={() => {
+                      const isPremium = subscription && subscription.plan !== 'FREE';
+                      if (isPremium || user?.role === 'ROLE_ADMIN') {
+                        setReplayModalOpen(true);
+                      } else {
+                        setUpgradeModalOpen(true);
+                      }
+                    }} 
+                    className="px-3 py-1.5 text-[11px] bg-void-800 border border-white/10 rounded-md hover:border-mint/50 transition-colors text-mint font-semibold flex items-center gap-1.5 shadow-mint-sm hover:shadow-mint"
+                  >
                     <FastForward size={13}/> Market Replay
                   </button>
                 </>
@@ -735,6 +750,12 @@ export default function Markets() {
           </div>
         )}
       </AnimatePresence>
+      <UpgradeModal 
+        open={upgradeModalOpen} 
+        onClose={() => setUpgradeModalOpen(false)} 
+        requiredPlan="PRO" 
+        featureName="Market Replay & Paper Trading" 
+      />
     </div>
   );
 }

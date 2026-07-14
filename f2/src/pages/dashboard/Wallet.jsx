@@ -88,6 +88,11 @@ function DepositModal({ onClose, onDone }) {
       return;
     }
 
+    if (amt > 1000000) {
+      setError('Deposit amount cannot exceed ₹1,000,000 per transaction.');
+      return;
+    }
+
     submittingRef.current = true;
     setLoading(true);
 
@@ -202,6 +207,12 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
     e.preventDefault();
     if (submittingRef.current) return;
     setError('');
+
+    if (!hasPaymentDetails) {
+      setError('You must add your bank account details before requesting a withdrawal.');
+      return;
+    }
+
     const amt = Math.round(parseFloat(amount));
     if (!amt || amt <= 0) {
       setError('Enter an amount greater than zero.');
@@ -253,8 +264,8 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
         )}
         <button
           type="submit"
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] border border-white/12 text-ink font-display font-semibold text-sm py-3.5 hover:bg-white/[0.1] transition-colors disabled:opacity-60"
+          disabled={loading || !hasPaymentDetails}
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] border border-white/12 text-ink font-display font-semibold text-sm py-3.5 hover:bg-white/[0.1] transition-colors disabled:opacity-60 disabled:pointer-events-none"
         >
           {loading ? <Loader2 size={16} className="animate-spin" /> : 'Request withdrawal'}
         </button>

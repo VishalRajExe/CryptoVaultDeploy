@@ -47,13 +47,24 @@ export default function Navbar() {
 
         <div className="hidden md:flex items-center gap-8">
           {links.map((l) => (
-            <a
+            <button
               key={l.label}
-              href={l.href}
-              className="text-sm text-ink-muted hover:text-ink transition-colors"
+              onClick={() => {
+                if (l.label === 'Pricing') {
+                  navigate(user ? '/app/subscription' : '/auth?mode=login');
+                } else {
+                  if (window.location.pathname !== '/') {
+                    navigate('/' + l.href);
+                  } else {
+                    const el = document.querySelector(l.href);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }
+              }}
+              className="text-sm text-ink-muted hover:text-ink transition-colors bg-transparent border-none cursor-pointer p-0"
             >
               {l.label}
-            </a>
+            </button>
           ))}
         </div>
 
@@ -100,9 +111,25 @@ export default function Navbar() {
           className="md:hidden bg-void-950/98 backdrop-blur-xl border-t border-white/[0.06] px-5 py-4 flex flex-col gap-4"
         >
           {links.map((l) => (
-            <a key={l.label} href={l.href} className="text-sm text-ink-muted" onClick={() => setOpen(false)}>
+            <button
+              key={l.label}
+              onClick={() => {
+                setOpen(false);
+                if (l.label === 'Pricing') {
+                  navigate(user ? '/app/subscription' : '/auth?mode=login');
+                } else {
+                  if (window.location.pathname !== '/') {
+                    navigate('/' + l.href);
+                  } else {
+                    const el = document.querySelector(l.href);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }
+              }}
+              className="text-sm text-ink-muted hover:text-ink text-left bg-transparent border-none cursor-pointer p-0"
+            >
               {l.label}
-            </a>
+            </button>
           ))}
           <div className="flex gap-3 pt-2">
             <button
