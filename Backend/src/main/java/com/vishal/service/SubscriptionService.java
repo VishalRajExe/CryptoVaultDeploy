@@ -12,6 +12,8 @@ public interface SubscriptionService {
     Subscription getSubscriptionByUserId(Long userId);
     
     PaymentResponse createRazorpayOrderForUpgrade(User user, SubscriptionPlan plan) throws Exception;
+
+    Subscription upgradeSubscriptionWithWallet(User user, SubscriptionPlan plan) throws Exception;
     
     Subscription processUpgradePayment(User user, String paymentId, String razorpayOrderId) throws Exception;
     

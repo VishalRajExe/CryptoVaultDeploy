@@ -4,10 +4,12 @@ import { useToast } from '../../context/ToastContext';
 import { 
   getCurrentSubscription, 
   upgradeSubscription, 
+  upgradeSubscriptionWithWallet,
   cancelSubscription, 
   getSubscriptionHistory, 
   verifyUpgradePayment 
 } from '../../api/subscription';
+import { getWallet } from '../../api/trading';
 import { 
   Sparkles, 
   Shield, 
@@ -17,7 +19,9 @@ import {
   Loader2, 
   Calendar, 
   CreditCard,
-  AlertTriangle
+  AlertTriangle,
+  Wallet as WalletIcon,
+  Coins
 } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 
@@ -28,6 +32,11 @@ export default function SubscriptionPage() {
   const [actionLoading, setActionLoading] = useState(null); // 'PRO' | 'ELITE' | 'CANCEL'
   const { push } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Payment method selection state
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
@@ -45,12 +54,16 @@ export default function SubscriptionPage() {
 
   const loadData = async () => {
     try {
-      const [subData, histData] = await Promise.all([
+      const [subData, histData, walletData] = await Promise.all([
         getCurrentSubscription(),
-        getSubscriptionHistory()
+        getSubscriptionHistory(),
+        getWallet().catch(() => null)
       ]);
       setSubscription(subData);
       setHistory(Array.isArray(histData) ? histData : []);
+      if (walletData) {
+        setWalletBalance(walletData.balance || 0);
+      }
     } catch (err) {
       console.error(err);
       push('Failed to load subscription details.', 'error');
@@ -85,10 +98,32 @@ export default function SubscriptionPage() {
     }
   }, [searchParams]);
 
-  const handleUpgrade = async (plan) => {
-    setActionLoading(plan);
+  const handleUpgradeClick = (plan) => {
+    setSelectedPlanForPayment(plan);
+    setPaymentModalOpen(true);
+  };
+
+  const handleWalletPay = async () => {
+    setActionLoading(selectedPlanForPayment);
+    setPaymentModalOpen(false);
     try {
-      const res = await upgradeSubscription(plan);
+      const updatedSub = await upgradeSubscriptionWithWallet(selectedPlanForPayment);
+      setSubscription(updatedSub);
+      push(`Successfully upgraded to ${selectedPlanForPayment} using Wallet Balance!`, 'success');
+      loadData();
+    } catch (err) {
+      push(err.friendlyMessage || 'Wallet payment failed. Please make sure you have sufficient balance.', 'error');
+    } finally {
+      setActionLoading(null);
+      setSelectedPlanForPayment(null);
+    }
+  };
+
+  const handleRazorpayPay = async () => {
+    setActionLoading(selectedPlanForPayment);
+    setPaymentModalOpen(false);
+    try {
+      const res = await upgradeSubscription(selectedPlanForPayment);
       if (res?.payment_url) {
         window.location.href = res.payment_url;
       } else {
@@ -98,6 +133,7 @@ export default function SubscriptionPage() {
       push(err.friendlyMessage || 'Upgrade request failed.', 'error');
     } finally {
       setActionLoading(null);
+      setSelectedPlanForPayment(null);
     }
   };
 
@@ -205,6 +241,8 @@ export default function SubscriptionPage() {
     }
   ];
 
+  const walletPrice = selectedPlanForPayment === 'PRO' ? 10 : selectedPlanForPayment === 'ELITE' ? 50 : 0;
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -305,7 +343,7 @@ export default function SubscriptionPage() {
                 </div>
               ) : (
                 <button
-                  onClick={() => handleUpgrade(p.id)}
+                  onClick={() => handleUpgradeClick(p.id)}
                   disabled={actionLoading !== null}
                   className={`w-full py-3 rounded-xl font-display font-semibold text-sm transition-all text-center flex items-center justify-center gap-2 ${
                     p.id === 'ELITE'
@@ -344,6 +382,78 @@ export default function SubscriptionPage() {
         })}
       </div>
 
+      {/* Payment Selection Modal */}
+      {paymentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-void-950/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-void-900 shadow-panel p-6">
+            <h3 className="font-display text-lg font-bold text-ink text-center flex items-center justify-center gap-2">
+              {selectedPlanForPayment === 'ELITE' ? <Crown className="text-violet-400" size={20} /> : <Sparkles className="text-mint" size={20} />}
+              Upgrade to {selectedPlanForPayment}
+            </h3>
+            <p className="text-xs text-ink-muted text-center mt-1">
+              Select your preferred method to complete payment.
+            </p>
+
+            <div className="my-6 space-y-4">
+              {/* Option A: Wallet */}
+              <button
+                onClick={handleWalletPay}
+                disabled={walletBalance < walletPrice}
+                className={`w-full p-4 rounded-xl border text-left flex items-center justify-between transition-all ${
+                  walletBalance >= walletPrice
+                    ? 'border-white/10 hover:border-mint/45 bg-white/[0.02] hover:bg-white/[0.04]'
+                    : 'border-white/5 opacity-50 cursor-not-allowed bg-transparent'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/5 rounded-lg text-ink-muted">
+                    <WalletIcon size={18} />
+                  </div>
+                  <div>
+                    <div className="font-display font-semibold text-sm text-ink">Pay with Wallet Balance</div>
+                    <div className="text-[10px] text-ink-faint mt-0.5">Available Balance: ${walletBalance.toFixed(2)} USD</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-mono text-xs font-semibold text-mint">${walletPrice.toFixed(2)} USD</div>
+                  {walletBalance < walletPrice && (
+                    <div className="text-[8px] text-carmine font-semibold uppercase mt-0.5">Insufficient</div>
+                  )}
+                </div>
+              </button>
+
+              {/* Option B: Razorpay */}
+              <button
+                onClick={handleRazorpayPay}
+                className="w-full p-4 rounded-xl border border-white/10 hover:border-mint/45 bg-white/[0.02] hover:bg-white/[0.04] text-left flex items-center justify-between transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/5 rounded-lg text-ink-muted">
+                    <Coins size={18} />
+                  </div>
+                  <div>
+                    <div className="font-display font-semibold text-sm text-ink">Pay via Cards / UPI / NetBanking</div>
+                    <div className="text-[10px] text-ink-faint mt-0.5">Redirects to secure Razorpay checkout</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-mono text-xs font-semibold text-mint">{selectedPlanForPayment === 'PRO' ? '₹850' : '₹4,250'} INR</div>
+                </div>
+              </button>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setPaymentModalOpen(false)}
+                className="px-4 py-2 rounded-xl border border-white/10 text-ink-muted hover:bg-white/[0.04] text-xs font-medium transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Billing Ledger History */}
       <div className="rounded-2xl border border-white/10 bg-void-900/60 overflow-hidden">
         <div className="px-5 py-4 border-b border-white/[0.06]">
@@ -374,7 +484,7 @@ export default function SubscriptionPage() {
                     <td className="p-4 font-mono-tab text-ink-faint">{h.razorpayOrderId || 'N/A'}</td>
                     <td className="p-4 font-mono-tab text-ink-faint">{h.paymentId || 'N/A'}</td>
                     <td className="p-4 font-semibold font-mono-tab text-ink">
-                      ₹{h.amount} {h.currency}
+                      {h.currency === 'USD' ? '$' : '₹'}{h.amount} {h.currency}
                     </td>
                     <td className="p-4 text-right">
                       <span className={`px-2 py-0.5 rounded-md font-semibold text-[10px] uppercase border ${

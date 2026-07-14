@@ -43,6 +43,15 @@ public class SubscriptionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/upgrade/{plan}/wallet")
+    public ResponseEntity<Subscription> upgradeSubscriptionWithWallet(
+            @RequestHeader("Authorization") String jwt,
+            @PathVariable SubscriptionPlan plan) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+        Subscription subscription = subscriptionService.upgradeSubscriptionWithWallet(user, plan);
+        return new ResponseEntity<>(subscription, HttpStatus.OK);
+    }
+
     @PostMapping("/cancel")
     public ResponseEntity<Subscription> cancelSubscription(
             @RequestHeader("Authorization") String jwt) throws Exception {

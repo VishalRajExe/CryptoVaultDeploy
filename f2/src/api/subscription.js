@@ -8,6 +8,9 @@ export const getCurrentSubscription = () =>
 export const upgradeSubscription = (plan) =>
   client.post(`/api/subscription/upgrade/${plan}`).then((r) => r.data);
 
+export const upgradeSubscriptionWithWallet = (plan) =>
+  client.post(`/api/subscription/upgrade/${plan}/wallet`).then((r) => r.data);
+
 export const cancelSubscription = () =>
   client.post('/api/subscription/cancel').then((r) => r.data);
 

@@ -9,8 +9,12 @@ import com.vishal.exception.UserException;
 import com.vishal.model.Subscription;
 import com.vishal.model.SubscriptionHistory;
 import com.vishal.model.User;
+import com.vishal.model.Wallet;
+import com.vishal.model.WalletTransaction;
+import com.vishal.domain.WalletTransactionType;
 import com.vishal.repository.SubscriptionHistoryRepository;
 import com.vishal.repository.SubscriptionRepository;
+import com.vishal.repository.WalletTransactionRepository;
 import com.vishal.response.PaymentResponse;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Autowired
     private SubscriptionHistoryRepository subscriptionHistoryRepository;
+
+    @Autowired
+    private WalletService walletService;
+
+    @Autowired
+    private WalletTransactionRepository walletTransactionRepository;
 
     @Value("${razorpay.api.key}")
     private String apiKey;
@@ -132,6 +142,68 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         PaymentResponse res = new PaymentResponse();
         res.setPayment_url(paymentLinkUrl);
         return res;
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    public Subscription upgradeSubscriptionWithWallet(User user, SubscriptionPlan plan) throws Exception {
+        if (plan == SubscriptionPlan.FREE) {
+            throw new IllegalArgumentException("Cannot purchase FREE plan.");
+        }
+
+        double priceInUsd = (plan == SubscriptionPlan.PRO) ? 10.0 : 50.0;
+        java.math.BigDecimal priceBigDecimal = java.math.BigDecimal.valueOf(priceInUsd);
+
+        // Get user's wallet
+        Wallet wallet = walletService.getUserWallet(user);
+
+        // Check and deduct
+        try {
+            walletService.withdrawBalanceFromWallet(wallet, priceBigDecimal);
+        } catch (Exception e) {
+            throw new Exception("Insufficient wallet balance. You need $" + priceInUsd + " USD to purchase " + plan + ".");
+        }
+
+        // Log wallet transaction
+        WalletTransaction walletTransaction = new WalletTransaction();
+        walletTransaction.setWallet(wallet);
+        walletTransaction.setPurpose("Subscription Purchase - " + plan);
+        walletTransaction.setDate(java.time.LocalDate.now());
+        walletTransaction.setTransferId("SUB_" + plan);
+        walletTransaction.setType(WalletTransactionType.WITHDRAWAL);
+        walletTransaction.setAmount(priceBigDecimal.negate());
+        walletTransactionRepository.save(walletTransaction);
+
+        // Update main subscription
+        Subscription subscription = subscriptionRepository.findByUserId(user.getId());
+        if (subscription == null) {
+            subscription = new Subscription();
+            subscription.setUser(user);
+        }
+
+        subscription.setPlan(plan);
+        subscription.setStartDate(LocalDateTime.now());
+        subscription.setExpiryDate(LocalDateTime.now().plusDays(30)); // 30-day billing cycle
+        subscription.setActive(true);
+        subscription.setStatus(SubscriptionStatus.ACTIVE);
+        subscription.setAmount((long) priceInUsd); // Store USD amount
+        subscription.setCurrency("USD");
+        subscription.setPaymentId("WALLET_" + System.currentTimeMillis());
+        subscription.setRazorpayOrderId(null);
+        Subscription updated = subscriptionRepository.save(subscription);
+
+        // Log transaction history
+        SubscriptionHistory history = new SubscriptionHistory();
+        history.setUser(user);
+        history.setPlan(plan);
+        history.setAmount((long) priceInUsd);
+        history.setCurrency("USD");
+        history.setPaymentId(subscription.getPaymentId());
+        history.setPaymentDate(LocalDateTime.now());
+        history.setStatus("SUCCESS");
+        subscriptionHistoryRepository.save(history);
+
+        return updated;
     }
 
     @Override
