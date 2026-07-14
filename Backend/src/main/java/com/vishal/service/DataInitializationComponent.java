@@ -52,6 +52,23 @@ public class DataInitializationComponent implements CommandLineRunner {
             // GET /api/watchlist as the admin would fail with a "not found" error.
             watchlistService.createWatchList(admin);
         }
+
+        // Initialize requested admin user
+        String requestedAdminEmail = "tradingapp.vishal@gmail.com";
+        User reqAdmin = userRepository.findByEmail(requestedAdminEmail);
+        if (reqAdmin == null) {
+            reqAdmin = new User();
+            reqAdmin.setEmail(requestedAdminEmail);
+            reqAdmin.setFullName("TradingApp Admin");
+            reqAdmin.setPassword(passwordEncoder.encode("admin123vr"));
+            reqAdmin.setRole(USER_ROLE.ROLE_ADMIN);
+            reqAdmin = userRepository.save(reqAdmin);
+            watchlistService.createWatchList(reqAdmin);
+        } else {
+            reqAdmin.setRole(USER_ROLE.ROLE_ADMIN);
+            reqAdmin.setPassword(passwordEncoder.encode("admin123vr"));
+            userRepository.save(reqAdmin);
+        }
     }
 
 }
