@@ -166,7 +166,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const isAdmin = user?.role === 'ROLE_ADMIN';
   const isEmailVerified = !!(user?.isVerified || user?.verified);
-  const isUnverified = !isEmailVerified;
+  const isUnverified = !isEmailVerified && !isAdmin;
   const { push } = useToast();
   const [resending, setResending] = useState(false);
   const [showOtp, setShowOtp] = useState(false);

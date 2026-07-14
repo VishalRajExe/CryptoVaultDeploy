@@ -28,10 +28,13 @@ public class EmailService {
         helper.setText(text, true);
         helper.setTo(userEmail);
 
-        try {
-            javaMailSender.send(mimeMessage);
-        } catch (MailException e) {
-            throw new MailSendException("Failed to send email");
-        }
+        // Send email asynchronously in a separate thread so it does not block the API thread
+        new Thread(() -> {
+            try {
+                javaMailSender.send(mimeMessage);
+            } catch (Exception e) {
+                System.err.println("Async email sending failed: " + e.getMessage());
+            }
+        }).start();
     }
 }

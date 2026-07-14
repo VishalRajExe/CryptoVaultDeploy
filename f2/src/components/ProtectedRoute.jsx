@@ -18,9 +18,9 @@ export default function ProtectedRoute({ children }) {
     return <Navigate to="/auth?mode=login" replace />;
   }
 
-  // Check if user is unverified and trying to access financial pages
+  const isAdmin = user.role === 'ROLE_ADMIN';
   const isEmailVerified = !!(user.isVerified || user.verified);
-  const isUnverified = !isEmailVerified;
+  const isUnverified = !isEmailVerified && !isAdmin;
   const currentPath = location.pathname;
   
   if (isUnverified && currentPath.startsWith('/app') && !currentPath.startsWith('/app/security') && !currentPath.startsWith('/app/admin')) {
