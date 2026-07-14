@@ -134,8 +134,10 @@ public class AppConfig {
 	                    "http://localhost:3000",
 	                    "http://localhost:5173",
 						"http://localhost:5174",
-	                    "http://localhost:4200"
-						// Add your deployed frontend URL here, e.g. "https://your-frontend.vercel.app"
+	                    "http://localhost:4200",
+	                    "https://cryptovault-e2e43.web.app",
+	                    "https://cryptovault-e2e43.firebaseapp.com",
+	                    "https://cryptovaultdeploy-production.up.railway.app"
 	                ));
 	                cfg.setAllowedMethods(Collections.singletonList("*"));
 	                cfg.setAllowCredentials(true);
