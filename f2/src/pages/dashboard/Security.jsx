@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell } from 'lucide-react';
+import { ShieldCheck, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell, Lock, MonitorSmartphone, Trash2, LogOut } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import { useAuth } from '../../context/AuthContext';
-import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences } from '../../api/auth';
+import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences, updateWithdrawalPin } from '../../api/auth';
+import { getActiveSessions, revokeSession } from '../../api/sessions';
 import { useToast } from '../../context/ToastContext';
 
 function OtpInline({ onSubmit, loading, onCancel }) {
@@ -119,6 +120,144 @@ function MobileNumberCard({ mobile, onSaved }) {
       >
         <Pencil size={14} />
       </button>
+    </div>
+  );
+}
+
+function WithdrawalPinCard() {
+  const [pin, setPin] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { push } = useToast();
+
+  const handleSet = async (e) => {
+    e.preventDefault();
+    if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+      push('PIN must be exactly 4 digits.', 'error'); return;
+    }
+    if (pin !== confirm) {
+      push('PINs do not match.', 'error'); return;
+    }
+    setLoading(true);
+    try {
+      await updateWithdrawalPin(pin);
+      push('Withdrawal PIN set successfully!', 'success');
+      setPin('');
+      setConfirm('');
+    } catch (err) {
+      push(err.friendlyMessage || 'Failed to set PIN.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6">
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center shrink-0">
+          <Lock size={17} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className="font-display text-sm font-semibold text-ink block mb-1">Withdrawal PIN</span>
+          <p className="text-xs text-ink-muted mb-4">Set a 4-digit PIN that will be required for every withdrawal request.</p>
+          <form onSubmit={handleSet} className="flex flex-col sm:flex-row gap-2 max-w-sm">
+            <input
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="New PIN"
+              className="flex-1 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 placeholder:text-ink-faint"
+            />
+            <input
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="Confirm PIN"
+              className="flex-1 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 placeholder:text-ink-faint"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 rounded-lg bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-display font-semibold hover:bg-orange-500/30 transition-colors disabled:opacity-60 inline-flex items-center gap-2 shrink-0"
+            >
+              {loading ? <Loader2 size={13} className="animate-spin" /> : 'Set PIN'}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ActiveDevicesCard() {
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { push } = useToast();
+
+  useEffect(() => {
+    getActiveSessions()
+      .then(setSessions)
+      .catch(() => setSessions([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleRevoke = async (sessionId) => {
+    try {
+      await revokeSession(sessionId);
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      push('Session revoked.', 'success');
+    } catch {
+      push('Could not revoke session.', 'error');
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6">
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
+          <MonitorSmartphone size={17} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className="font-display text-sm font-semibold text-ink block mb-1">Active Devices</span>
+          <p className="text-xs text-ink-muted mb-4">These are your current active login sessions. Revoke any you don't recognise.</p>
+          {loading ? (
+            <div className="flex items-center py-4">
+              <Loader2 className="animate-spin text-mint" size={18} />
+            </div>
+          ) : sessions.length === 0 ? (
+            <p className="text-xs text-ink-faint italic">No active sessions found.</p>
+          ) : (
+            <div className="space-y-2.5 max-w-lg">
+              {sessions.map((s) => (
+                <div key={s.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <MonitorSmartphone size={14} className="text-ink-faint shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-xs text-ink font-medium truncate">{s.deviceInfo || 'Unknown Device'}</div>
+                      <div className="text-[10px] text-ink-faint truncate">{s.ipAddress} · {s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '—'}</div>
+                    </div>
+                  </div>
+                  {s.current ? (
+                    <span className="text-[10px] text-mint font-semibold shrink-0">Current</span>
+                  ) : (
+                    <button
+                      onClick={() => handleRevoke(s.id)}
+                      className="shrink-0 text-carmine/70 hover:text-carmine transition-colors p-1"
+                      title="Revoke session"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -431,6 +570,18 @@ export default function Security() {
             mobile={user?.mobile}
             onSaved={(mobile) => setUser((prev) => (prev ? { ...prev, mobile } : prev))}
           />
+        </motion.div>
+
+        {/* Withdrawal PIN */}
+        {user?.role !== 'ROLE_ADMIN' && (
+          <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.21 }}>
+            <WithdrawalPinCard />
+          </motion.div>
+        )}
+
+        {/* Active Devices */}
+        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}>
+          <ActiveDevicesCard />
         </motion.div>
       </div>
     </div>

@@ -77,4 +77,10 @@ public class ReplaySession {
 
     /** Timestamp when the session was last updated */
     private Long updatedAt;
+
+    private String challengeName;
+
+    private Double challengeGoal;
+
+    private String challengeStatus; // "ACTIVE", "WON", "LOST"
 }

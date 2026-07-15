@@ -382,4 +382,21 @@ String body="{\n" +
         return apiResponse;
     }
 
+    @Override
+    public ApiResponse portfolioReview(String portfolioData) {
+        String prompt = "Act as an expert AI portfolio advisor for CryptoVault. Review this portfolio data and summarize. Make it look like:\nRisk: [Low/Medium/High]\n\nDetails of concentration, exposure warnings, and explicit suggested adjustments (e.g., 'Increase ETH allocation'). Keep it concise and short under 4 sentences.\nPortfolio:\n" + portfolioData;
+        return simpleChat(prompt);
+    }
+
+    @Override
+    public ApiResponse strategyBuilder(double budget, String risk) {
+        String prompt = "Act as the AI strategy builder for CryptoVault. I have a budget of $" + budget + " USD and want a " + risk + "-risk portfolio strategy. Suggest a breakdown of top assets (e.g. BTC, ETH, SOL) with exact weights and a brief 2-sentence rationale.";
+        return simpleChat(prompt);
+    }
+
+    @Override
+    public ApiResponse newsSummary() {
+        String prompt = "Act as the AI News Summary assistant for CryptoVault. Summarize today's top crypto and blockchain updates in exactly 3 short bullet points. Keep it extremely concise.";
+        return simpleChat(prompt);
+    }
 }

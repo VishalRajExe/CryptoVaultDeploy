@@ -39,6 +39,16 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
 				Claims claims=Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
 
+				// Verify database session is active
+				org.springframework.web.context.WebApplicationContext webApplicationContext =
+						org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
+				if (webApplicationContext != null) {
+					com.vishal.service.UserSessionService userSessionService = webApplicationContext.getBean(com.vishal.service.UserSessionService.class);
+					if (userSessionService != null && !userSessionService.isSessionActive(jwt)) {
+						throw new RuntimeException("Session has been revoked");
+					}
+				}
+
 				String email=String.valueOf(claims.get("email"));
 
 				String authorities=String.valueOf(claims.get("authorities"));

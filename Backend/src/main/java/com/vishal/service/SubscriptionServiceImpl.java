@@ -57,7 +57,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription subscription = subscriptionRepository.findByUserId(userId);
         if (subscription == null) {
             subscription = new Subscription();
-            subscription.setUser(new User(userId, null, null, null, null, null, false, null, null, null));
+            subscription.setUser(new User(userId, null, null, null, null, null, false, null, null, null, null));
             subscription.setPlan(SubscriptionPlan.FREE);
             subscription.setActive(true);
             subscription.setStatus(SubscriptionStatus.ACTIVE);

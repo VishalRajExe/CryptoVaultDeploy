@@ -37,4 +37,6 @@ public class User {
 
 	private USER_ROLE role= USER_ROLE.ROLE_USER;
 
+	@com.fasterxml.jackson.annotation.JsonIgnore
+	private String withdrawalPin;
 }

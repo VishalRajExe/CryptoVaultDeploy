@@ -198,6 +198,7 @@ function DepositModal({ onClose, onDone }) {
 
 function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
   const [amount, setAmount] = useState('');
+  const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { push } = useToast();
@@ -221,7 +222,7 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
     submittingRef.current = true;
     setLoading(true);
     try {
-      await requestWithdrawal(amt);
+      await requestWithdrawal(amt, pin || undefined);
       push(`Withdrawal request for ${formatCurrency(amt)} submitted.`, 'success');
       onDone();
       onClose();
@@ -257,6 +258,18 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
             />
           </div>
         </div>
+        <div>
+          <label className="text-xs text-ink-faint mb-1.5 block">Withdrawal PIN <span className="text-ink-faint/60">(if set)</span></label>
+          <input
+            type="password"
+            value={pin}
+            onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            inputMode="numeric"
+            maxLength={4}
+            placeholder="••••"
+            className="w-full rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 transition-colors"
+          />
+        </div>
         {error && (
           <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
             {error}
@@ -273,6 +286,7 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
     </Modal>
   );
 }
+
 
 function BankDetailsModal({ onClose, onDone, existing }) {
   const [form, setForm] = useState({
@@ -571,22 +585,22 @@ export default function Wallet() {
                 </div>
               )}
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2.5">
               <button
                 onClick={() => setModal('deposit')}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-mint text-void font-display font-semibold text-sm shadow-mint hover:bg-mint-400 transition-colors"
+                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-xl bg-mint text-void font-display font-semibold text-sm shadow-mint hover:bg-mint-400 transition-colors"
               >
                 <Plus size={16} /> Deposit
               </button>
               <button
                 onClick={() => setModal('withdraw')}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl border border-white/12 text-ink font-display font-semibold text-sm hover:bg-white/[0.05] transition-colors"
+                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-xl border border-white/12 text-ink font-display font-semibold text-sm hover:bg-white/[0.05] transition-colors"
               >
                 <Send size={16} /> Withdraw
               </button>
               <button
                 onClick={() => setModal('transfer')}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl border border-white/12 text-ink font-display font-semibold text-sm hover:bg-white/[0.05] transition-colors"
+                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-xl border border-white/12 text-ink font-display font-semibold text-sm hover:bg-white/[0.05] transition-colors"
               >
                 <ArrowUpRight size={16} /> Transfer
               </button>

@@ -49,6 +49,9 @@ public class UserController {
 	@Autowired
 	private CentralNotificationService centralNotificationService;
 
+	@Autowired
+	private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
 
 	@GetMapping("/api/users/profile")
 	public ResponseEntity<User> getUserProfileHandler(
@@ -207,4 +210,28 @@ public class UserController {
 		return ResponseEntity.ok(updated);
 	}
 
+	@PostMapping("/api/users/withdrawal-pin")
+	public ResponseEntity<ApiResponse> setWithdrawalPin(
+			@RequestHeader("Authorization") String jwt,
+			@RequestParam String pin) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+		
+		if (pin == null || pin.length() != 4 || !pin.matches("\\d{4}")) {
+			throw new IllegalArgumentException("PIN must be exactly 4 digits.");
+		}
+		
+		user.setWithdrawalPin(passwordEncoder.encode(pin));
+		userRepository.save(user);
+
+		centralNotificationService.sendNotification(
+				user,
+				NotificationType.SECURITY,
+				"Withdrawal PIN Set Successfully",
+				"You have successfully set/updated your CryptoVault withdrawal PIN. This PIN will be required for all future withdrawals."
+		);
+
+		ApiResponse res = new ApiResponse();
+		res.setMessage("Withdrawal PIN set successfully.");
+		return ResponseEntity.ok(res);
+	}
 }

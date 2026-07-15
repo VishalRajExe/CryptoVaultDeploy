@@ -55,3 +55,6 @@ export const updateNotificationPreferences = (payload) =>
 
 export const getNotificationHistory = () =>
   client.get('/api/notifications/history').then((r) => r.data);
+
+export const updateWithdrawalPin = (pin) =>
+  client.post(`/api/users/withdrawal-pin?pin=${pin}`).then((r) => r.data);

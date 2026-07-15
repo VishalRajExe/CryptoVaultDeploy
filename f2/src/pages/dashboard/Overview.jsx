@@ -282,7 +282,7 @@ export default function Overview() {
           </motion.div>
         )}
 
-        <div className="grid lg:grid-cols-[1.45fr_1fr] gap-6">
+        <div className="grid lg:grid-cols-[1.5fr_0.8fr] xl:grid-cols-[1.6fr_0.7fr] gap-6 items-start">
           {/* Market overview chart */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -290,8 +290,8 @@ export default function Overview() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="flex flex-col gap-4"
           >
-            <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 sm:p-6 backdrop-blur-xl">
-              <div className="flex items-center justify-between mb-4">
+            <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-4 sm:p-6 backdrop-blur-xl">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div className="flex items-center gap-3">
                   {coinImage ? (
                     <img src={coinImage} alt={coinName} className="w-8 h-8 rounded-xl object-cover shrink-0" />
@@ -301,8 +301,8 @@ export default function Overview() {
                     </div>
                   )}
                   <div>
-                    <div className="flex items-center gap-2">
-                      <div className="font-display text-base font-semibold text-ink leading-tight">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="font-display text-sm sm:text-base font-semibold text-ink leading-tight">
                         {coinName} ({coinSymbol})
                       </div>
                       <select
@@ -332,7 +332,7 @@ export default function Overview() {
               </div>
 
               {loadingChart ? (
-                <div className="h-[280px] flex items-center justify-center">
+                <div className="h-[220px] sm:h-[280px] flex items-center justify-center">
                   <div className="w-8 h-8 border-2 border-mint/20 border-t-mint rounded-full animate-spin" />
                 </div>
               ) : (
@@ -354,37 +354,51 @@ export default function Overview() {
             </div>
           </motion.div>
 
-          {/* Quick actions + trending */}
+          {/* Quick actions + trending — sticky right column */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.18 }}
-            className="space-y-6"
+            className="space-y-4 lg:sticky lg:top-20"
           >
             {/* Quick Actions */}
             <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 backdrop-blur-xl">
-              <div className="font-display text-sm font-semibold text-ink mb-4">Quick Desk Actions</div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="font-display text-sm font-semibold text-ink mb-3">Quick Desk Actions</div>
+              <div className="grid grid-cols-2 gap-2">
                 <Link
                   to="/app/wallet"
                   className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] py-4 hover:bg-white/[0.05] hover:border-mint/20 transition-all group"
                 >
                   <Plus size={18} className="text-mint group-hover:scale-105 transition-transform" />
-                  <span className="text-xs text-ink-muted group-hover:text-ink transition-colors">Deposit funds</span>
+                  <span className="text-xs text-ink-muted group-hover:text-ink transition-colors">Deposit</span>
                 </Link>
                 <Link
                   to="/app/wallet"
                   className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] py-4 hover:bg-white/[0.05] hover:border-mint/30 transition-all group"
                 >
                   <Send size={18} className="text-mint group-hover:scale-105 transition-transform" />
-                  <span className="text-xs text-ink-muted group-hover:text-ink transition-colors">Withdraw funds</span>
+                  <span className="text-xs text-ink-muted group-hover:text-ink transition-colors">Withdraw</span>
+                </Link>
+                <Link
+                  to="/app/markets"
+                  className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] py-4 hover:bg-white/[0.05] hover:border-mint/20 transition-all group"
+                >
+                  <TrendingUp size={18} className="text-mint group-hover:scale-105 transition-transform" />
+                  <span className="text-xs text-ink-muted group-hover:text-ink transition-colors">Markets</span>
+                </Link>
+                <Link
+                  to="/app/portfolio"
+                  className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] py-4 hover:bg-white/[0.05] hover:border-mint/30 transition-all group"
+                >
+                  <Briefcase size={18} className="text-mint group-hover:scale-105 transition-transform" />
+                  <span className="text-xs text-ink-muted group-hover:text-ink transition-colors">Portfolio</span>
                 </Link>
               </div>
             </div>
 
-            {/* Allocation donut — wallet cash vs each holding, from real portfolio data */}
+            {/* Allocation donut */}
             <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 backdrop-blur-xl">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-3">
                 <PieChartIcon size={14} className="text-mint" />
                 <span className="font-display text-sm font-semibold text-ink">Vault Allocation</span>
               </div>
@@ -402,15 +416,15 @@ export default function Overview() {
                   ].filter((s) => s.value > 0);
                   return (
                     <>
-                      <div className="h-[170px]">
+                      <div className="h-[150px]">
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
                             <Pie
                               data={slices}
                               dataKey="value"
                               nameKey="name"
-                              innerRadius={48}
-                              outerRadius={70}
+                              innerRadius={42}
+                              outerRadius={62}
                               paddingAngle={3}
                               strokeWidth={0}
                               animationDuration={800}
@@ -436,7 +450,7 @@ export default function Overview() {
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2 justify-center">
+                      <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-2 justify-center">
                         {slices.map((s, i) => (
                           <span key={s.name} className="flex items-center gap-1.5 text-[11px] text-ink-muted">
                             <span
@@ -455,13 +469,13 @@ export default function Overview() {
 
             {/* Trending section */}
             <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 backdrop-blur-xl">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-3">
                 <span className="font-display text-sm font-semibold text-ink">Trending Coins</span>
                 <Link to="/app/markets" className="text-xs text-mint hover:text-mint-400 transition-colors">
                   See list
                 </Link>
               </div>
-              <div className="space-y-3.5">
+              <div className="space-y-3">
                 {trending.length === 0 && (
                   <p className="text-xs text-ink-faint">
                     {errors.trending || 'No trending data available right now.'}

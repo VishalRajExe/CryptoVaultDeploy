@@ -15,10 +15,13 @@ public class EmailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username:your_email@gmail.com}")
+    private String fromEmail;
 
     public void sendVerificationOtpEmail(String userEmail, String otp) throws MessagingException, MailSendException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+        helper.setFrom(fromEmail);
 
 
         String subject = "Account verification";

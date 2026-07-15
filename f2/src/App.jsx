@@ -22,6 +22,7 @@ import Watchlist from './pages/dashboard/Watchlist';
 import WalletPage from './pages/dashboard/Wallet';
 import Security from './pages/dashboard/Security';
 import SubscriptionPage from './pages/dashboard/Subscription';
+import AiAssistants from './pages/dashboard/AiAssistants';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminOverview from './pages/admin/AdminOverview';
@@ -73,6 +74,7 @@ export default function App() {
                 <Route path="wallet" element={<WalletPage />} />
                 <Route path="security" element={<Security />} />
                 <Route path="subscription" element={<SubscriptionPage />} />
+                <Route path="ai-assistants" element={<AiAssistants />} />
 
                 <Route
                   path="admin"

@@ -10,4 +10,10 @@ public interface ChatBotService {
     CoinDTO getCoinByName(String coinName);
 
     ApiResponse simpleChat(String prompt);
+
+    ApiResponse portfolioReview(String portfolioData);
+
+    ApiResponse strategyBuilder(double budget, String risk);
+
+    ApiResponse newsSummary();
 }

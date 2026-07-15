@@ -43,9 +43,13 @@ public class WithdrawalController {
     @Autowired
     private PaymentDetailsService paymentDetailsService;
 
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     @PostMapping("/api/withdrawal/{amount}")
     public ResponseEntity<?> withdrawalRequest(
             @PathVariable java.math.BigDecimal amount,
+            @RequestParam(required = false) String pin,
             @RequestHeader("Authorization")String jwt) throws Exception {
 
         // BUGFIX: amount and balance were never validated before creating the
@@ -55,6 +59,13 @@ public class WithdrawalController {
         }
 
         User user=userService.findUserProfileByJwt(jwt);
+
+        // Check Withdrawal PIN if set
+        if (user.getWithdrawalPin() != null) {
+            if (pin == null || !passwordEncoder.matches(pin, user.getWithdrawalPin())) {
+                throw new UserException("Incorrect withdrawal PIN. Please try again.");
+            }
+        }
 
         // Withdrawals require bank details to be linked. Admin accounts are exempt.
         if (user.getRole() != USER_ROLE.ROLE_ADMIN) {

@@ -12,6 +12,7 @@ import com.vishal.service.SubscriptionService;
 import com.vishal.service.CentralNotificationService;
 import com.vishal.domain.SubscriptionPlan;
 import com.vishal.domain.NotificationType;
+import com.vishal.replay.repository.ReplaySessionRepository;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 
@@ -21,6 +22,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/replay/sessions")
 public class ReplaySessionController {
+
+    @Autowired
+    private ReplaySessionRepository replaySessionRepository;
 
     @Autowired
     private ReplaySessionService replaySessionService;
@@ -62,7 +66,9 @@ public class ReplaySessionController {
                                                        @RequestParam Long startTime,
                                                        @RequestParam Long endTime,
                                                        @RequestParam Double initialBalance,
-                                                       @RequestParam Double replaySpeed) {
+                                                       @RequestParam Double replaySpeed,
+                                                       @RequestParam(required = false) String challengeName,
+                                                       @RequestParam(required = false) Double challengeGoal) {
         Long userId = getUserId(jwt);
         if (userId == null) {
             return ResponseEntity.badRequest().build();
@@ -74,6 +80,14 @@ public class ReplaySessionController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         ReplaySession session = replaySessionService.createSession(userId, name, description, symbol, timeframe, startTime, endTime, initialBalance, replaySpeed);
+        
+        if (challengeName != null && !challengeName.isEmpty()) {
+            session.setChallengeName(challengeName);
+            session.setChallengeGoal(challengeGoal != null ? challengeGoal : 12000.0);
+            session.setChallengeStatus("ACTIVE");
+            session = replaySessionRepository.save(session);
+        }
+
         try {
             User user = userService.findUserProfileByJwt(jwt);
             centralNotificationService.sendNotification(
@@ -171,13 +185,31 @@ public class ReplaySessionController {
         if (session == null) {
             return ResponseEntity.notFound().build();
         }
+
+        // Evaluate challenge status
+        String emailContent = "Your replay session \"" + session.getName() + "\" has been completed successfully.";
+        if (session.getChallengeName() != null && "ACTIVE".equalsIgnoreCase(session.getChallengeStatus())) {
+            com.vishal.replay.model.ReplayWallet wallet = replaySessionService.getWallet(sessionId, userId);
+            double currentBalance = wallet != null ? wallet.getBalance() : 0.0;
+            double goal = session.getChallengeGoal() != null ? session.getChallengeGoal() : 12000.0;
+            
+            if (currentBalance >= goal) {
+                session.setChallengeStatus("WON");
+                emailContent = "🎯 Replay Challenge Completed!\n\nCongratulations! You WON the \"" + session.getChallengeName() + "\" challenge by growing your balance to $" + String.format("%.2f", currentBalance) + " (Goal: $" + String.format("%.2f", goal) + ").";
+            } else {
+                session.setChallengeStatus("LOST");
+                emailContent = "🎯 Replay Challenge Ended.\n\nYou ended the \"" + session.getChallengeName() + "\" challenge with a balance of $" + String.format("%.2f", currentBalance) + " which did not meet the goal of $" + String.format("%.2f", goal) + ". Keep practicing!";
+            }
+            session = replaySessionRepository.save(session);
+        }
+
         try {
             User user = userService.findUserProfileByJwt(jwt);
             centralNotificationService.sendNotification(
                     user,
                     NotificationType.REPLAY,
-                    "Replay Session Completed",
-                    "Your replay session \"" + session.getName() + "\" has been completed successfully."
+                    "🎯 Replay Session Summary",
+                    emailContent
             );
         } catch (Exception e) {
             // Ignore email errors

@@ -66,11 +66,15 @@ public class AuthController {
 	@Autowired
 	private CentralNotificationService centralNotificationService;
 
+	@Autowired
+	private com.vishal.service.UserSessionService userSessionService;
+
 	
 
 	@PostMapping("/signup")
 	public ResponseEntity<AuthResponse> createUserHandler(
-			@RequestBody User user) throws UserException {
+			@RequestBody User user,
+			HttpServletRequest request) throws UserException {
 
 		String email = user.getEmail();
 		String password = user.getPassword();
@@ -116,6 +120,9 @@ public class AuthController {
 
 		String token = JwtProvider.generateToken(authentication);
 
+		// Register session
+		userSessionService.createSession(savedUser, token, request.getHeader("User-Agent"), request.getRemoteAddr());
+
 		AuthResponse authResponse = new AuthResponse();
 		authResponse.setJwt(token);
 		authResponse.setMessage("Register Success");
@@ -125,7 +132,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/signin")
-	public ResponseEntity<AuthResponse> signing(@RequestBody LoginRequest loginRequest) throws UserException, MessagingException {
+	public ResponseEntity<AuthResponse> signing(@RequestBody LoginRequest loginRequest, HttpServletRequest request) throws UserException, MessagingException {
 
 		String username = loginRequest.getEmail();
 		String password = loginRequest.getPassword();
@@ -160,6 +167,9 @@ public class AuthController {
 			authResponse.setSession(twoFactorOTP.getId());
 			return new ResponseEntity<>(authResponse, HttpStatus.OK);
 		}
+
+		// Register session
+		userSessionService.createSession(user, token, request.getHeader("User-Agent"), request.getRemoteAddr());
 
 		AuthResponse authResponse = new AuthResponse();
 
@@ -212,7 +222,8 @@ public class AuthController {
 	@PostMapping("/two-factor/otp/{otp}")
 	public ResponseEntity<AuthResponse> verifySigningOtp(
 			@PathVariable String otp,
-			@RequestParam String id
+			@RequestParam String id,
+			HttpServletRequest request
 	) throws Exception {
 
 
@@ -222,6 +233,9 @@ public class AuthController {
 		}
 
 		if(twoFactorOtpService.verifyTwoFactorOtp(twoFactorOTP,otp)){
+			// Register session
+			userSessionService.createSession(twoFactorOTP.getUser(), twoFactorOTP.getJwt(), request.getHeader("User-Agent"), request.getRemoteAddr());
+
 			AuthResponse authResponse = new AuthResponse();
 			authResponse.setMessage("Two factor authentication verified");
 			authResponse.setTwoFactorAuthEnabled(true);

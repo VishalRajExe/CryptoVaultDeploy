@@ -35,6 +35,9 @@ public class CentralNotificationServiceImpl implements CentralNotificationServic
     @Autowired
     private EmailTemplateService emailTemplateService;
 
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username:your_email@gmail.com}")
+    private String fromEmail;
+
     @Override
     public NotificationPreferences getPreferences(User user) {
         NotificationPreferences preferences = notificationPreferencesRepository.findByUserId(user.getId());
@@ -109,6 +112,7 @@ public class CentralNotificationServiceImpl implements CentralNotificationServic
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
             helper.setTo(user.getEmail());
+            helper.setFrom(fromEmail);
 
             javaMailSender.send(mimeMessage);
             
@@ -149,6 +153,7 @@ public class CentralNotificationServiceImpl implements CentralNotificationServic
             helper.setSubject("[ADMIN ALERT] " + subject);
             helper.setText(htmlBody, true);
             helper.setTo(defaultAdminEmail);
+            helper.setFrom(fromEmail);
 
             javaMailSender.send(mimeMessage);
             

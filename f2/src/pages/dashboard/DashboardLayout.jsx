@@ -37,6 +37,7 @@ const userNavItems = [
   { to: '/app/wallet', label: 'Wallet', icon: WalletIcon },
   { to: '/app/security', label: 'Security', icon: ShieldCheck },
   { to: '/app/subscription', label: 'Subscription', icon: CreditCard },
+  { to: '/app/ai-assistants', label: 'AI Assistants', icon: Sparkles },
 ];
 
 const adminNavItems = [
@@ -88,8 +89,8 @@ function SidebarContent({ onNavigate, collapsed }) {
         )}
       </div>
 
-      {/* Nav Links */}
-      <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto scrollbar-none">
+      {/* Nav Links — scrolls internally, logout footer stays pinned */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-none min-h-0">
         {navItems.map((item) => {
           const isActive =
             item.end
