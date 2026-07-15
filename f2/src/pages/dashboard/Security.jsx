@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell, Lock, MonitorSmartphone, Trash2, LogOut } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell, Lock, MonitorSmartphone, Trash2, LogOut } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import { useAuth } from '../../context/AuthContext';
 import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences, updateWithdrawalPin, forgotWithdrawalPin, resetWithdrawalPin } from '../../api/auth';
@@ -622,6 +622,48 @@ export default function Security() {
           {/* Active Devices */}
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}>
             <ActiveDevicesCard />
+          </motion.div>
+
+          {/* Security Help & Best Practices Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28 }}
+            className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6 space-y-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-mint/15 text-mint flex items-center justify-center shrink-0">
+                <ShieldAlert size={17} />
+              </div>
+              <div>
+                <span className="font-display text-sm font-semibold text-ink block">Security Help & Tips</span>
+                <span className="text-[10px] text-ink-faint">Best practices for keeping your assets safe</span>
+              </div>
+            </div>
+
+            <div className="space-y-3.5 divide-y divide-white/[0.04]">
+              <div className="pt-0 flex gap-3">
+                <div className="text-xs font-mono text-mint mt-0.5 shrink-0">01</div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-ink">Enable 2FA Protection</div>
+                  <p className="text-[10px] text-ink-muted leading-relaxed mt-0.5">Require an email OTP challenge in addition to your username and password upon signing in.</p>
+                </div>
+              </div>
+              <div className="pt-3 flex gap-3">
+                <div className="text-xs font-mono text-mint mt-0.5 shrink-0">02</div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-ink">Keep PIN Private</div>
+                  <p className="text-[10px] text-ink-muted leading-relaxed mt-0.5">Your 4-digit withdrawal PIN is encrypted. CryptoVault representatives will never ask you for your PIN.</p>
+                </div>
+              </div>
+              <div className="pt-3 flex gap-3">
+                <div className="text-xs font-mono text-mint mt-0.5 shrink-0">03</div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-ink">Audit Device Sessions</div>
+                  <p className="text-[10px] text-ink-muted leading-relaxed mt-0.5">Regularly check the active devices list. If you see an unrecognized location or device, revoke access immediately.</p>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
 
