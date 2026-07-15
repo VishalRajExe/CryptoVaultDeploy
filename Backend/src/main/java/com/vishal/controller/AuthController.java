@@ -132,7 +132,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/signin")
-	public ResponseEntity<AuthResponse> signing(@RequestBody LoginRequest loginRequest, HttpServletRequest request) throws UserException, MessagingException {
+	public ResponseEntity<AuthResponse> signing(@RequestBody LoginRequest loginRequest, HttpServletRequest request) throws Exception {
 
 		String username = loginRequest.getEmail();
 		String password = loginRequest.getPassword();

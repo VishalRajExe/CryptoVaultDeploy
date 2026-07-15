@@ -8,10 +8,7 @@ import com.vishal.model.User;
 import com.vishal.repository.NotificationHistoryRepository;
 import com.vishal.repository.NotificationPreferencesRepository;
 import com.vishal.repository.UserRepository;
-import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -21,7 +18,7 @@ import java.util.List;
 public class CentralNotificationServiceImpl implements CentralNotificationService {
 
     @Autowired
-    private JavaMailSender javaMailSender;
+    private EmailService emailService;
 
     @Autowired
     private NotificationHistoryRepository notificationHistoryRepository;
@@ -99,9 +96,6 @@ public class CentralNotificationServiceImpl implements CentralNotificationServic
         history.setTimestamp(LocalDateTime.now());
 
         try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-
             String htmlBody = emailTemplateService.buildHtmlEmail(
                     user.getFullName() != null ? user.getFullName() : "Trader",
                     subject,
@@ -109,12 +103,7 @@ public class CentralNotificationServiceImpl implements CentralNotificationServic
                     LocalDateTime.now().toString()
             );
 
-            helper.setSubject(subject);
-            helper.setText(htmlBody, true);
-            helper.setTo(user.getEmail());
-            helper.setFrom(fromEmail);
-
-            javaMailSender.send(mimeMessage);
+            emailService.sendHtmlEmail(user.getEmail(), subject, htmlBody);
             
             history.setStatus("SUCCESS");
             System.out.println("Email sent successfully to " + user.getEmail() + " for " + type);
@@ -140,9 +129,6 @@ public class CentralNotificationServiceImpl implements CentralNotificationServic
         history.setTimestamp(LocalDateTime.now());
 
         try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-
             String htmlBody = emailTemplateService.buildHtmlEmail(
                     "Administrator",
                     "[ADMIN ALERT] " + subject,
@@ -150,12 +136,7 @@ public class CentralNotificationServiceImpl implements CentralNotificationServic
                     LocalDateTime.now().toString()
             );
 
-            helper.setSubject("[ADMIN ALERT] " + subject);
-            helper.setText(htmlBody, true);
-            helper.setTo(defaultAdminEmail);
-            helper.setFrom(fromEmail);
-
-            javaMailSender.send(mimeMessage);
+            emailService.sendHtmlEmail(defaultAdminEmail, "[ADMIN ALERT] " + subject, htmlBody);
             
             history.setStatus("SUCCESS");
             System.out.println("Admin email sent successfully to " + defaultAdminEmail);
