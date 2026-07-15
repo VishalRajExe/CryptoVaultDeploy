@@ -15,3 +15,6 @@ export const getTrendingCoins = () => client.get('/coins/trading').then((r) => r
 
 export const getCoinDetails = (coinId) =>
   client.get(`/coins/details/${coinId}`).then((r) => r.data);
+
+export const getCoinPrices = (ids) =>
+  client.get('/coins/prices', { params: { ids } }).then((r) => r.data);

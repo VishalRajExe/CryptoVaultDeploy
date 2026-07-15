@@ -19,10 +19,11 @@ import {
   Search,
   Sparkles,
   CreditCard,
+  Bell,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { sendVerificationOtp, verifyAccountOtp } from '../../api/auth';
+import { sendVerificationOtp, verifyAccountOtp, getMyNotifications, markNotificationsRead } from '../../api/auth';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import NotificationBell from '../../components/NotificationBell';
 import ChatWidget from '../../components/ChatWidget';
@@ -48,6 +49,7 @@ const adminNavItems = [
   { to: '/app/admin/withdrawals', label: 'Withdrawals', icon: Banknote },
   { to: '/app/admin/activity', label: 'Activity', icon: Activity },
   { to: '/app/admin/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { to: '/app/admin/notifications', label: 'Notifications', icon: Bell },
 ];
 
 function SidebarContent({ onNavigate, collapsed }) {
@@ -174,6 +176,37 @@ export default function DashboardLayout() {
   const [otp, setOtp] = useState('');
   const [verifying, setVerifying] = useState(false);
   const { refresh, setUser } = useAuth();
+  const [activePopup, setActivePopup] = useState(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const checkPopups = () => {
+      getMyNotifications()
+        .then((data) => {
+          if (Array.isArray(data)) {
+            const popup = data.find((n) => n.type === 'POPUP' && !n.read);
+            if (popup) {
+              setActivePopup(popup);
+            }
+          }
+        })
+        .catch(() => {});
+    };
+    checkPopups();
+    const interval = setInterval(checkPopups, 15000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const handleDismissPopup = async () => {
+    if (!activePopup) return;
+    try {
+      await markNotificationsRead();
+      setActivePopup(null);
+      push('Announcement dismissed.', 'success');
+    } catch (err) {
+      setActivePopup(null);
+    }
+  };
 
   const handleResendVerification = async () => {
     if (resending) return;
@@ -348,6 +381,36 @@ export default function DashboardLayout() {
 
       <ChatWidget />
       <AgeConfirmation />
+
+      {/* Popup Announcement Modal */}
+      <AnimatePresence>
+        {activePopup && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              className="w-full max-w-md bg-void-800 border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4"
+            >
+              <div className="flex items-center gap-3 text-amber-400">
+                <AlertTriangle size={24} />
+                <h3 className="font-display text-lg font-bold text-ink">Important Announcement</h3>
+              </div>
+              <p className="text-sm text-ink-muted leading-relaxed whitespace-pre-wrap">
+                {activePopup.message}
+              </p>
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={handleDismissPopup}
+                  className="px-5 py-2.5 rounded-xl bg-mint text-void font-display font-semibold text-sm shadow-mint hover:bg-mint-400 transition-colors"
+                >
+                  I Understand
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -45,8 +45,11 @@ export const addToWatchlist = (coinId) =>
   client.patch(`/api/watchlist/add/coin/${coinId}`).then((r) => r.data);
 
 // ---- Withdrawal (WithdrawalController) ----
-export const requestWithdrawal = (amount, pin) =>
-  client.post(`/api/withdrawal/${amount}`, null, { params: { pin } }).then((r) => r.data);
+export const initiateWithdrawal = (amount, pin) =>
+  client.post('/api/withdrawal/initiate', null, { params: { amount, pin } }).then((r) => r.data);
+
+export const requestWithdrawal = (amount, pin, otp) =>
+  client.post(`/api/withdrawal/${amount}`, null, { params: { pin, otp } }).then((r) => r.data);
 
 export const getWithdrawalHistory = () =>
   client.get('/api/withdrawal').then((r) => r.data);

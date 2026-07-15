@@ -75,4 +75,10 @@ public class CoinController {
 
     }
 
+    @GetMapping("/prices")
+    ResponseEntity<JsonNode> getCoinPrices(@RequestParam("ids") String ids) throws Exception {
+        String res = coinService.getCoinPrices(ids);
+        JsonNode jsonNode = objectMapper.readTree(res);
+        return ResponseEntity.ok(jsonNode);
+    }
 }

@@ -330,6 +330,12 @@ String body="{\n" +
 
     @Override
     public ApiResponse simpleChat(String prompt) {
+        String normalized = prompt.trim().toLowerCase();
+        if (normalized.contains("who created") || normalized.contains("creator") || normalized.contains("who made") || normalized.contains("author")) {
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setMessage("This project was created by Vishal Raj.\nContact:\nvishalraj12.badal@gmail.com");
+            return apiResponse;
+        }
 
         String GEMINI_API_URL =
                 "https://generativelanguage.googleapis.com/v1beta/models/"
@@ -345,7 +351,25 @@ String body="{\n" +
         JSONObject systemInstruction = new JSONObject();
         JSONArray sysPartsArray = new JSONArray();
         JSONObject sysTextObject = new JSONObject();
-        sysTextObject.put("text", "You are the AI assistant for CryptoVault, a crypto trading platform. Help users with the project. Give simple, easy, and very short answers. Do not text too much long answers. If they ask how to deposit money, tell them to go to the Wallets page.");
+        
+        String systemPrompt = "You are the professional AI assistant for CryptoVault, a complete crypto trading and portfolio management platform. "
+                + "You have complete knowledge of the project's architecture, database structure, APIs, and flows:\n\n"
+                + "- Project Overview: CryptoVault allows users to track live prices, manage watchlists, simulate trading via Replay Mode, buy/sell real assets, configure security (2FA, withdrawal PIN, active sessions), and manage subscriptions.\n"
+                + "- Technologies Used: Java, Spring Boot, Spring Data JPA, Hibernate, MySQL, Maven, React, Vite, Vanilla CSS, TailwindCSS, Framer Motion, Axios, Chart.js/Recharts.\n"
+                + "- Frontend Architecture: Single-Page Application built with React and Vite. Layout is handled by DashboardLayout and AdminLayout. Pages include Overview, Markets, Portfolio, Orders, Watchlist, Wallet, Security, Subscription, and AI Assistants. Uses Framer Motion for premium animations, Lucide icons, and Recharts for interactive charts.\n"
+                + "- Backend Architecture: Spring Boot MVC application. Structured cleanly into Controller, Service, Model, and Repository layers. Security is managed by Spring Security filter chains.\n"
+                + "- Authentication & JWT Flow: Uses standard email/password registration. Requires email verification code (OTP). JWT is generated on successful login (stored in LocalStorage on frontend) and sent as \"Authorization: Bearer <token>\" header in subsequent API requests. Includes Two-Factor Authentication (2FA) via email OTP.\n"
+                + "- Security Implementation: Hashed passwords using BCrypt. Active Devices/Session management via UserSession tracking and revocation endpoints. Withdrawal PIN security with 4-digit PIN verified for transfers/withdrawals.\n"
+                + "- Wallet Flow: Real money deposits integrated via Razorpay. Withdrawals are processed to the user's linked bank account (PaymentDetails entity). Wallet Transfers enable instant peer-to-peer balance transfer using wallet ID.\n"
+                + "- Trading Flow: Order placement supporting BUY/SELL. Order processing deducts/credits user wallet balance and updates asset holdings (Asset entity) in MySQL database.\n"
+                + "- Replay Mode: Replay mode allows backtesting. Interactive virtual trading with speed control (pause, resume, stopped), performance metrics tracking (win rate, ROI, PnL, drawdown).\n"
+                + "- Subscription System: Tiers: Free ($0/m), Pro ($50/m), Elite ($100/m). Pro/Elite unlocks Replay Mode, Paper Trading, Replay Analytics, and unlimited AI chatbot messages.\n"
+                + "- Admin System: Admins use AdminLayout. They have access to Admin Overview, user list, orders log, all wallets, withdrawals approval list, activity tracker, and subscriptions manager.\n"
+                + "- Database Structure: MySQL schema containing entities: User, Wallet, Order, Coin, Watchlist, TwoFactorOTP, VerificationCode, ForgotPasswordToken, UserSession, PriceAlert, NotificationHistory, Subscription, SubscriptionHistory, PaymentDetails.\n"
+                + "- APIs: Exposes REST API endpoints under /api/users, /api/wallet, /api/orders, /api/watchlist, /api/withdrawal, /api/subscription, /api/replay, /coins, /chat.\n\n"
+                + "Ensure your answers are professional, accurate, clean, and directly explain the query. Do not exceed 4 sentences unless asked for detailed explanations.";
+
+        sysTextObject.put("text", systemPrompt);
         sysPartsArray.put(sysTextObject);
         systemInstruction.put("parts", sysPartsArray);
         requestBody.put("systemInstruction", systemInstruction);
@@ -358,6 +382,7 @@ String body="{\n" +
         textObject.put("text", prompt);
         partsArray.put(textObject);
         contentsObject.put("parts", partsArray);
+        contentsObject.put("role", "user");
         contentsArray.put(contentsObject);
         requestBody.put("contents", contentsArray);
 

@@ -27,4 +27,5 @@ public class VerificationCode {
 
     private LocalDateTime expiresAt;
 
+    private int attempts = 0;
 }

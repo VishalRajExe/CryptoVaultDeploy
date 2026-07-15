@@ -18,6 +18,7 @@ import {
   getWallet,
   getWalletTransactions,
   depositMoney,
+  initiateWithdrawal,
   requestWithdrawal,
   getWithdrawalHistory,
   getPaymentDetails,
@@ -197,14 +198,16 @@ function DepositModal({ onClose, onDone }) {
 
 
 function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
+  const [step, setStep] = useState('INIT'); // 'INIT' | 'OTP'
   const [amount, setAmount] = useState('');
   const [pin, setPin] = useState('');
+  const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { push } = useToast();
   const submittingRef = useRef(false);
 
-  const submit = async (e) => {
+  const handleSendOtp = async (e) => {
     e.preventDefault();
     if (submittingRef.current) return;
     setError('');
@@ -219,15 +222,41 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
       setError('Enter an amount greater than zero.');
       return;
     }
+
     submittingRef.current = true;
     setLoading(true);
     try {
-      await requestWithdrawal(amt, pin || undefined);
-      push(`Withdrawal request for ${formatCurrency(amt)} submitted.`, 'success');
+      await initiateWithdrawal(amt, pin || undefined);
+      push('Verification OTP sent to your registered email.', 'success');
+      setStep('OTP');
+    } catch (err) {
+      setError(err.friendlyMessage || err.response?.data?.message || 'Failed to send OTP.');
+    } finally {
+      submittingRef.current = false;
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmWithdraw = async (e) => {
+    e.preventDefault();
+    if (submittingRef.current) return;
+    setError('');
+
+    if (!otp || otp.length < 6) {
+      setError('Please enter a valid 6-digit OTP.');
+      return;
+    }
+
+    const amt = Math.round(parseFloat(amount));
+    submittingRef.current = true;
+    setLoading(true);
+    try {
+      await requestWithdrawal(amt, pin || undefined, otp);
+      push(`Withdrawal request for ${formatCurrency(amt)} submitted successfully.`, 'success');
       onDone();
       onClose();
     } catch (err) {
-      setError(err.friendlyMessage || err.response?.data?.message || 'Withdrawal failed.');
+      setError(err.friendlyMessage || err.response?.data?.message || 'Withdrawal verification failed.');
     } finally {
       submittingRef.current = false;
       setLoading(false);
@@ -235,54 +264,96 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
   };
 
   return (
-    <Modal title="Withdraw funds" onClose={onClose}>
-      {!hasPaymentDetails && (
+    <Modal title={step === 'INIT' ? 'Withdraw funds' : 'Verify Withdrawal OTP'} onClose={onClose}>
+      {!hasPaymentDetails && step === 'INIT' && (
         <div className="mb-4 text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3.5 py-2.5">
           Add your bank details below before requesting a withdrawal.
         </div>
       )}
-      <form onSubmit={submit} className="space-y-4">
-        <div>
-          <label className="text-xs text-ink-faint mb-1.5 block">Amount (USD)</label>
-          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 focus-within:border-mint/50 transition-colors">
-            <span className="text-ink-faint">$</span>
+      {step === 'INIT' ? (
+        <form onSubmit={handleSendOtp} className="space-y-4">
+          <div>
+            <label className="text-xs text-ink-faint mb-1.5 block">Amount (USD)</label>
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 focus-within:border-mint/50 transition-colors">
+              <span className="text-ink-faint">$</span>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="100"
+                className="flex-1 bg-transparent outline-none text-sm text-ink font-mono-tab"
+                autoFocus
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-ink-faint mb-1.5 block">Withdrawal PIN <span className="text-ink-faint/60">(if set)</span></label>
             <input
-              type="number"
-              min="1"
-              step="1"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="100"
-              className="flex-1 bg-transparent outline-none text-sm text-ink font-mono-tab"
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="••••"
+              className="w-full rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 transition-colors"
+            />
+          </div>
+          {error && (
+            <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={loading || !hasPaymentDetails}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] border border-white/12 text-ink font-display font-semibold text-sm py-3.5 hover:bg-white/[0.1] transition-colors disabled:opacity-60 disabled:pointer-events-none"
+          >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : 'Send Verification OTP'}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleConfirmWithdraw} className="space-y-4">
+          <div className="text-xs text-ink-muted leading-relaxed">
+            A 6-digit verification code has been sent to your email to authorize the withdrawal of <span className="font-semibold font-mono-tab text-ink">{formatCurrency(amount)}</span>.
+          </div>
+          <div>
+            <label className="text-xs text-ink-faint mb-1.5 block">Email OTP</label>
+            <input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              inputMode="numeric"
+              maxLength={6}
+              placeholder="000000"
+              className="w-full rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 transition-colors text-center tracking-widest text-lg font-bold"
               autoFocus
             />
           </div>
-        </div>
-        <div>
-          <label className="text-xs text-ink-faint mb-1.5 block">Withdrawal PIN <span className="text-ink-faint/60">(if set)</span></label>
-          <input
-            type="password"
-            value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-            inputMode="numeric"
-            maxLength={4}
-            placeholder="••••"
-            className="w-full rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 transition-colors"
-          />
-        </div>
-        {error && (
-          <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
-            {error}
+          {error && (
+            <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+              {error}
+            </div>
+          )}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setStep('INIT')}
+              className="flex-1 rounded-xl bg-white/[0.04] border border-white/10 text-ink-muted font-display text-xs py-3 hover:bg-white/[0.06] transition-colors"
+            >
+              Back
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-[2] flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3 hover:bg-mint-400 shadow-mint transition-colors"
+            >
+              {loading ? <Loader2 size={16} className="animate-spin" /> : 'Confirm & Withdraw'}
+            </button>
           </div>
-        )}
-        <button
-          type="submit"
-          disabled={loading || !hasPaymentDetails}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] border border-white/12 text-ink font-display font-semibold text-sm py-3.5 hover:bg-white/[0.1] transition-colors disabled:opacity-60 disabled:pointer-events-none"
-        >
-          {loading ? <Loader2 size={16} className="animate-spin" /> : 'Request withdrawal'}
-        </button>
-      </form>
+        </form>
+      )}
     </Modal>
   );
 }

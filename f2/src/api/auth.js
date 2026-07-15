@@ -58,3 +58,9 @@ export const getNotificationHistory = () =>
 
 export const updateWithdrawalPin = (pin) =>
   client.post(`/api/users/withdrawal-pin?pin=${pin}`).then((r) => r.data);
+
+export const forgotWithdrawalPin = () =>
+  client.post('/api/users/withdrawal-pin/forgot').then((r) => r.data);
+
+export const resetWithdrawalPin = (otp, newPin) =>
+  client.post('/api/users/withdrawal-pin/reset', null, { params: { otp, newPin } }).then((r) => r.data);

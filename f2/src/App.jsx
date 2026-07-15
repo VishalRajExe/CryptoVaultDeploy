@@ -32,6 +32,7 @@ import AdminWallets from './pages/admin/AdminWallets';
 import AdminWithdrawals from './pages/admin/AdminWithdrawals';
 import AdminActivity from './pages/admin/AdminActivity';
 import AdminSubscriptions from './pages/admin/AdminSubscriptions';
+import AdminNotifications from './pages/admin/AdminNotifications';
 
 export default function App() {
   return (
@@ -91,6 +92,7 @@ export default function App() {
                   <Route path="withdrawals" element={<AdminWithdrawals />} />
                   <Route path="activity" element={<AdminActivity />} />
                   <Route path="subscriptions" element={<AdminSubscriptions />} />
+                  <Route path="notifications" element={<AdminNotifications />} />
                 </Route>
               </Route>
 

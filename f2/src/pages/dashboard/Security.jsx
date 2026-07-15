@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ShieldCheck, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell, Lock, MonitorSmartphone, Trash2, LogOut } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import { useAuth } from '../../context/AuthContext';
-import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences, updateWithdrawalPin } from '../../api/auth';
+import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences, updateWithdrawalPin, forgotWithdrawalPin, resetWithdrawalPin } from '../../api/auth';
 import { getActiveSessions, revokeSession } from '../../api/sessions';
 import { useToast } from '../../context/ToastContext';
 
@@ -125,8 +125,10 @@ function MobileNumberCard({ mobile, onSaved }) {
 }
 
 function WithdrawalPinCard() {
+  const [resetStep, setResetStep] = useState('NORMAL'); // 'NORMAL' | 'FORGOT_OTP' | 'RESET_FORM'
   const [pin, setPin] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const { push } = useToast();
 
@@ -151,6 +153,51 @@ function WithdrawalPinCard() {
     }
   };
 
+  const handleForgotPin = async () => {
+    setLoading(true);
+    try {
+      await forgotWithdrawalPin();
+      push('Verification OTP sent to your registered email.', 'success');
+      setResetStep('FORGOT_OTP');
+    } catch (err) {
+      push(err.friendlyMessage || 'Failed to request OTP.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+      push('Please enter a valid 6-digit OTP.', 'error');
+      return;
+    }
+    setResetStep('RESET_FORM');
+  };
+
+  const handleResetPin = async (e) => {
+    e.preventDefault();
+    if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+      push('PIN must be exactly 4 digits.', 'error'); return;
+    }
+    if (pin !== confirm) {
+      push('PINs do not match.', 'error'); return;
+    }
+    setLoading(true);
+    try {
+      await resetWithdrawalPin(otp, pin);
+      push('Withdrawal PIN reset successfully!', 'success');
+      setPin('');
+      setConfirm('');
+      setOtp('');
+      setResetStep('NORMAL');
+    } catch (err) {
+      push(err.friendlyMessage || 'Failed to reset PIN.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6">
       <div className="flex items-start gap-4">
@@ -160,33 +207,109 @@ function WithdrawalPinCard() {
         <div className="flex-1 min-w-0">
           <span className="font-display text-sm font-semibold text-ink block mb-1">Withdrawal PIN</span>
           <p className="text-xs text-ink-muted mb-4">Set a 4-digit PIN that will be required for every withdrawal request.</p>
-          <form onSubmit={handleSet} className="flex flex-col sm:flex-row gap-2 max-w-sm">
-            <input
-              type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              inputMode="numeric"
-              maxLength={4}
-              placeholder="New PIN"
-              className="flex-1 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 placeholder:text-ink-faint"
-            />
-            <input
-              type="password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              inputMode="numeric"
-              maxLength={4}
-              placeholder="Confirm PIN"
-              className="flex-1 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 placeholder:text-ink-faint"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 rounded-lg bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-display font-semibold hover:bg-orange-500/30 transition-colors disabled:opacity-60 inline-flex items-center gap-2 shrink-0"
-            >
-              {loading ? <Loader2 size={13} className="animate-spin" /> : 'Set PIN'}
-            </button>
-          </form>
+          
+          {resetStep === 'NORMAL' && (
+            <div className="space-y-3">
+              <form onSubmit={handleSet} className="flex flex-col sm:flex-row gap-2 max-w-sm">
+                <input
+                  type="password"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="New PIN"
+                  className="flex-1 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 placeholder:text-ink-faint"
+                />
+                <input
+                  type="password"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="Confirm PIN"
+                  className="flex-1 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 placeholder:text-ink-faint"
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2 rounded-lg bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-display font-semibold hover:bg-orange-500/30 transition-colors disabled:opacity-60 inline-flex items-center gap-2 shrink-0"
+                >
+                  {loading ? <Loader2 size={13} className="animate-spin" /> : 'Set PIN'}
+                </button>
+              </form>
+              <button
+                type="button"
+                onClick={handleForgotPin}
+                disabled={loading}
+                className="text-[11px] text-orange-400 hover:text-orange-300 transition-colors font-medium underline block text-left"
+              >
+                Forgot Withdrawal PIN?
+              </button>
+            </div>
+          )}
+
+          {resetStep === 'FORGOT_OTP' && (
+            <form onSubmit={handleVerifyOtp} className="space-y-3 max-w-sm">
+              <p className="text-xs text-ink-muted">Enter the 6-digit OTP sent to your registered email to reset your PIN.</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="Enter OTP"
+                  className="flex-1 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 placeholder:text-ink-faint"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2 rounded-lg bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-display font-semibold hover:bg-orange-500/30 transition-colors disabled:opacity-60 inline-flex items-center gap-2 shrink-0"
+                >
+                  {loading ? <Loader2 size={13} className="animate-spin" /> : 'Verify OTP'}
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setResetStep('NORMAL')}
+                className="text-[11px] text-ink-faint hover:text-ink-muted transition-colors font-medium block"
+              >
+                Cancel
+              </button>
+            </form>
+          )}
+
+          {resetStep === 'RESET_FORM' && (
+            <form onSubmit={handleResetPin} className="flex flex-col sm:flex-row gap-2 max-w-sm">
+              <input
+                type="password"
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="New PIN"
+                className="flex-1 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 placeholder:text-ink-faint"
+                autoFocus
+              />
+              <input
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="Confirm PIN"
+                className="flex-1 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 placeholder:text-ink-faint"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 rounded-lg bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-display font-semibold hover:bg-orange-500/30 transition-colors disabled:opacity-60 inline-flex items-center gap-2 shrink-0"
+              >
+                {loading ? <Loader2 size={13} className="animate-spin" /> : 'Reset PIN'}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

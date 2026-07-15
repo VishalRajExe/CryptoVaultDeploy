@@ -241,4 +241,25 @@ public class CoinServiceImpl implements CoinService{
             return null;
         }
     }
+
+    @Override
+    public String getCoinPrices(String ids) throws Exception {
+        String url = "https://api.coingecko.com/api/v3/simple/price?ids=" + ids + "&vs_currencies=usd&include_24hr_change=true";
+
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("x-cg-demo-api-key", API_KEY);
+
+            HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            return response.getBody();
+
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            System.err.println("Error fetching coin prices: " + e);
+            throw new RuntimeException("Rate limit reached for market data. Please try again in a minute.");
+        }
+    }
 }

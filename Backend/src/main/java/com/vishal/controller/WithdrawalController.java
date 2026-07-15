@@ -46,19 +46,26 @@ public class WithdrawalController {
     @Autowired
     private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
-    @PostMapping("/api/withdrawal/{amount}")
-    public ResponseEntity<?> withdrawalRequest(
-            @PathVariable java.math.BigDecimal amount,
-            @RequestParam(required = false) String pin,
-            @RequestHeader("Authorization")String jwt) throws Exception {
+    @Autowired
+    private com.vishal.service.VerificationService verificationService;
 
-        // BUGFIX: amount and balance were never validated before creating the
-        // withdrawal request and deducting funds.
+    @Autowired
+    private com.vishal.repository.VerificationRepository verificationRepository;
+
+    @Autowired
+    private com.vishal.service.CentralNotificationService centralNotificationService;
+
+    @PostMapping("/api/withdrawal/initiate")
+    public ResponseEntity<?> initiateWithdrawal(
+            @RequestParam java.math.BigDecimal amount,
+            @RequestParam(required = false) String pin,
+            @RequestHeader("Authorization") String jwt) throws Exception {
+        
         if (amount == null || amount.compareTo(java.math.BigDecimal.ZERO) <= 0) {
             throw new WalletException("Withdrawal amount must be greater than zero.");
         }
 
-        User user=userService.findUserProfileByJwt(jwt);
+        User user = userService.findUserProfileByJwt(jwt);
 
         // Check Withdrawal PIN if set
         if (user.getWithdrawalPin() != null) {
@@ -66,6 +73,77 @@ public class WithdrawalController {
                 throw new UserException("Incorrect withdrawal PIN. Please try again.");
             }
         }
+
+        Wallet userWallet = walletService.getUserWallet(user);
+        if (userWallet.getBalance().compareTo(amount) < 0) {
+            throw new WalletException("Insufficient wallet balance for this withdrawal.");
+        }
+
+        // Generate OTP and send via CentralNotificationService
+        com.vishal.model.VerificationCode existingCode = verificationService.findUsersVerification(user);
+        if (existingCode != null) {
+            verificationService.deleteVerification(existingCode);
+        }
+
+        com.vishal.model.VerificationCode verificationCode = verificationService.sendVerificationOTP(user, com.vishal.domain.VerificationType.EMAIL);
+
+        centralNotificationService.sendNotification(
+                user,
+                com.vishal.domain.NotificationType.SECURITY,
+                "Withdrawal Request Verification",
+                "You are requesting a withdrawal of <strong>$" + amount + "</strong>. "
+                        + "Your verification code is: <strong>" + verificationCode.getOtp() + "</strong>. This code will expire in 10 minutes."
+        );
+
+        com.vishal.response.ApiResponse res = new com.vishal.response.ApiResponse();
+        res.setMessage("Verification OTP sent to your registered email.");
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/api/withdrawal/{amount}")
+    public ResponseEntity<?> withdrawalRequest(
+            @PathVariable java.math.BigDecimal amount,
+            @RequestParam(required = false) String pin,
+            @RequestParam String otp,
+            @RequestHeader("Authorization") String jwt) throws Exception {
+
+        if (amount == null || amount.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            throw new WalletException("Withdrawal amount must be greater than zero.");
+        }
+
+        User user = userService.findUserProfileByJwt(jwt);
+
+        // Check Withdrawal PIN if set
+        if (user.getWithdrawalPin() != null) {
+            if (pin == null || !passwordEncoder.matches(pin, user.getWithdrawalPin())) {
+                throw new UserException("Incorrect withdrawal PIN. Please try again.");
+            }
+        }
+
+        // Verify OTP
+        com.vishal.model.VerificationCode verificationCode = verificationService.findUsersVerification(user);
+        if (verificationCode == null) {
+            throw new UserException("No verification code found. Please request an OTP first.");
+        }
+
+        if (verificationCode.getAttempts() >= 3) {
+            verificationService.deleteVerification(verificationCode);
+            throw new UserException("Too many failed verification attempts. OTP has been invalidated.");
+        }
+
+        com.vishal.domain.OtpVerificationResult result = verificationService.verifyOtp(otp, verificationCode);
+        if (result != com.vishal.domain.OtpVerificationResult.SUCCESS) {
+            verificationCode.setAttempts(verificationCode.getAttempts() + 1);
+            verificationRepository.save(verificationCode);
+            if (result == com.vishal.domain.OtpVerificationResult.EXPIRED) {
+                verificationService.deleteVerification(verificationCode);
+                throw new UserException("Verification OTP has expired. Please request a new one.");
+            }
+            throw new UserException("Invalid verification OTP. Remaining attempts: " + (3 - verificationCode.getAttempts()));
+        }
+
+        // Successfully verified, delete OTP
+        verificationService.deleteVerification(verificationCode);
 
         // Withdrawals require bank details to be linked. Admin accounts are exempt.
         if (user.getRole() != USER_ROLE.ROLE_ADMIN) {
@@ -80,24 +158,27 @@ public class WithdrawalController {
             throw new UserException("Email verification required before withdrawing. Please verify your account.");
         }
 
-        Wallet userWallet=walletService.getUserWallet(user);
+        Wallet userWallet = walletService.getUserWallet(user);
 
         if (userWallet.getBalance().compareTo(amount) < 0) {
             throw new WalletException("Insufficient wallet balance for this withdrawal.");
         }
 
-        Withdrawal withdrawal=withdrawalService.requestWithdrawal(amount,user);
+        Withdrawal withdrawal = withdrawalService.requestWithdrawal(amount, user);
         walletService.addBalanceToWallet(userWallet, withdrawal.getAmount().negate());
 
         WalletTransaction walletTransaction = walletTransactionService.createTransaction(
                 userWallet,
-                WalletTransactionType.WITHDRAWAL,null,
+                WalletTransactionType.WITHDRAWAL, null,
                 "bank account withdrawal",
                 withdrawal.getAmount()
         );
 
         notificationService.create(user, "WITHDRAWAL_REQUESTED",
                 "Withdrawal request for $" + amount + " submitted.", amount);
+
+        // Security logging
+        System.out.println("Security Log: Successful withdrawal of $" + amount + " by user " + user.getEmail());
 
         return new ResponseEntity<>(withdrawal, HttpStatus.OK);
     }

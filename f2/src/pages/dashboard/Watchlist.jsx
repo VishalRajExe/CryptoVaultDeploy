@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star } from 'lucide-react';
+import { Star, Loader2 } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import OrderModal from '../../components/OrderModal';
 import Sparkline from '../../components/Sparkline';
 import PageTransition from '../../components/PageTransition';
 import EmptyState from '../../components/EmptyState';
 import { getUserWatchlist } from '../../api/trading';
-import { formatCurrency, formatPercent, generateCandles } from '../../utils/chartData';
+import { getCoinPrices } from '../../api/coins';
+import { formatCurrency, generateCandles } from '../../utils/chartData';
 import { normalizeCoin } from '../../utils/normalizeCoin';
 
 const palette = ['#D7FF4F', '#7C5CFF', '#FF3B69', '#4DFFC1', '#9A82FF', '#FF6B8C'];
@@ -20,28 +21,39 @@ function WatchlistCard({ coin: c, index, onTrade }) {
     generateCandles(24, c.currentPrice || 100, 0.02).map((x) => x.close)
   );
 
+  const [prevPrice, setPrevPrice] = useState(c.currentPrice);
+  const [flashDirection, setFlashDirection] = useState('none'); // 'up' | 'down' | 'none'
+
+  // Detect price changes for real-time visual indicator
   useEffect(() => {
-    let tickCount = 0;
-    const interval = setInterval(() => {
-      setSpark(prev => {
-        tickCount++;
-        const last = prev[prev.length - 1];
-        const newVal = last * (1 + (Math.random() - 0.5) * 0.002);
-        if (tickCount % 4 === 0) {
-          return [...prev.slice(1), newVal];
-        }
-        return [...prev.slice(0, -1), newVal];
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    if (c.currentPrice > prevPrice) {
+      setFlashDirection('up');
+      const t = setTimeout(() => setFlashDirection('none'), 1200);
+      setSpark(prev => [...prev.slice(1), c.currentPrice]);
+      setPrevPrice(c.currentPrice);
+      return () => clearTimeout(t);
+    } else if (c.currentPrice < prevPrice) {
+      setFlashDirection('down');
+      const t = setTimeout(() => setFlashDirection('none'), 1200);
+      setSpark(prev => [...prev.slice(1), c.currentPrice]);
+      setPrevPrice(c.currentPrice);
+      return () => clearTimeout(t);
+    }
+  }, [c.currentPrice, prevPrice]);
 
   return (
     <motion.div
       variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
-      className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 hover:border-white/[0.15] transition-all duration-300 relative group overflow-hidden"
+      className={`rounded-2xl border bg-void-800/60 p-5 transition-all duration-300 relative group overflow-hidden ${
+        flashDirection === 'up' 
+          ? 'border-mint/55 shadow-[0_0_15px_rgba(215,255,79,0.15)] bg-mint/[0.02]' 
+          : flashDirection === 'down' 
+            ? 'border-carmine/55 shadow-[0_0_15px_rgba(255,59,105,0.15)] bg-carmine/[0.02]' 
+            : 'border-white/[0.07] hover:border-white/[0.15]'
+      }`}
     >
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.01] rounded-full blur-2xl group-hover:bg-white/[0.02]" />
+      
       <div className="flex items-center justify-between mb-3 relative z-10">
         <div className="flex items-center gap-2.5">
           {c.image && <img src={c.image} alt="" className="w-8 h-8 rounded-full" />}
@@ -52,19 +64,24 @@ function WatchlistCard({ coin: c, index, onTrade }) {
         </div>
         <Star size={15} className="text-amber-400" fill="currentColor" />
       </div>
+      
       <div className="h-10 -mx-1 mb-2 relative z-10">
         <Sparkline data={spark} width={240} height={40} color={color} />
       </div>
+      
       <div className="flex items-center justify-between relative z-10">
-        <span className="font-mono-tab text-base text-ink font-semibold">
+        <span className={`font-mono-tab text-base font-semibold transition-colors duration-300 ${
+          flashDirection === 'up' ? 'text-mint' : flashDirection === 'down' ? 'text-carmine' : 'text-ink'
+        }`}>
           {formatCurrency(c.currentPrice)}
         </span>
         {c.priceChangePercentage24h != null && (
-          <span className={`font-mono-tab text-xs flex items-center gap-0.5 ${up ? 'text-mint' : 'text-carmine'}`}>
+          <span className={`font-mono-tab text-xs flex items-center gap-0.5 transition-colors duration-300 ${up ? 'text-mint' : 'text-carmine'}`}>
             {up ? '▲' : '▼'} {Math.abs(c.priceChangePercentage24h).toFixed(2)}%
           </span>
         )}
       </div>
+      
       <button
         onClick={onTrade}
         className="w-full mt-4 py-2 rounded-lg bg-white/[0.05] border border-white/10 text-ink text-xs font-display font-semibold hover:bg-white/[0.08] transition-colors relative z-10"
@@ -84,20 +101,62 @@ export default function Watchlist() {
   const loadData = async (isPoll = false) => {
     try {
       const wl = await getUserWatchlist();
-      setCoins((wl?.coins || []).map(normalizeCoin));
+      const rawCoins = (wl?.coins || []).map(normalizeCoin);
+      setCoins(rawCoins);
       if (!isPoll) setLoading(false);
+      return rawCoins;
     } catch (e) {
       setError(e.friendlyMessage || 'Could not load your watchlist.');
       if (!isPoll) setLoading(false);
+      return [];
     }
   };
 
   useEffect(() => {
-    loadData();
+    let active = true;
+    let pollInterval = null;
 
-    // Poll every 30s for live price updates in watchlist
-    const interval = setInterval(() => loadData(true), 30000);
-    return () => clearInterval(interval);
+    const initAndPoll = async () => {
+      const loaded = await loadData();
+      if (!active || loaded.length === 0) return;
+
+      // Extract all watchlisted coin IDs to fetch fresh prices in a single batch request
+      const ids = loaded.map((c) => c.id).join(',');
+
+      // Start live price updates loop (every 5 seconds)
+      pollInterval = setInterval(async () => {
+        // Optimize: skip requests when tab is not active/visible to avoid API waste
+        if (document.visibilityState !== 'visible') return;
+
+        try {
+          const prices = await getCoinPrices(ids);
+          if (!prices) return;
+
+          setCoins((prevCoins) =>
+            prevCoins.map((c) => {
+              const liveData = prices[c.id];
+              if (liveData) {
+                return {
+                  ...c,
+                  currentPrice: liveData.usd ?? c.currentPrice,
+                  priceChangePercentage24h: liveData.usd_24h_change ?? c.priceChangePercentage24h,
+                };
+              }
+              return c;
+            })
+          );
+        } catch (err) {
+          console.warn('Real-time price poll error:', err);
+        }
+      }, 5000);
+    };
+
+    initAndPoll();
+
+    return () => {
+      active = false;
+      if (pollInterval) clearInterval(pollInterval);
+    };
   }, []);
 
   return (

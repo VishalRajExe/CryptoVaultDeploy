@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.vishal.domain.USER_ROLE;
 import java.util.List;
 
 @RestController
@@ -33,5 +34,42 @@ public class NotificationController {
         User user = userService.findUserProfileByJwt(jwt);
         notificationService.markAllReadForUser(user);
         return new ResponseEntity<>("Notifications marked as read.", HttpStatus.OK);
+    }
+
+    @PostMapping("/api/admin/notifications/global")
+    public ResponseEntity<List<Notification>> sendGlobalNotification(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam("type") String type,
+            @RequestParam("message") String message,
+            @RequestParam(value = "scheduledTime", required = false) String scheduledTimeStr) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+        if (user.getRole() != USER_ROLE.ROLE_ADMIN) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        java.time.LocalDateTime scheduledTime = null;
+        if (scheduledTimeStr != null && !scheduledTimeStr.isEmpty()) {
+            scheduledTime = java.time.LocalDateTime.parse(scheduledTimeStr);
+        }
+        List<Notification> created = notificationService.createForGlobalAnnouncement(type, message, java.math.BigDecimal.ZERO, scheduledTime);
+        return ResponseEntity.ok(created);
+    }
+
+    @PostMapping("/api/admin/notifications/users")
+    public ResponseEntity<List<Notification>> sendUsersNotification(
+            @RequestHeader("Authorization") String jwt,
+            @RequestBody java.util.List<Long> userIds,
+            @RequestParam("type") String type,
+            @RequestParam("message") String message,
+            @RequestParam(value = "scheduledTime", required = false) String scheduledTimeStr) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+        if (user.getRole() != USER_ROLE.ROLE_ADMIN) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        java.time.LocalDateTime scheduledTime = null;
+        if (scheduledTimeStr != null && !scheduledTimeStr.isEmpty()) {
+            scheduledTime = java.time.LocalDateTime.parse(scheduledTimeStr);
+        }
+        List<Notification> created = notificationService.createForMultipleUsers(userIds, type, message, java.math.BigDecimal.ZERO, scheduledTime);
+        return ResponseEntity.ok(created);
     }
 }

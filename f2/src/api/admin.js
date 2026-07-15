@@ -22,3 +22,9 @@ export const getAllWithdrawalRequests = () => client.get('/api/admin/withdrawal'
 
 export const proceedWithdrawal = (id, accept) =>
   client.patch(`/api/admin/withdrawal/${id}/proceed/${accept}`).then((r) => r.data);
+
+export const sendGlobalNotification = (type, message, scheduledTime) =>
+  client.post('/api/admin/notifications/global', null, { params: { type, message, scheduledTime } }).then((r) => r.data);
+
+export const sendUsersNotification = (userIds, type, message, scheduledTime) =>
+  client.post('/api/admin/notifications/users', userIds, { params: { type, message, scheduledTime } }).then((r) => r.data);

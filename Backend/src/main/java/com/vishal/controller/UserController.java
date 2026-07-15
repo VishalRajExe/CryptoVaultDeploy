@@ -52,6 +52,9 @@ public class UserController {
 	@Autowired
 	private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
+	@Autowired
+	private com.vishal.repository.VerificationRepository verificationRepository;
+
 
 	@GetMapping("/api/users/profile")
 	public ResponseEntity<User> getUserProfileHandler(
@@ -233,5 +236,78 @@ public class UserController {
 		ApiResponse res = new ApiResponse();
 		res.setMessage("Withdrawal PIN set successfully.");
 		return ResponseEntity.ok(res);
+	}
+
+	@PostMapping("/api/users/withdrawal-pin/forgot")
+	public ResponseEntity<ApiResponse> forgotWithdrawalPin(
+			@RequestHeader("Authorization") String jwt) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+		
+		VerificationCode existingCode = verificationService.findUsersVerification(user);
+		if (existingCode != null) {
+			verificationService.deleteVerification(existingCode);
+		}
+		
+		VerificationCode verificationCode = verificationService.sendVerificationOTP(user, VerificationType.EMAIL);
+		
+		centralNotificationService.sendNotification(
+				user,
+				NotificationType.SECURITY,
+				"Withdrawal PIN Reset OTP",
+				"Your OTP for resetting your withdrawal PIN is: <strong>" + verificationCode.getOtp() + "</strong>. This code will expire in 10 minutes."
+		);
+		
+		ApiResponse res = new ApiResponse();
+		res.setMessage("OTP sent to registered email.");
+		return ResponseEntity.ok(res);
+	}
+
+	@PostMapping("/api/users/withdrawal-pin/reset")
+	public ResponseEntity<ApiResponse> resetWithdrawalPin(
+			@RequestHeader("Authorization") String jwt,
+			@RequestParam String otp,
+			@RequestParam String newPin) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+		
+		if (newPin == null || newPin.length() != 4 || !newPin.matches("\\d{4}")) {
+			throw new IllegalArgumentException("PIN must be exactly 4 digits.");
+		}
+		
+		VerificationCode verificationCode = verificationService.findUsersVerification(user);
+		if (verificationCode == null) {
+			throw new Exception("No verification code found. Please request a new OTP first.");
+		}
+		
+		if (verificationCode.getAttempts() >= 3) {
+			verificationService.deleteVerification(verificationCode);
+			throw new Exception("Too many failed attempts. OTP has been invalidated.");
+		}
+		
+		OtpVerificationResult result = verificationService.verifyOtp(otp, verificationCode);
+		if (result == OtpVerificationResult.SUCCESS) {
+			verificationService.deleteVerification(verificationCode);
+			
+			user.setWithdrawalPin(passwordEncoder.encode(newPin));
+			userRepository.save(user);
+			
+			centralNotificationService.sendNotification(
+					user,
+					NotificationType.SECURITY,
+					"Withdrawal PIN Reset Successfully",
+					"Your withdrawal PIN has been reset successfully. Please use your new PIN for future transactions."
+			);
+			
+			ApiResponse res = new ApiResponse();
+			res.setMessage("Withdrawal PIN reset successfully.");
+			return ResponseEntity.ok(res);
+		} else {
+			verificationCode.setAttempts(verificationCode.getAttempts() + 1);
+			verificationRepository.save(verificationCode);
+			if (result == OtpVerificationResult.EXPIRED) {
+				verificationService.deleteVerification(verificationCode);
+				throw new Exception("OTP has expired. Please request a new one.");
+			}
+			throw new Exception("Invalid OTP. Remaining attempts: " + (3 - verificationCode.getAttempts()));
+		}
 	}
 }

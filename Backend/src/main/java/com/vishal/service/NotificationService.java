@@ -16,4 +16,8 @@ public interface NotificationService {
     List<Notification> getAll();
 
     void markAllReadForUser(User user);
+
+    Notification createScheduled(User user, String type, String message, java.math.BigDecimal amount, java.time.LocalDateTime scheduledTime);
+    List<Notification> createForMultipleUsers(List<Long> userIds, String type, String message, java.math.BigDecimal amount, java.time.LocalDateTime scheduledTime);
+    List<Notification> createForGlobalAnnouncement(String type, String message, java.math.BigDecimal amount, java.time.LocalDateTime scheduledTime);
 }

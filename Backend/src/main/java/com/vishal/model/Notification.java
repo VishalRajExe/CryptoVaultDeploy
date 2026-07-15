@@ -43,4 +43,6 @@ public class Notification {
     private LocalDateTime timestamp = LocalDateTime.now();
 
     private boolean isRead = false;
+
+    private LocalDateTime scheduledTime;
 }
