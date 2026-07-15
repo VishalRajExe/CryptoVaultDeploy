@@ -663,6 +663,13 @@ export default function Security() {
                   <p className="text-[10px] text-ink-muted leading-relaxed mt-0.5">Regularly check the active devices list. If you see an unrecognized location or device, revoke access immediately.</p>
                 </div>
               </div>
+              <div className="pt-3 flex gap-3">
+                <div className="text-xs font-mono text-mint mt-0.5 shrink-0">04</div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-ink">Beware of Phishing</div>
+                  <p className="text-[10px] text-ink-muted leading-relaxed mt-0.5">Always verify the browser URL is the official site before typing your credentials. We will never ask for passwords via email.</p>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
