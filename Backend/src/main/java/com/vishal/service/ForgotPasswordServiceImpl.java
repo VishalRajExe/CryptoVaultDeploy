@@ -51,6 +51,13 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService{
 
     @Override
     public boolean verifyToken(ForgotPasswordToken token, String otp) {
-        return token.getOtp().equals(otp);
+        if (token.getOtp().equals(otp)) {
+            return true;
+        }
+        try {
+            return Integer.parseInt(token.getOtp()) == Integer.parseInt(otp);
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

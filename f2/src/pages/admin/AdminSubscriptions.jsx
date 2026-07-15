@@ -24,6 +24,7 @@ export default function AdminSubscriptions() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const [cancelSubscriptionId, setCancelSubscriptionId] = useState(null);
   const { push } = useToast();
 
   const formatDate = (dateStr) => {
@@ -66,10 +67,14 @@ export default function AdminSubscriptions() {
     }
   };
 
-  const handleCancel = async (id) => {
-    if (!window.confirm('Are you sure you want to force cancel this subscription immediately? This will revert the user to the FREE plan.')) {
-      return;
-    }
+  const handleCancel = (id) => {
+    setCancelSubscriptionId(id);
+  };
+
+  const confirmCancel = async () => {
+    if (!cancelSubscriptionId) return;
+    const id = cancelSubscriptionId;
+    setCancelSubscriptionId(null);
     setActionLoading(id);
     try {
       await adminCancelSubscription(id);
@@ -92,7 +97,13 @@ export default function AdminSubscriptions() {
 
   // Calculate statistics
   const activeSubs = subscriptions.filter(s => s.active && s.plan !== 'FREE');
-  const totalRevenue = activeSubs.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+  const totalRevenue = activeSubs.reduce((acc, curr) => {
+    let amt = curr.amount || 0;
+    if (curr.currency === 'USD') {
+      amt = amt * 85;
+    }
+    return acc + amt;
+  }, 0);
   const activeUserCount = activeSubs.length;
   const expiredCount = subscriptions.filter(s => s.status === 'EXPIRED').length;
 
@@ -178,7 +189,9 @@ export default function AdminSubscriptions() {
                         {s.plan}
                       </span>
                     </td>
-                    <td className="p-4 font-mono-tab">₹{s.amount || 0}</td>
+                    <td className="p-4 font-mono-tab">
+                      ₹{s.currency === 'USD' ? (s.amount * 85) : (s.amount || 0)}
+                    </td>
                     <td className="p-4 font-mono-tab">
                       {formatDate(s.startDate)}
                     </td>
@@ -223,6 +236,45 @@ export default function AdminSubscriptions() {
           </div>
         )}
       </div>
+
+      {/* Custom Admin Cancel Confirmation Modal */}
+      {cancelSubscriptionId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-void-950/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-void-900 shadow-panel p-6 animate-fade-in">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-carmine-950/30 border border-carmine/25 text-carmine flex items-center justify-center mb-4">
+                <AlertTriangle size={24} />
+              </div>
+              <h3 className="font-display text-lg font-bold text-ink">
+                Force Cancel Subscription
+              </h3>
+              <p className="text-xs text-ink-muted mt-2 leading-relaxed">
+                Are you sure you want to force cancel this subscription immediately? This will revert the user to the <span className="font-semibold text-mint">FREE</span> plan immediately and log a cancellation record.
+              </p>
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setCancelSubscriptionId(null)}
+                className="flex-1 py-2.5 rounded-xl border border-white/10 text-ink-muted hover:bg-white/[0.04] text-xs font-semibold font-display transition-colors"
+              >
+                Keep Active
+              </button>
+              <button
+                onClick={confirmCancel}
+                disabled={actionLoading === cancelSubscriptionId}
+                className="flex-1 py-2.5 rounded-xl bg-carmine text-white hover:bg-carmine-400 text-xs font-semibold font-display transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-carmine/10"
+              >
+                {actionLoading === cancelSubscriptionId ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  'Force Cancel'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

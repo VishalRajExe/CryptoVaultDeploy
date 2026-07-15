@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, Star, Loader2, ArrowUpRight, ArrowDownRight, ChevronDown, Play, Pause, SkipForward, SkipBack, X, Settings2, FastForward, Trash2, Clock
+  Search, Star, Loader2, ArrowUpRight, ArrowDownRight, ChevronDown, Play, Pause, SkipForward, SkipBack, X, Settings2, FastForward, Trash2, Clock, RefreshCw, ArrowLeftRight
 } from 'lucide-react';
 import { useReplay } from '../../context/ReplayContext';
 import { useAuth } from '../../context/AuthContext';
@@ -9,7 +9,7 @@ import UpgradeModal from '../../components/UpgradeModal';
 import InteractiveChart from '../../components/InteractiveChart';
 import { getCoinList, searchCoins, getTop50, getMarketChart } from '../../api/coins';
 import {
-  addToWatchlist, getUserWatchlist, getAllOrders, placeOrder, getWallet,
+  addToWatchlist, getUserWatchlist, getAllOrders, placeOrder, getWallet, getUserAssets, exchangeAsset,
 } from '../../api/trading';
 import { normalizeCoin, parseMarketChart } from '../../utils/normalizeCoin';
 import { formatCurrency, formatPercent } from '../../utils/chartData';
@@ -64,6 +64,12 @@ export default function Markets() {
   const [formError, setFormError] = useState('');
   const submittingRef = useRef(false);
 
+  const [userAssets, setUserAssets] = useState([]);
+  const [fromCoin, setFromCoin] = useState(null);
+  const [toCoin, setToCoin] = useState(null);
+  const [exchangeQuantity, setExchangeQuantity] = useState('');
+  const [exchanging, setExchanging] = useState(false);
+
   const { push } = useToast();
 
   // Mobile responsive views: 'markets' (list), 'chart' (middle pane), 'trade' (order execution)
@@ -115,8 +121,34 @@ export default function Markets() {
       .catch(() => {});
 
     getWallet().then(setWallet).catch(() => {});
+    getUserAssets().then(setUserAssets).catch(() => {});
     refreshOrders();
   }, []);
+
+  const refreshUserData = () => {
+    getWallet().then(setWallet).catch(() => {});
+    getUserAssets().then(setUserAssets).catch(() => {});
+    refreshOrders();
+  };
+
+  // Set defaults for fromCoin / toCoin when coins or selected changes
+  useEffect(() => {
+    if (selected) {
+      setFromCoin((prev) => prev || selected);
+    } else if (coins.length > 0) {
+      setFromCoin((prev) => prev || coins[0]);
+    }
+  }, [selected, coins]);
+
+  useEffect(() => {
+    if (coins.length > 0 && fromCoin) {
+      setToCoin((prev) => {
+        if (prev && prev.id !== fromCoin.id) return prev;
+        const fallback = coins.find(c => c.id !== fromCoin.id) || coins[0];
+        return fallback;
+      });
+    }
+  }, [fromCoin, coins]);
 
   // Real-time tick effect for market prices
   useEffect(() => {
@@ -254,14 +286,47 @@ export default function Markets() {
       }
       setQuantity('');
       if (!isReplayMode) {
-        refreshOrders();
-        getWallet().then(setWallet).catch(() => {});
+        refreshUserData();
       }
     } catch (err) {
       setFormError(err.friendlyMessage || 'Order could not be placed.');
     } finally {
       submittingRef.current = false;
       setPlacing(false);
+    }
+  };
+
+  const submitExchange = async (e) => {
+    e.preventDefault();
+    if (submittingRef.current || !fromCoin || !toCoin) return;
+    setFormError('');
+    const qty = parseFloat(exchangeQuantity) || 0;
+    if (qty <= 0) {
+      setFormError('Enter an amount greater than zero.');
+      return;
+    }
+    const fromBalance = userAssets.find(a => a.coin?.id === fromCoin.id)?.quantity || 0;
+    if (qty > fromBalance) {
+      setFormError(`Insufficient balance. You own ${fromBalance} ${fromCoin.symbol.toUpperCase()}.`);
+      return;
+    }
+    
+    submittingRef.current = true;
+    setExchanging(true);
+    try {
+      await exchangeAsset({
+        fromCoinId: fromCoin.id,
+        toCoinId: toCoin.id,
+        quantity: qty
+      });
+      push(`Successfully exchanged ${qty} ${fromCoin.symbol.toUpperCase()} for ${(qty * fromCoin.currentPrice / toCoin.currentPrice).toFixed(6)} ${toCoin.symbol.toUpperCase()}`, 'success');
+      setExchangeQuantity('');
+      refreshUserData();
+    } catch (err) {
+      setFormError(err.friendlyMessage || 'Exchange could not be completed.');
+    } finally {
+      submittingRef.current = false;
+      setExchanging(false);
     }
   };
 
@@ -551,74 +616,196 @@ export default function Markets() {
       <div className={`w-full lg:w-[300px] shrink-0 bg-void-900/40 p-4 flex flex-col overflow-y-auto ${
         activeMobileView === 'trade' ? 'flex' : 'hidden lg:flex'
       }`}>
-        <div className="grid grid-cols-2 rounded-xl border border-white/10 bg-void-900/60 p-1 mb-4">
+        <div className="grid grid-cols-3 rounded-xl border border-white/10 bg-void-900/60 p-1 mb-4">
           <button
-            onClick={() => setSide('BUY')}
-            className={`py-2.5 rounded-lg text-sm font-display font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+            onClick={() => { setSide('BUY'); setFormError(''); }}
+            className={`py-2 rounded-lg text-xs font-display font-semibold transition-colors flex items-center justify-center gap-1 ${
               side === 'BUY' ? 'bg-mint text-void shadow-mint' : 'text-ink-muted'
             }`}
           >
-            <ArrowUpRight size={14} /> Buy
+            <ArrowUpRight size={12} /> Buy
           </button>
           <button
-            onClick={() => setSide('SELL')}
-            className={`py-2.5 rounded-lg text-sm font-display font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+            onClick={() => { setSide('SELL'); setFormError(''); }}
+            className={`py-2 rounded-lg text-xs font-display font-semibold transition-colors flex items-center justify-center gap-1 ${
               side === 'SELL' ? 'bg-carmine text-void' : 'text-ink-muted'
             }`}
           >
-            <ArrowDownRight size={14} /> Sell
+            <ArrowDownRight size={12} /> Sell
+          </button>
+          <button
+            onClick={() => { setSide('EXCHANGE'); setFormError(''); }}
+            className={`py-2 rounded-lg text-xs font-display font-semibold transition-colors flex items-center justify-center gap-1 ${
+              side === 'EXCHANGE' ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 text-orange-400' : 'text-ink-muted'
+            }`}
+          >
+            <RefreshCw size={12} /> Exchange
           </button>
         </div>
 
-        <form onSubmit={submitOrder} className="space-y-4">
-          <div>
-            <label className="text-[10.5px] uppercase tracking-wide text-ink-faint mb-1.5 block">Price</label>
-            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-void-900/60 px-3 py-2.5">
-              <span className="font-mono-tab text-sm text-ink">{price ? formatCurrency(price, 'USD', price < 1 ? 4 : 2) : '—'}</span>
-              <span className="text-[11px] text-ink-faint">USDT</span>
+        {side === 'EXCHANGE' ? (
+          <form onSubmit={submitExchange} className="space-y-4">
+            <div className="rounded-xl border border-white/10 bg-void-900/60 p-3">
+              <div className="flex justify-between text-[11px] text-ink-faint mb-2">
+                <span>From</span>
+                <span className="font-mono-tab">
+                  Balance: {(userAssets.find(a => a.coin?.id === fromCoin?.id)?.quantity || 0).toFixed(6)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 bg-void-850 px-2 py-1 rounded-lg border border-white/5">
+                  {fromCoin?.image && <img src={fromCoin.image} alt="" className="w-4 h-4 rounded-full" />}
+                  <select
+                    value={fromCoin?.id || ''}
+                    onChange={(e) => {
+                      const c = coins.find(coin => coin.id === e.target.value) || top50.find(coin => coin.id === e.target.value);
+                      if (c) setFromCoin(c);
+                    }}
+                    className="bg-transparent text-xs font-semibold text-ink outline-none cursor-pointer"
+                  >
+                    {coins.concat(top50).filter((c, i, self) => self.findIndex(o => o.id === c.id) === i).map(c => (
+                      <option key={c.id} value={c.id} className="bg-void-900 text-ink">
+                        {c.symbol?.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={exchangeQuantity}
+                  onChange={(e) => setExchangeQuantity(e.target.value)}
+                  placeholder="0.00"
+                  className="w-1/2 bg-transparent text-right outline-none text-sm font-mono-tab text-ink placeholder:text-ink-faint"
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label className="text-[10.5px] uppercase tracking-wide text-ink-faint mb-1.5 block">Amount</label>
-            <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2.5 focus-within:border-mint/50">
-              <input
-                type="number"
-                step="any"
-                min="0"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="0.00000"
-                className="flex-1 bg-transparent outline-none text-sm font-mono-tab text-ink placeholder:text-ink-faint"
-              />
-              <span className="text-[11px] text-ink-faint">{selected?.symbol?.toUpperCase() || ''}</span>
+            <div className="flex justify-center -my-2 relative z-10">
+              <button
+                type="button"
+                onClick={() => {
+                  const temp = fromCoin;
+                  setFromCoin(toCoin);
+                  setToCoin(temp);
+                }}
+                className="w-8 h-8 rounded-full border border-white/10 bg-void-900 text-mint flex items-center justify-center hover:border-mint/50 transition-colors shadow-panel"
+              >
+                <ArrowLeftRight size={14} className="rotate-90" />
+              </button>
             </div>
-          </div>
 
-          <div className="flex justify-between text-[11px] text-ink-faint">
-            <span>Available</span>
-            <b className="text-ink font-mono-tab">{availableBalance != null ? formatCurrency(availableBalance) : '—'}</b>
-          </div>
+            <div className="rounded-xl border border-white/10 bg-void-900/60 p-3">
+              <div className="flex justify-between text-[11px] text-ink-faint mb-2">
+                <span>To</span>
+                <span className="font-mono-tab">
+                  Balance: {(userAssets.find(a => a.coin?.id === toCoin?.id)?.quantity || 0).toFixed(6)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 bg-void-850 px-2 py-1 rounded-lg border border-white/5">
+                  {toCoin?.image && <img src={toCoin.image} alt="" className="w-4 h-4 rounded-full" />}
+                  <select
+                    value={toCoin?.id || ''}
+                    onChange={(e) => {
+                      const c = coins.find(coin => coin.id === e.target.value) || top50.find(coin => coin.id === e.target.value);
+                      if (c) setToCoin(c);
+                    }}
+                    className="bg-transparent text-xs font-semibold text-ink outline-none cursor-pointer"
+                  >
+                    {coins.concat(top50).filter((c, i, self) => self.findIndex(o => o.id === c.id) === i).map(c => (
+                      <option key={c.id} value={c.id} className="bg-void-900 text-ink">
+                        {c.symbol?.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="text-right text-sm font-mono-tab text-ink-muted">
+                  {fromCoin && toCoin && exchangeQuantity
+                    ? (parseFloat(exchangeQuantity) * fromCoin.currentPrice / toCoin.currentPrice).toFixed(6)
+                    : '0.00'}
+                </div>
+              </div>
+            </div>
 
-          <div className="rounded-lg bg-void-900/60 border border-white/[0.06] px-3 py-2.5 flex justify-between text-sm">
-            <span className="text-ink-faint">Estimated total</span>
-            <span className="font-mono-tab font-semibold text-ink">{formatCurrency(total)}</span>
-          </div>
+            {fromCoin && toCoin && (
+              <div className="text-[11px] text-ink-faint text-center">
+                1 {fromCoin.symbol?.toUpperCase()} = {(fromCoin.currentPrice / toCoin.currentPrice).toFixed(6)} {toCoin.symbol?.toUpperCase()}
+              </div>
+            )}
 
-          {formError && (
-            <div className="text-xs text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3 py-2">{formError}</div>
-          )}
+            {formError && (
+              <div className="text-xs text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3 py-2">
+                {formError}
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={placing || !selected}
-            className={`w-full flex items-center justify-center gap-2 rounded-xl font-display font-semibold text-sm py-3 transition-colors disabled:opacity-60 ${
-              side === 'BUY' ? 'bg-mint text-void shadow-mint hover:bg-mint-400' : 'bg-carmine text-void hover:bg-carmine-400'
-            }`}
-          >
-            {placing ? <Loader2 size={16} className="animate-spin" /> : `Place ${side === 'BUY' ? 'Buy' : 'Sell'} Order`}
-          </button>
-        </form>
+            {isReplayMode ? (
+              <div className="text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2 text-center">
+                Exchange is not supported in Market Replay mode.
+              </div>
+            ) : (
+              <button
+                type="submit"
+                disabled={exchanging || !fromCoin || !toCoin}
+                className="w-full flex items-center justify-center gap-2 rounded-xl font-display font-semibold text-sm py-3 transition-colors bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg"
+              >
+                {exchanging ? <Loader2 size={16} className="animate-spin" /> : 'Exchange Now'}
+              </button>
+            )}
+          </form>
+        ) : (
+          <form onSubmit={submitOrder} className="space-y-4">
+            <div>
+              <label className="text-[10.5px] uppercase tracking-wide text-ink-faint mb-1.5 block">Price</label>
+              <div className="flex items-center justify-between rounded-lg border border-white/10 bg-void-900/60 px-3 py-2.5">
+                <span className="font-mono-tab text-sm text-ink">{price ? formatCurrency(price, 'USD', price < 1 ? 4 : 2) : '—'}</span>
+                <span className="text-[11px] text-ink-faint">USDT</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10.5px] uppercase tracking-wide text-ink-faint mb-1.5 block">Amount</label>
+              <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2.5 focus-within:border-mint/50">
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  placeholder="0.00000"
+                  className="flex-1 bg-transparent outline-none text-sm font-mono-tab text-ink placeholder:text-ink-faint"
+                />
+                <span className="text-[11px] text-ink-faint">{selected?.symbol?.toUpperCase() || ''}</span>
+              </div>
+            </div>
+
+            <div className="flex justify-between text-[11px] text-ink-faint">
+              <span>Available</span>
+              <b className="text-ink font-mono-tab">{availableBalance != null ? formatCurrency(availableBalance) : '—'}</b>
+            </div>
+
+            <div className="rounded-lg bg-void-900/60 border border-white/[0.06] px-3 py-2.5 flex justify-between text-sm">
+              <span className="text-ink-faint">Estimated total</span>
+              <span className="font-mono-tab font-semibold text-ink">{formatCurrency(total)}</span>
+            </div>
+
+            {formError && (
+              <div className="text-xs text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3 py-2">{formError}</div>
+            )}
+
+            <button
+              type="submit"
+              disabled={placing || !selected}
+              className={`w-full flex items-center justify-center gap-2 rounded-xl font-display font-semibold text-sm py-3 transition-colors disabled:opacity-60 ${
+                side === 'BUY' ? 'bg-mint text-void shadow-mint hover:bg-mint-400' : 'bg-carmine text-void hover:bg-carmine-400'
+              }`}
+            >
+              {placing ? <Loader2 size={16} className="animate-spin" /> : `Place ${side === 'BUY' ? 'Buy' : 'Sell'} Order`}
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Replay Modal */}

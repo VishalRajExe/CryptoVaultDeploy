@@ -7,6 +7,8 @@ import {
   Banknote,
   Activity,
   ArrowLeft,
+  CreditCard,
+  Bell,
 } from 'lucide-react';
 
 const navItems = [
@@ -16,6 +18,8 @@ const navItems = [
   { to: '/app/admin/wallets', label: 'Wallets', icon: WalletIcon },
   { to: '/app/admin/withdrawals', label: 'Withdrawals', icon: Banknote },
   { to: '/app/admin/activity', label: 'Activity', icon: Activity },
+  { to: '/app/admin/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { to: '/app/admin/notifications', label: 'Notifications', icon: Bell },
 ];
 
 export default function AdminLayout() {

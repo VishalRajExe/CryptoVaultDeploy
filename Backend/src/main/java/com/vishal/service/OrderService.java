@@ -24,6 +24,8 @@ public interface OrderService {
 
     Order processOrder(Coin coin, double quantity, OrderType orderType, User user) throws Exception;
 
+    Order exchangeAsset(User user, Coin fromCoin, Coin toCoin, double quantity) throws Exception;
+
 //    Order sellAsset(CreateOrderRequest req,Long userId,String jwt) throws Exception;
 
 

@@ -119,7 +119,7 @@ public class EmailTemplateService {
                 "      </div>\n" +
                 "      <div class=\"footer\">\n" +
                 "        <p>If you did not initiate this action, please contact our support team immediately.</p>\n" +
-                "        <p>Need help? Contact us at <a href=\"mailto:support@cryptovault.com\">support@cryptovault.com</a></p>\n" +
+                "        <p>Need help? Contact us at <a href=\"mailto:tradingapp.vishal@gmail.com\">tradingapp.vishal@gmail.com</a></p>\n" +
                 "        <p style=\"margin-top: 15px; font-size: 10px;\">© 2026 CryptoVault. All rights reserved. Your security is our highest priority.</p>\n" +
                 "      </div>\n" +
                 "    </div>\n" +

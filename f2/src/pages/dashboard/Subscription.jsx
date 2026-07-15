@@ -37,6 +37,7 @@ export default function SubscriptionPage() {
   const [walletBalance, setWalletBalance] = useState(0);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
@@ -137,10 +138,12 @@ export default function SubscriptionPage() {
     }
   };
 
-  const handleCancel = async () => {
-    if (!window.confirm('Are you sure you want to cancel your premium subscription? You will still retain access until the end of your billing cycle.')) {
-      return;
-    }
+  const handleCancel = () => {
+    setIsCancelModalOpen(true);
+  };
+
+  const confirmCancel = async () => {
+    setIsCancelModalOpen(false);
     setActionLoading('CANCEL');
     try {
       const updated = await cancelSubscription();
@@ -510,6 +513,45 @@ export default function SubscriptionPage() {
         )}
       </div>
     </div>
+
+    {/* Custom Cancel Subscription Confirmation Modal */}
+    {isCancelModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-void-950/80 backdrop-blur-md p-4">
+        <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-void-900 shadow-panel p-6 animate-fade-in">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-full bg-carmine-950/30 border border-carmine/25 text-carmine flex items-center justify-center mb-4">
+              <AlertTriangle size={24} />
+            </div>
+            <h3 className="font-display text-lg font-bold text-ink">
+              Cancel Premium Subscription
+            </h3>
+            <p className="text-xs text-ink-muted mt-2 leading-relaxed">
+              Are you sure you want to cancel your premium subscription? You will still retain access to all benefits until the end of your current billing cycle on <span className="font-semibold text-ink">{formatDate(subscription?.expiryDate)}</span>.
+            </p>
+          </div>
+
+          <div className="mt-6 flex gap-3">
+            <button
+              onClick={() => setIsCancelModalOpen(false)}
+              className="flex-1 py-2.5 rounded-xl border border-white/10 text-ink-muted hover:bg-white/[0.04] text-xs font-semibold font-display transition-colors"
+            >
+              Keep Plan
+            </button>
+            <button
+              onClick={confirmCancel}
+              disabled={actionLoading === 'CANCEL'}
+              className="flex-1 py-2.5 rounded-xl bg-carmine text-white hover:bg-carmine-400 text-xs font-semibold font-display transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-carmine/10"
+            >
+              {actionLoading === 'CANCEL' ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                'Yes, Cancel'
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   </div>
   );
 }

@@ -38,6 +38,10 @@ export const getAllOrders = (orderType, assetSymbol) =>
     .get('/api/orders', { params: { order_type: orderType, asset_symbol: assetSymbol } })
     .then((r) => r.data);
 
+export const exchangeAsset = (payload) =>
+  // payload: { fromCoinId, toCoinId, quantity }
+  client.post('/api/orders/exchange', payload).then((r) => r.data);
+
 // ---- Watchlist (WatchlistController) ----
 export const getUserWatchlist = () => client.get('/api/watchlist/user').then((r) => r.data);
 

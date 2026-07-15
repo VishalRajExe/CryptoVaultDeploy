@@ -238,5 +238,35 @@ public class OrderServiceImplementation implements OrderService {
         }
     }
 
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public Order exchangeAsset(User user, Coin fromCoin, Coin toCoin, double quantity) throws Exception {
+        if (quantity <= 0) {
+            throw new RuntimeException("quantity should be > 0");
+        }
+
+        // Sell fromCoin
+        Order sellOrder = sellAsset(fromCoin, quantity, user);
+
+        // Calculate USD value of sold asset
+        double usdValue = quantity * fromCoin.getCurrentPrice();
+        // Calculate target asset quantity to buy
+        double targetQuantity = usdValue / toCoin.getCurrentPrice();
+
+        // Buy toCoin
+        Order buyOrder = buyAsset(toCoin, targetQuantity, user);
+
+        // Send trading exchange email notification
+        centralNotificationService.sendNotification(
+                user,
+                NotificationType.TRADING,
+                "Exchange Order Executed",
+                "Successfully exchanged " + quantity + " " + fromCoin.getSymbol().toUpperCase() +
+                        " for " + targetQuantity + " " + toCoin.getSymbol().toUpperCase() + "."
+        );
+
+        return buyOrder;
+    }
+
 
 }

@@ -108,6 +108,34 @@ public class OrderController {
         return ResponseEntity.ok(userOrders);
     }
 
+    @PostMapping("/exchange")
+    public ResponseEntity<Order> exchangeAsset(
+            @RequestHeader("Authorization") String jwt,
+            @RequestBody com.vishal.request.ExchangeOrderRequest req
+    ) throws Exception {
+        User user = userSerivce.findUserProfileByJwt(jwt);
+
+        // Trading requires email verification. Admin accounts are exempt.
+        if (user.getRole() != USER_ROLE.ROLE_ADMIN && !user.isVerified()) {
+            throw new UserException("Email verification required before trading. Please verify your account.");
+        }
+
+        Coin fromCoin = coinService.findById(req.getFromCoinId());
+        Coin toCoin = coinService.findById(req.getToCoinId());
+
+        Order order = orderService.exchangeAsset(user, fromCoin, toCoin, req.getQuantity());
+
+        notificationService.create(
+                user,
+                "ORDER_EXCHANGE",
+                "Exchanged " + req.getQuantity() + " " + fromCoin.getSymbol().toUpperCase() +
+                        " for " + toCoin.getSymbol().toUpperCase() + ".",
+                order.getPrice()
+        );
+
+        return ResponseEntity.ok(order);
+    }
+
 
 
 

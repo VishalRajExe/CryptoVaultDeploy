@@ -57,6 +57,13 @@ public class VerificationServiceImpl implements VerificationService{
         if (otp.equals(verificationCode.getOtp())) {
             return OtpVerificationResult.SUCCESS;
         }
+        try {
+            if (Integer.parseInt(otp) == Integer.parseInt(verificationCode.getOtp())) {
+                return OtpVerificationResult.SUCCESS;
+            }
+        } catch (NumberFormatException e) {
+            // Ignore format mismatch
+        }
         return OtpVerificationResult.INVALID;
     }
 

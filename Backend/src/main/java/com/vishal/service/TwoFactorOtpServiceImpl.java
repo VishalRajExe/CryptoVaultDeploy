@@ -42,7 +42,14 @@ public class TwoFactorOtpServiceImpl implements TwoFactorOtpService{
 
     @Override
     public boolean verifyTwoFactorOtp(TwoFactorOTP twoFactorOtp, String otp) {
-        return twoFactorOtp.getOtp().equals(otp);
+        if (twoFactorOtp.getOtp().equals(otp)) {
+            return true;
+        }
+        try {
+            return Integer.parseInt(twoFactorOtp.getOtp()) == Integer.parseInt(otp);
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     @Override
