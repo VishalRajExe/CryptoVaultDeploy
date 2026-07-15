@@ -518,194 +518,200 @@ export default function Security() {
     <div className="pb-16">
       <PageHeader eyebrow="Account" title="Security" description="Verify your identity and harden how you sign in." />
 
-      <div className="px-4 sm:px-8 space-y-6 max-w-2xl">
-        {/* Profile card */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6 flex items-center gap-4"
-        >
-          <div className="w-14 h-14 rounded-full bg-violet-600/20 text-violet-400 flex items-center justify-center font-display text-lg font-semibold shrink-0">
-            {(user?.fullName || user?.email || 'U').slice(0, 1).toUpperCase()}
-          </div>
-          <div>
-            <div className="font-display text-base font-semibold text-ink">{user?.fullName || 'Trader'}</div>
-            <div className="text-sm text-ink-muted">{user?.email}</div>
-            {user?.mobile && <div className="text-xs text-ink-faint mt-0.5">{user.mobile}</div>}
-          </div>
-        </motion.div>
-
-        {/* Email verification - Hidden for Admin */}
-        {user?.role !== 'ROLE_ADMIN' && (
+      <div className="px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* Profile card */}
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.06 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-mint-900/60 text-mint flex items-center justify-center shrink-0">
-              <Mail size={17} />
+            className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6 flex items-center gap-4"
+          >
+            <div className="w-14 h-14 rounded-full bg-violet-600/20 text-violet-400 flex items-center justify-center font-display text-lg font-semibold shrink-0">
+              {(user?.fullName || user?.email || 'U').slice(0, 1).toUpperCase()}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-display text-sm font-semibold text-ink">Email verification</span>
-                {isEmailVerified && (
-                  <span className="flex items-center gap-1 text-[11px] text-mint bg-mint-900/40 px-2 py-0.5 rounded-full border border-mint/20">
-                    <CheckCircle2 size={11} /> Verified
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-ink-muted">Confirm ownership of {user?.email} to unlock full account access.</p>
-
-              {!isEmailVerified && !verifyStep && (
-                <button
-                  onClick={handleSendVerify}
-                  disabled={sendingVerify}
-                  className="mt-3 px-4 py-2 rounded-lg bg-mint text-void text-xs font-display font-semibold hover:bg-mint-400 transition-colors disabled:opacity-60 inline-flex items-center gap-2"
-                >
-                  {sendingVerify ? <Loader2 size={14} className="animate-spin" /> : 'Send verification code'}
-                </button>
-              )}
-              {verifyStep && (
-                <OtpInline onSubmit={handleVerify} loading={verifyLoading} onCancel={() => setVerifyStep(false)} />
-              )}
-            </div>
-          </div>
-        </motion.div>
-        )}
-
-        {/* 2FA - Hidden for Admin */}
-        {user?.role !== 'ROLE_ADMIN' && (
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-violet-600/15 text-violet-400 flex items-center justify-center shrink-0">
-              <ShieldCheck size={17} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-display text-sm font-semibold text-ink">Two-factor authentication</span>
-                {is2faEnabled && (
-                  <span className="flex items-center gap-1 text-[11px] text-mint bg-mint-900/40 px-2 py-0.5 rounded-full border border-mint/20">
-                    <CheckCircle2 size={11} /> Enabled
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-ink-muted">
-                Require a one-time email code on every sign-in, in addition to your password.
-              </p>
-
-              {!is2faEnabled && !twoFaStep && (
-                <button
-                  onClick={handleSend2fa}
-                  disabled={sending2fa}
-                  className="mt-3 px-4 py-2 rounded-lg bg-white/[0.06] border border-white/12 text-ink text-xs font-display font-semibold hover:bg-white/[0.1] transition-colors disabled:opacity-60 inline-flex items-center gap-2"
-                >
-                  {sending2fa ? <Loader2 size={14} className="animate-spin" /> : 'Enable 2FA'}
-                </button>
-              )}
-              {twoFaStep && (
-                <OtpInline onSubmit={handleEnable2fa} loading={twoFaLoading} onCancel={() => setTwoFaStep(false)} />
-              )}
-            </div>
-          </div>
-        </motion.div>
-        )}
-
-        {/* Notification Preferences */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-mint/15 text-mint flex items-center justify-center shrink-0">
-              <Bell size={17} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <span className="font-display text-sm font-semibold text-ink block mb-1">Email Notifications</span>
-              <p className="text-sm text-ink-muted mb-4">
-                Choose the emails you want to receive. Security notifications cannot be disabled.
-              </p>
-
-              {prefLoading ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="animate-spin text-mint" size={18} />
-                </div>
-              ) : (
-                <div className="space-y-3.5 max-w-md">
-                  {[
-                    { key: 'trading', label: 'Trading Notifications', desc: 'Alerts on buy, sell and filled limit orders.' },
-                    { key: 'wallet', label: 'Wallet Transactions', desc: 'Updates on deposits, withdrawals and transfers.' },
-                    { key: 'replay', label: 'Replay Session Summary', desc: 'Summaries and outcomes of market replay sessions.' },
-                    { key: 'subscription', label: 'Subscription & Billings', desc: 'Invoices, upgrade confirmations and billing history.' },
-                    { key: 'marketing', label: 'Marketing Emails', desc: 'Exclusive offers, feature updates and weekly digests.' },
-                    { key: 'security', label: 'Security & Auth (Required)', desc: 'Password resets, new device logins, and 2FA codes.', required: true }
-                  ].map(({ key, label, desc, required }) => (
-                    <div key={key} className="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                      <div className="min-w-0 flex-1">
-                        <span className="text-xs font-semibold text-ink block">{label}</span>
-                        <span className="text-[10px] text-ink-faint">{desc}</span>
-                      </div>
-                      <button
-                        type="button"
-                        disabled={required}
-                        onClick={() => handleTogglePref(key)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          preferences[key] ? 'bg-mint' : 'bg-white/10'
-                        } ${required ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-void-950 shadow ring-0 transition duration-200 ease-in-out ${
-                            preferences[key] ? 'translate-x-4' : 'translate-x-0'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Info cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.18 }}
-          className="grid sm:grid-cols-2 gap-4"
-        >
-          <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 flex items-start gap-3">
-            <KeyRound size={16} className="text-ink-faint mt-0.5 shrink-0" />
             <div>
-              <div className="text-sm text-ink font-medium mb-0.5">Password</div>
-              <p className="text-xs text-ink-muted">Reset it any time from the sign-in screen's "Forgot password" flow.</p>
+              <div className="font-display text-base font-semibold text-ink">{user?.fullName || 'Trader'}</div>
+              <div className="text-sm text-ink-muted">{user?.email}</div>
+              {user?.mobile && <div className="text-xs text-ink-faint mt-0.5">{user.mobile}</div>}
             </div>
-          </div>
-          <MobileNumberCard
-            mobile={user?.mobile}
-            onSaved={(mobile) => setUser((prev) => (prev ? { ...prev, mobile } : prev))}
-          />
-        </motion.div>
-
-        {/* Withdrawal PIN */}
-        {user?.role !== 'ROLE_ADMIN' && (
-          <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.21 }}>
-            <WithdrawalPinCard />
           </motion.div>
-        )}
 
-        {/* Active Devices */}
-        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}>
-          <ActiveDevicesCard />
-        </motion.div>
+          {/* Email verification - Hidden for Admin */}
+          {user?.role !== 'ROLE_ADMIN' && (
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.06 }}
+              className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-mint-900/60 text-mint flex items-center justify-center shrink-0">
+                  <Mail size={17} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-display text-sm font-semibold text-ink">Email verification</span>
+                    {isEmailVerified && (
+                      <span className="flex items-center gap-1 text-[11px] text-mint bg-mint-900/40 px-2 py-0.5 rounded-full border border-mint/20">
+                        <CheckCircle2 size={11} /> Verified
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-ink-muted">Confirm ownership of {user?.email} to unlock full account access.</p>
+
+                  {!isEmailVerified && !verifyStep && (
+                    <button
+                      onClick={handleSendVerify}
+                      disabled={sendingVerify}
+                      className="mt-3 px-4 py-2 rounded-lg bg-mint text-void text-xs font-display font-semibold hover:bg-mint-400 transition-colors disabled:opacity-60 inline-flex items-center gap-2"
+                    >
+                      {sendingVerify ? <Loader2 size={14} className="animate-spin" /> : 'Send verification code'}
+                    </button>
+                  )}
+                  {verifyStep && (
+                    <OtpInline onSubmit={handleVerify} loading={verifyLoading} onCancel={() => setVerifyStep(false)} />
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* 2FA - Hidden for Admin */}
+          {user?.role !== 'ROLE_ADMIN' && (
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.12 }}
+              className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-violet-600/15 text-violet-400 flex items-center justify-center shrink-0">
+                  <ShieldCheck size={17} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-display text-sm font-semibold text-ink">Two-factor authentication</span>
+                    {is2faEnabled && (
+                      <span className="flex items-center gap-1 text-[11px] text-mint bg-mint-900/40 px-2 py-0.5 rounded-full border border-mint/20">
+                        <CheckCircle2 size={11} /> Enabled
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-ink-muted">
+                    Require a one-time email code on every sign-in, in addition to your password.
+                  </p>
+
+                  {!is2faEnabled && !twoFaStep && (
+                    <button
+                      onClick={handleSend2fa}
+                      disabled={sending2fa}
+                      className="mt-3 px-4 py-2 rounded-lg bg-white/[0.06] border border-white/12 text-ink text-xs font-display font-semibold hover:bg-white/[0.1] transition-colors disabled:opacity-60 inline-flex items-center gap-2"
+                    >
+                      {sending2fa ? <Loader2 size={14} className="animate-spin" /> : 'Enable 2FA'}
+                    </button>
+                  )}
+                  {twoFaStep && (
+                    <OtpInline onSubmit={handleEnable2fa} loading={twoFaLoading} onCancel={() => setTwoFaStep(false)} />
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Active Devices */}
+          <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}>
+            <ActiveDevicesCard />
+          </motion.div>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Notification Preferences */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-mint/15 text-mint flex items-center justify-center shrink-0">
+                <Bell size={17} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="font-display text-sm font-semibold text-ink block mb-1">Email Notifications</span>
+                <p className="text-sm text-ink-muted mb-4">
+                  Choose the emails you want to receive. Security notifications cannot be disabled.
+                </p>
+
+                {prefLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="animate-spin text-mint" size={18} />
+                  </div>
+                ) : (
+                  <div className="space-y-3.5 w-full">
+                    {[
+                      { key: 'trading', label: 'Trading Notifications', desc: 'Alerts on buy, sell and limit orders.' },
+                      { key: 'wallet', label: 'Wallet Transactions', desc: 'Updates on deposits, withdrawals and transfers.' },
+                      { key: 'replay', label: 'Replay Session Summary', desc: 'Summaries and outcomes of market replay sessions.' },
+                      { key: 'subscription', label: 'Subscription & Billings', desc: 'Inconfirmations and billing history.' },
+                      { key: 'marketing', label: 'Marketing Emails', desc: 'Exclusive offers, updates and digests.' },
+                      { key: 'security', label: 'Security & Auth (Required)', desc: 'Password resets, device logins, and 2FA.', required: true }
+                    ].map(({ key, label, desc, required }) => (
+                      <div key={key} className="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                        <div className="min-w-0 flex-1">
+                          <span className="text-xs font-semibold text-ink block">{label}</span>
+                          <span className="text-[10px] text-ink-faint">{desc}</span>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={required}
+                          onClick={() => handleTogglePref(key)}
+                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                            preferences[key] ? 'bg-mint' : 'bg-white/10'
+                          } ${required ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-void-950 shadow ring-0 transition duration-200 ease-in-out ${
+                              preferences[key] ? 'translate-x-4' : 'translate-x-0'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Info cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18 }}
+            className="grid sm:grid-cols-2 gap-4"
+          >
+            <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 flex items-start gap-3">
+              <KeyRound size={16} className="text-ink-faint mt-0.5 shrink-0" />
+              <div>
+                <div className="text-sm text-ink font-medium mb-0.5">Password</div>
+                <p className="text-xs text-ink-muted">Reset it any time from the sign-in screen's forgot flow.</p>
+              </div>
+            </div>
+            <MobileNumberCard
+              mobile={user?.mobile}
+              onSaved={(mobile) => setUser((prev) => (prev ? { ...prev, mobile } : prev))}
+            />
+          </motion.div>
+
+          {/* Withdrawal PIN */}
+          {user?.role !== 'ROLE_ADMIN' && (
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.21 }}>
+              <WithdrawalPinCard />
+            </motion.div>
+          )}
+        </div>
       </div>
     </div>
   );
