@@ -44,6 +44,8 @@ export default function InteractiveChart({
   const [chartType, setChartType] = useState(defaultType);
   const [crosshairData, setCrosshairData] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const isFullscreenRef = useRef(isFullscreen);
+  isFullscreenRef.current = isFullscreen;
 
   const createChartInstance = useCallback(() => {
     if (!containerRef.current) return;
@@ -55,8 +57,8 @@ export default function InteractiveChart({
       seriesRef.current = null;
     }
 
-    const chartHeight = isFullscreen 
-      ? (containerRef.current.clientHeight || (window.innerHeight - 180)) 
+    const chartHeight = isFullscreenRef.current 
+      ? (window.innerHeight - 150) 
       : height;
 
     const chart = createChart(containerRef.current, {
@@ -171,7 +173,10 @@ export default function InteractiveChart({
     // Resize handler
     const handleResize = () => {
       if (containerRef.current && chartRef.current) {
-        chartRef.current.applyOptions({ width: containerRef.current.clientWidth });
+        const currentHeight = isFullscreenRef.current 
+          ? (window.innerHeight - 150) 
+          : height;
+        chartRef.current.resize(containerRef.current.clientWidth, currentHeight);
       }
     };
     window.addEventListener('resize', handleResize);
@@ -199,12 +204,9 @@ export default function InteractiveChart({
       if (chartRef.current && containerRef.current) {
         const newWidth = containerRef.current.clientWidth;
         const newHeight = isFullscreen 
-          ? (window.innerHeight - 180) 
+          ? (window.innerHeight - 150) 
           : height;
-        chartRef.current.applyOptions({
-          width: newWidth,
-          height: newHeight
-        });
+        chartRef.current.resize(newWidth, newHeight);
         chartRef.current.timeScale().fitContent();
       }
     };
@@ -380,7 +382,7 @@ export default function InteractiveChart({
         <div 
           ref={containerRef} 
           className="w-full" 
-          style={{ height: isFullscreen ? (window.innerHeight - 180) : height }} 
+          style={{ height: isFullscreen ? (window.innerHeight - 150) : height }} 
         />
       </div>
     </div>
