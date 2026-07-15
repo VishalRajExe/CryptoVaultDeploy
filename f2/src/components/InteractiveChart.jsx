@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { createChart, ColorType, CrosshairMode } from 'lightweight-charts';
 import { Maximize2, Minimize2 } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 const TIME_RANGES = [
   { label: '1D', days: 1 },
@@ -18,16 +19,49 @@ const CHART_TYPES = [
 
 /**
  * Full-featured interactive chart using TradingView's lightweight-charts.
- * Supports candlestick, area, and line types with time range controls.
- *
- * @param {Object} props
- * @param {Array} props.data - Array of { time, open, high, low, close, value } (time as unix seconds or 'YYYY-MM-DD')
- * @param {number} props.height - Chart height in px
- * @param {Function} props.onRangeChange - Called with days when user picks a time range
- * @param {string} props.defaultType - 'candlestick' | 'area' | 'line'
- * @param {number} props.selectedRange - Currently selected days
+ * Supports candlestick, area, and line types with time range controls and fullscreen.
  */
-export default function InteractiveChart({
+export default function InteractiveChart(props) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Sync scrollbar hiding when fullscreen modal is active
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen]);
+
+  return (
+    <>
+      {/* Standard Inline Chart */}
+      <InteractiveChartInner
+        {...props}
+        isFullscreen={false}
+        onFullscreenToggle={() => setIsFullscreen(true)}
+      />
+
+      {/* Fullscreen Chart Portal */}
+      {isFullscreen && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-[#0b0b0c] p-6 flex flex-col justify-between text-ink">
+          <InteractiveChartInner
+            {...props}
+            height={window.innerHeight - 150}
+            isFullscreen={true}
+            onFullscreenToggle={() => setIsFullscreen(false)}
+          />
+        </div>,
+        document.body
+      )}
+    </>
+  );
+}
+
+function InteractiveChartInner({
   data = [],
   height = 340,
   onRangeChange,
@@ -37,15 +71,14 @@ export default function InteractiveChart({
   className = '',
   hideTimeRanges = false,
   timeVisible = false,
+  isFullscreen = false,
+  onFullscreenToggle
 }) {
   const containerRef = useRef(null);
   const chartRef = useRef(null);
   const seriesRef = useRef(null);
   const [chartType, setChartType] = useState(defaultType);
   const [crosshairData, setCrosshairData] = useState(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const isFullscreenRef = useRef(isFullscreen);
-  isFullscreenRef.current = isFullscreen;
 
   const createChartInstance = useCallback(() => {
     if (!containerRef.current) return;
@@ -57,13 +90,9 @@ export default function InteractiveChart({
       seriesRef.current = null;
     }
 
-    const chartHeight = isFullscreenRef.current 
-      ? (window.innerHeight - 150) 
-      : height;
-
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth,
-      height: chartHeight,
+      height,
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
         textColor: '#5B6378',
@@ -130,7 +159,6 @@ export default function InteractiveChart({
         });
       } else {
         // Fallback to line series if addAreaSeries is not available
-        console.warn('addAreaSeries not available, falling back to line series');
         series = chart.addLineSeries({
           color: '#D7FF4F',
           lineWidth: 2,
@@ -173,10 +201,7 @@ export default function InteractiveChart({
     // Resize handler
     const handleResize = () => {
       if (containerRef.current && chartRef.current) {
-        const currentHeight = isFullscreenRef.current 
-          ? (window.innerHeight - 150) 
-          : height;
-        chartRef.current.resize(containerRef.current.clientWidth, currentHeight);
+        chartRef.current.resize(containerRef.current.clientWidth, height);
       }
     };
     window.addEventListener('resize', handleResize);
@@ -184,7 +209,7 @@ export default function InteractiveChart({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [chartType, height, selectedRange]);
+  }, [chartType, height, selectedRange, timeVisible]);
 
   // Create chart
   useEffect(() => {
@@ -197,25 +222,6 @@ export default function InteractiveChart({
       }
     };
   }, [createChartInstance]);
-
-  // Handle resize when fullscreen toggles
-  useEffect(() => {
-    const handleResize = () => {
-      if (chartRef.current && containerRef.current) {
-        const newWidth = containerRef.current.clientWidth;
-        const newHeight = isFullscreen 
-          ? (window.innerHeight - 150) 
-          : height;
-        chartRef.current.resize(newWidth, newHeight);
-        chartRef.current.timeScale().fitContent();
-      }
-    };
-
-    // Wait a frame/tick for the DOM styles to settle before measuring clientWidth
-    const timer = setTimeout(handleResize, 50);
-
-    return () => clearTimeout(timer);
-  }, [isFullscreen, height]);
 
   // Update data
   useEffect(() => {
@@ -233,7 +239,7 @@ export default function InteractiveChart({
 
     // Live simulation
     let lastPoint = { ...formatted[formatted.length - 1] };
-    const volatility = 0.0015; // Slightly higher volatility for dramatic effect
+    const volatility = 0.0015;
     let tickCount = 0;
     
     // Estimate candle spacing
@@ -289,7 +295,7 @@ export default function InteractiveChart({
 
   return (
     <div className={isFullscreen 
-      ? `fixed inset-0 z-[100] bg-void-950/98 backdrop-blur-xl p-6 flex flex-col justify-between`
+      ? "w-full h-full flex flex-col justify-between bg-[#0b0b0c]"
       : `rounded-2xl glass-card overflow-hidden ${className}`
     }>
       {/* Header */}
@@ -300,6 +306,7 @@ export default function InteractiveChart({
             {CHART_TYPES.map((t) => (
               <button
                 key={t.key}
+                type="button"
                 onClick={() => setChartType(t.key)}
                 className={`px-2.5 py-1.5 rounded-md text-[11px] font-display font-semibold transition-all ${
                   chartType === t.key
@@ -337,6 +344,7 @@ export default function InteractiveChart({
               {TIME_RANGES.map((r) => (
                 <button
                   key={r.label}
+                  type="button"
                   onClick={() => onRangeChange?.(r.days)}
                   className={`px-2.5 py-1.5 rounded-md text-[11px] font-display font-semibold transition-all ${
                     selectedRange === r.days
@@ -350,25 +358,14 @@ export default function InteractiveChart({
             </div>
           )}
 
-          {isFullscreen ? (
-            <button
-              type="button"
-              onClick={() => setIsFullscreen(false)}
-              className="p-1.5 rounded-lg border border-white/10 bg-void-900/60 text-ink-faint hover:text-ink transition-colors flex items-center justify-center"
-              title="Exit Fullscreen"
-            >
-              <Minimize2 size={13} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsFullscreen(true)}
-              className="p-1.5 rounded-lg border border-white/10 bg-void-900/60 text-ink-faint hover:text-ink transition-colors flex items-center justify-center"
-              title="Fullscreen"
-            >
-              <Maximize2 size={13} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={onFullscreenToggle}
+            className="p-1.5 rounded-lg border border-white/10 bg-void-900/60 text-ink-faint hover:text-ink transition-colors flex items-center justify-center"
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+          </button>
         </div>
       </div>
 
@@ -379,11 +376,7 @@ export default function InteractiveChart({
             <div className="w-8 h-8 border-2 border-mint/20 border-t-mint rounded-full animate-spin" />
           </div>
         )}
-        <div 
-          ref={containerRef} 
-          className="w-full" 
-          style={{ height: isFullscreen ? (window.innerHeight - 150) : height }} 
-        />
+        <div ref={containerRef} className="w-full" style={{ height }} />
       </div>
     </div>
   );
