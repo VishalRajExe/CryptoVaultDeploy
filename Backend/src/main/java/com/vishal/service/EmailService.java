@@ -23,7 +23,6 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
         helper.setFrom(fromEmail);
 
-
         String subject = "Account verification";
         String text = "your account verification code is : " + otp;
 
@@ -31,13 +30,8 @@ public class EmailService {
         helper.setText(text, true);
         helper.setTo(userEmail);
 
-        // Send email asynchronously in a separate thread so it does not block the API thread
-        new Thread(() -> {
-            try {
-                javaMailSender.send(mimeMessage);
-            } catch (Exception e) {
-                System.err.println("Async email sending failed: " + e.getMessage());
-            }
-        }).start();
+        // Send email asynchronously in a separate thread so it does not block the API
+        // thread
+        javaMailSender.send(mimeMessage);
     }
 }
