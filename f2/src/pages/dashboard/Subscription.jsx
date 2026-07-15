@@ -244,11 +244,13 @@ export default function SubscriptionPage() {
   const walletPrice = selectedPlanForPayment === 'PRO' ? 10 : selectedPlanForPayment === 'ELITE' ? 50 : 0;
 
   return (
-    <div className="space-y-8">
+    <div className="pb-16">
       <PageHeader
         title="Subscription Plans"
         description="Choose a membership level that fits your trading goals. Upgrade or cancel at any time."
       />
+
+      <div className="px-4 sm:px-8 space-y-8">
 
       {/* Active Subscription Summary */}
       {subscription && subscription.plan !== 'FREE' && (
@@ -508,5 +510,6 @@ export default function SubscriptionPage() {
         )}
       </div>
     </div>
+  </div>
   );
 }

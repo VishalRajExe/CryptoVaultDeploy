@@ -283,13 +283,14 @@ export default function Overview() {
         )}
 
         <div className="grid lg:grid-cols-[1.5fr_0.8fr] xl:grid-cols-[1.6fr_0.7fr] gap-6 items-start">
-          {/* Market overview chart */}
+          {/* Left Column (Chart + Holdings Table) */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-6"
           >
+            {/* Market overview chart */}
             <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-4 sm:p-6 backdrop-blur-xl">
               <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div className="flex items-center gap-3">
@@ -351,6 +352,76 @@ export default function Overview() {
               >
                 Browse all live markets <ArrowRight size={14} />
               </Link>
+            </div>
+
+            {/* Holdings table */}
+            <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 overflow-hidden backdrop-blur-xl">
+              <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-white/[0.06]">
+                <span className="font-display text-sm font-semibold text-ink">Holdings Vault</span>
+                <Link to="/app/portfolio" className="text-xs text-mint hover:text-mint-400 transition-colors">
+                  Full portfolio
+                </Link>
+              </div>
+
+              {(isReplayMode ? replayPortfolio : assets).length === 0 ? (
+                <div className="p-12 text-center">
+                  <Briefcase size={32} className="mx-auto text-ink-faint mb-3" />
+                  <p className="text-sm text-ink-muted mb-1 font-semibold">No holdings yet</p>
+                  <p className="text-xs text-ink-faint mb-5 max-w-xs mx-auto">Fund your wallet balance, then place your first buy order from the {isReplayMode ? 'Virtual' : 'live'} Markets desk.</p>
+                  <Link
+                    to="/app/markets"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-mint text-void font-display font-semibold text-xs shadow-mint-sm hover:bg-mint-400 transition-all hover:shadow-mint"
+                  >
+                    Browse live markets <ArrowRight size={13} />
+                  </Link>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-ink-faint text-[10px] uppercase tracking-wider font-mono-tab border-b border-white/[0.04]">
+                        <th className="px-5 sm:px-6 py-3.5 font-normal">Asset</th>
+                        <th className="px-4 py-3.5 font-normal">Quantity</th>
+                        <th className="px-4 py-3.5 font-normal">Avg. buy price</th>
+                        <th className="px-4 py-3.5 font-normal">Current price</th>
+                        <th className="px-5 sm:px-6 py-3.5 font-normal text-right">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.04]">
+                      {(isReplayMode ? replayPortfolio : assets).map((a) => {
+                        const value = (a.quantity || 0) * (a.coin?.currentPrice || 0);
+                        const pnl = (a.coin?.currentPrice || 0) - (a.buyPrice || 0);
+                        const up = pnl >= 0;
+                        return (
+                          <tr key={a.id} className="hover:bg-white/[0.01] transition-colors">
+                            <td className="px-5 sm:px-6 py-4">
+                              <div className="flex items-center gap-2.5">
+                                {a.coin?.image && <img src={a.coin.image} alt="" className="w-6 h-6 rounded-full" />}
+                                <div>
+                                  <div className="text-ink font-semibold">{a.coin?.symbol?.toUpperCase()}</div>
+                                  <div className="text-xs text-ink-faint">{a.coin?.name}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 font-mono-tab text-ink-muted">{a.quantity}</td>
+                            <td className="px-4 py-4 font-mono-tab text-ink-muted">{formatCurrency(a.buyPrice)}</td>
+                            <td className="px-4 py-4 font-mono-tab text-ink-muted">
+                              {formatCurrency(a.coin?.currentPrice)}
+                            </td>
+                            <td className="px-5 sm:px-6 py-4 text-right">
+                              <div className="font-mono-tab text-ink font-semibold">{formatCurrency(value)}</div>
+                              <div className={`text-xs font-mono-tab flex items-center justify-end gap-0.5 mt-0.5 ${up ? 'text-mint' : 'text-carmine'}`}>
+                                {up ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
+                                {formatCurrency(Math.abs(pnl))}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </motion.div>
 
@@ -503,81 +574,6 @@ export default function Overview() {
             </div>
           </motion.div>
         </div>
-
-        {/* Holdings table */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.24 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 overflow-hidden backdrop-blur-xl"
-        >
-          <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-white/[0.06]">
-            <span className="font-display text-sm font-semibold text-ink">Holdings Vault</span>
-            <Link to="/app/portfolio" className="text-xs text-mint hover:text-mint-400 transition-colors">
-              Full portfolio
-            </Link>
-          </div>
-
-          {(isReplayMode ? replayPortfolio : assets).length === 0 ? (
-            <div className="p-12 text-center">
-              <Briefcase size={32} className="mx-auto text-ink-faint mb-3" />
-              <p className="text-sm text-ink-muted mb-1 font-semibold">No holdings yet</p>
-              <p className="text-xs text-ink-faint mb-5 max-w-xs mx-auto">Fund your wallet balance, then place your first buy order from the {isReplayMode ? 'Virtual' : 'live'} Markets desk.</p>
-              <Link
-                to="/app/markets"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-mint text-void font-display font-semibold text-xs shadow-mint-sm hover:bg-mint-400 transition-all hover:shadow-mint"
-              >
-                Browse live markets <ArrowRight size={13} />
-              </Link>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-ink-faint text-[10px] uppercase tracking-wider font-mono-tab border-b border-white/[0.04]">
-                    <th className="px-5 sm:px-6 py-3.5 font-normal">Asset</th>
-                    <th className="px-4 py-3.5 font-normal">Quantity</th>
-                    <th className="px-4 py-3.5 font-normal">Avg. buy price</th>
-                    <th className="px-4 py-3.5 font-normal">Current price</th>
-                    <th className="px-5 sm:px-6 py-3.5 font-normal text-right">Value</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.04]">
-                  {(isReplayMode ? replayPortfolio : assets).map((a) => {
-                    const value = (a.quantity || 0) * (a.coin?.currentPrice || 0);
-                    const pnl = (a.coin?.currentPrice || 0) - (a.buyPrice || 0);
-                    const up = pnl >= 0;
-                    return (
-                      <tr key={a.id} className="hover:bg-white/[0.01] transition-colors">
-                        <td className="px-5 sm:px-6 py-4">
-                          <div className="flex items-center gap-2.5">
-                            {a.coin?.image && <img src={a.coin.image} alt="" className="w-6 h-6 rounded-full" />}
-                            <div>
-                              <div className="text-ink font-semibold">{a.coin?.symbol?.toUpperCase()}</div>
-                              <div className="text-xs text-ink-faint">{a.coin?.name}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 font-mono-tab text-ink-muted">{a.quantity}</td>
-                        <td className="px-4 py-4 font-mono-tab text-ink-muted">{formatCurrency(a.buyPrice)}</td>
-                        <td className="px-4 py-4 font-mono-tab text-ink-muted">
-                          {formatCurrency(a.coin?.currentPrice)}
-                        </td>
-                        <td className="px-5 sm:px-6 py-4 text-right">
-                          <div className="font-mono-tab text-ink font-semibold">{formatCurrency(value)}</div>
-                          <div className={`text-xs font-mono-tab flex items-center justify-end gap-0.5 mt-0.5 ${up ? 'text-mint' : 'text-carmine'}`}>
-                            {up ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
-                            {formatCurrency(Math.abs(pnl))}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </motion.div>
       </div>
     </PageTransition>
   );

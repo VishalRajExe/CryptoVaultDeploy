@@ -257,7 +257,7 @@ export default function DashboardLayout() {
     <div className="min-h-screen bg-void-950 text-ink font-body flex">
       {/* Desktop sidebar */}
       <aside
-        className={`hidden lg:flex flex-col shrink-0 transition-all duration-300 relative z-40 ${
+        className={`hidden lg:flex flex-col shrink-0 transition-all duration-300 sticky top-0 h-screen z-40 ${
           collapsed ? 'w-20' : 'w-64'
         }`}
         style={{ boxShadow: '1px 0 0 0 rgba(255,255,255,0.06)' }}
