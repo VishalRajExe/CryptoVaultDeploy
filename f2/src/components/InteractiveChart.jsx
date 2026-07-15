@@ -179,7 +179,7 @@ export default function InteractiveChart({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [chartType, height, selectedRange, isFullscreen]);
+  }, [chartType, height, selectedRange]);
 
   // Create chart
   useEffect(() => {
@@ -192,6 +192,28 @@ export default function InteractiveChart({
       }
     };
   }, [createChartInstance]);
+
+  // Handle resize when fullscreen toggles
+  useEffect(() => {
+    const handleResize = () => {
+      if (chartRef.current && containerRef.current) {
+        const newWidth = containerRef.current.clientWidth;
+        const newHeight = isFullscreen 
+          ? (window.innerHeight - 180) 
+          : height;
+        chartRef.current.applyOptions({
+          width: newWidth,
+          height: newHeight
+        });
+        chartRef.current.timeScale().fitContent();
+      }
+    };
+
+    // Wait a frame/tick for the DOM styles to settle before measuring clientWidth
+    const timer = setTimeout(handleResize, 50);
+
+    return () => clearTimeout(timer);
+  }, [isFullscreen, height]);
 
   // Update data
   useEffect(() => {
@@ -256,7 +278,7 @@ export default function InteractiveChart({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [data, chartType, isFullscreen]);
+  }, [data, chartType]);
 
   const formatPrice = (v) => {
     if (v == null) return '—';
@@ -264,66 +286,78 @@ export default function InteractiveChart({
   };
 
   return (
-    <>
-      <div className={`rounded-2xl glass-card overflow-hidden ${className}`}>
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-white/[0.06]">
-          <div className="flex items-center gap-3">
-            {/* Chart type toggle */}
+    <div className={isFullscreen 
+      ? `fixed inset-0 z-[100] bg-void-950/98 backdrop-blur-xl p-6 flex flex-col justify-between`
+      : `rounded-2xl glass-card overflow-hidden ${className}`
+    }>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-white/[0.06]">
+        <div className="flex items-center gap-3">
+          {/* Chart type toggle */}
+          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-void-900/60 p-0.5">
+            {CHART_TYPES.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setChartType(t.key)}
+                className={`px-2.5 py-1.5 rounded-md text-[11px] font-display font-semibold transition-all ${
+                  chartType === t.key
+                    ? 'bg-mint text-void shadow-mint-sm'
+                    : 'text-ink-faint hover:text-ink'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Crosshair info */}
+          {crosshairData && (
+            <div className="hidden sm:flex items-center gap-3 text-xs font-mono">
+              {crosshairData.open != null && (
+                <>
+                  <span className="text-ink-faint">O <span className="text-ink">{formatPrice(crosshairData.open)}</span></span>
+                  <span className="text-ink-faint">H <span className="text-ink">{formatPrice(crosshairData.high)}</span></span>
+                  <span className="text-ink-faint">L <span className="text-ink">{formatPrice(crosshairData.low)}</span></span>
+                  <span className="text-ink-faint">C <span className="text-ink">{formatPrice(crosshairData.close)}</span></span>
+                </>
+              )}
+              {crosshairData.open == null && (
+                <span className="text-mint font-medium">{formatPrice(crosshairData.value)}</span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Time range + Fullscreen toggle */}
+        <div className="flex items-center gap-2">
+          {!hideTimeRanges && (
             <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-void-900/60 p-0.5">
-              {CHART_TYPES.map((t) => (
+              {TIME_RANGES.map((r) => (
                 <button
-                  key={t.key}
-                  onClick={() => setChartType(t.key)}
+                  key={r.label}
+                  onClick={() => onRangeChange?.(r.days)}
                   className={`px-2.5 py-1.5 rounded-md text-[11px] font-display font-semibold transition-all ${
-                    chartType === t.key
-                      ? 'bg-mint text-void shadow-mint-sm'
+                    selectedRange === r.days
+                      ? 'bg-white/[0.08] text-ink'
                       : 'text-ink-faint hover:text-ink'
                   }`}
                 >
-                  {t.label}
+                  {r.label}
                 </button>
               ))}
             </div>
+          )}
 
-            {/* Crosshair info */}
-            {crosshairData && (
-              <div className="hidden sm:flex items-center gap-3 text-xs font-mono">
-                {crosshairData.open != null && (
-                  <>
-                    <span className="text-ink-faint">O <span className="text-ink">{formatPrice(crosshairData.open)}</span></span>
-                    <span className="text-ink-faint">H <span className="text-ink">{formatPrice(crosshairData.high)}</span></span>
-                    <span className="text-ink-faint">L <span className="text-ink">{formatPrice(crosshairData.low)}</span></span>
-                    <span className="text-ink-faint">C <span className="text-ink">{formatPrice(crosshairData.close)}</span></span>
-                  </>
-                )}
-                {crosshairData.open == null && (
-                  <span className="text-mint font-medium">{formatPrice(crosshairData.value)}</span>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Time range + Fullscreen */}
-          <div className="flex items-center gap-2">
-            {!hideTimeRanges && (
-              <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-void-900/60 p-0.5">
-                {TIME_RANGES.map((r) => (
-                  <button
-                    key={r.label}
-                    onClick={() => onRangeChange?.(r.days)}
-                    className={`px-2.5 py-1.5 rounded-md text-[11px] font-display font-semibold transition-all ${
-                      selectedRange === r.days
-                        ? 'bg-white/[0.08] text-ink'
-                        : 'text-ink-faint hover:text-ink'
-                    }`}
-                  >
-                    {r.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
+          {isFullscreen ? (
+            <button
+              type="button"
+              onClick={() => setIsFullscreen(false)}
+              className="p-1.5 rounded-lg border border-white/10 bg-void-900/60 text-ink-faint hover:text-ink transition-colors flex items-center justify-center"
+              title="Exit Fullscreen"
+            >
+              <Minimize2 size={13} />
+            </button>
+          ) : (
             <button
               type="button"
               onClick={() => setIsFullscreen(true)}
@@ -332,100 +366,23 @@ export default function InteractiveChart({
             >
               <Maximize2 size={13} />
             </button>
-          </div>
-        </div>
-
-        {/* Chart area */}
-        <div className="relative">
-          {loading && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-void-800/80 backdrop-blur-sm">
-              <div className="w-8 h-8 border-2 border-mint/20 border-t-mint rounded-full animate-spin" />
-            </div>
           )}
-          <div ref={containerRef} className="w-full" style={{ height }} />
         </div>
       </div>
 
-      {/* Fullscreen Overlay Modal */}
-      {isFullscreen && (
-        <div className="fixed inset-0 z-[100] bg-void-950/98 backdrop-blur-xl p-6 flex flex-col justify-between">
-          {/* Fullscreen Header */}
-          <div className="flex items-center justify-between border-b border-white/[0.06] pb-4 mb-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-void-900/60 p-0.5">
-                {CHART_TYPES.map((t) => (
-                  <button
-                    key={t.key}
-                    onClick={() => setChartType(t.key)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-display font-semibold transition-all ${
-                      chartType === t.key
-                        ? 'bg-mint text-void shadow-mint-sm'
-                        : 'text-ink-faint hover:text-ink'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-
-              {crosshairData && (
-                <div className="hidden md:flex items-center gap-3 text-xs font-mono">
-                  {crosshairData.open != null && (
-                    <>
-                      <span className="text-ink-faint">O <span className="text-ink">{formatPrice(crosshairData.open)}</span></span>
-                      <span className="text-ink-faint">H <span className="text-ink">{formatPrice(crosshairData.high)}</span></span>
-                      <span className="text-ink-faint">L <span className="text-ink">{formatPrice(crosshairData.low)}</span></span>
-                      <span className="text-ink-faint">C <span className="text-ink">{formatPrice(crosshairData.close)}</span></span>
-                    </>
-                  )}
-                  {crosshairData.open == null && (
-                    <span className="text-mint font-medium">{formatPrice(crosshairData.value)}</span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3">
-              {!hideTimeRanges && (
-                <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-void-900/60 p-0.5">
-                  {TIME_RANGES.map((r) => (
-                    <button
-                      key={r.label}
-                      onClick={() => onRangeChange?.(r.days)}
-                      className={`px-3 py-1.5 rounded-md text-xs font-display font-semibold transition-all ${
-                        selectedRange === r.days
-                          ? 'bg-white/[0.08] text-ink'
-                          : 'text-ink-faint hover:text-ink'
-                      }`}
-                    >
-                      {r.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setIsFullscreen(false)}
-                className="p-2.5 rounded-lg border border-white/10 bg-void-900/60 text-ink-faint hover:text-ink transition-colors flex items-center justify-center"
-                title="Exit Fullscreen"
-              >
-                <Minimize2 size={15} />
-              </button>
-            </div>
+      {/* Chart area */}
+      <div className={isFullscreen ? "flex-1 relative w-full flex items-center justify-center mt-4" : "relative"}>
+        {loading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-void-800/80 backdrop-blur-sm">
+            <div className="w-8 h-8 border-2 border-mint/20 border-t-mint rounded-full animate-spin" />
           </div>
-
-          {/* Fullscreen Chart Area */}
-          <div className="flex-1 relative w-full flex items-center justify-center">
-            {loading && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-void-800/80 backdrop-blur-sm">
-                <div className="w-8 h-8 border-2 border-mint/20 border-t-mint rounded-full animate-spin" />
-              </div>
-            )}
-            <div ref={containerRef} className="w-full h-full min-h-[70vh]" />
-          </div>
-        </div>
-      )}
-    </>
+        )}
+        <div 
+          ref={containerRef} 
+          className="w-full" 
+          style={{ height: isFullscreen ? (window.innerHeight - 180) : height }} 
+        />
+      </div>
+    </div>
   );
 }
