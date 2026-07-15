@@ -99,7 +99,7 @@ public class EmailTemplateService {
                 "  <div class=\"wrapper\">\n" +
                 "    <div class=\"container\">\n" +
                 "      <div class=\"header\">\n" +
-                "        <div class=\"logo\">📊 CryptoVault</div>\n" +
+                "        <div class=\"logo\"><img src=\"https://cryptovault-e2e43.web.app/email-logo.png\" alt=\"Logo\" style=\"height: 30px; vertical-align: middle; margin-right: 10px;\" />CryptoVault</div>\n" +
                 "      </div>\n" +
                 "      <div class=\"content\">\n" +
                 "        <h2>Hello, " + userName + "</h2>\n" +
