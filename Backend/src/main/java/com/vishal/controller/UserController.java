@@ -238,6 +238,40 @@ public class UserController {
 		return ResponseEntity.ok(res);
 	}
 
+	@PostMapping("/api/users/withdrawal-pin/change")
+	public ResponseEntity<ApiResponse> changeWithdrawalPin(
+			@RequestHeader("Authorization") String jwt,
+			@RequestParam String currentPin,
+			@RequestParam String newPin) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+		
+		if (user.getWithdrawalPin() == null) {
+			throw new Exception("Withdrawal PIN is not set yet. Please set it first.");
+		}
+		
+		if (!passwordEncoder.matches(currentPin, user.getWithdrawalPin())) {
+			throw new Exception("Incorrect current withdrawal PIN.");
+		}
+		
+		if (newPin == null || newPin.length() != 4 || !newPin.matches("\\d{4}")) {
+			throw new IllegalArgumentException("New PIN must be exactly 4 digits.");
+		}
+		
+		user.setWithdrawalPin(passwordEncoder.encode(newPin));
+		userRepository.save(user);
+
+		centralNotificationService.sendNotification(
+				user,
+				NotificationType.SECURITY,
+				"Withdrawal PIN Changed Successfully",
+				"You have successfully updated your CryptoVault withdrawal PIN. This PIN will be required for all future withdrawals."
+		);
+
+		ApiResponse res = new ApiResponse();
+		res.setMessage("Withdrawal PIN changed successfully.");
+		return ResponseEntity.ok(res);
+	}
+
 	@PostMapping("/api/users/withdrawal-pin/forgot")
 	public ResponseEntity<ApiResponse> forgotWithdrawalPin(
 			@RequestHeader("Authorization") String jwt) throws Exception {

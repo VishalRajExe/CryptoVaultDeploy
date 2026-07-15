@@ -39,4 +39,9 @@ public class User {
 
 	@com.fasterxml.jackson.annotation.JsonIgnore
 	private String withdrawalPin;
+
+	@JsonProperty("hasWithdrawalPin")
+	public boolean getHasWithdrawalPin() {
+		return withdrawalPin != null && !withdrawalPin.isEmpty();
+	}
 }

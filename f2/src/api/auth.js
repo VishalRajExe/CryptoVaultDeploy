@@ -64,3 +64,6 @@ export const forgotWithdrawalPin = () =>
 
 export const resetWithdrawalPin = (otp, newPin) =>
   client.post('/api/users/withdrawal-pin/reset', null, { params: { otp, newPin } }).then((r) => r.data);
+
+export const changeWithdrawalPin = (currentPin, newPin) =>
+  client.post('/api/users/withdrawal-pin/change', null, { params: { currentPin, newPin } }).then((r) => r.data);
