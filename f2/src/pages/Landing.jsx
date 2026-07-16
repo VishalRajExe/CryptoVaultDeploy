@@ -585,11 +585,7 @@ export default function Landing() {
       <footer className="border-t border-[#eaecef] py-12 px-5 sm:px-8 bg-[#fafafa] text-[#181a20]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-md bg-primary-container flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-on-primary-container" fill="currentColor">
-                <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" />
-              </svg>
-            </div>
+            <img src="/favicon.svg" alt="CryptoVault Logo" className="w-7 h-7 shrink-0" />
             <span className="font-display text-sm font-bold text-on-primary-container">CryptoVault</span>
           </div>
           <p className="text-xs text-[#707a8a] text-center">

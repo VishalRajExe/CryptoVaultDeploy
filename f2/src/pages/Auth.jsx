@@ -546,11 +546,7 @@ export default function Auth() {
 
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           <Link to="/" className="flex items-center gap-3 w-fit">
-            <div className="w-8 h-8 bg-primary-container rounded flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-4 h-4 text-on-primary-container" fill="currentColor">
-                <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" />
-              </svg>
-            </div>
+            <img src="/favicon.svg" alt="CryptoVault Logo" className="w-8 h-8 shrink-0" />
             <span className="font-display text-lg font-bold text-[#fff4d7]">CryptoVault</span>
           </Link>
 
@@ -602,11 +598,7 @@ export default function Auth() {
       <div className="w-full lg:w-1/2 flex flex-col bg-surface-container-lowest">
         <div className="flex items-center justify-between p-6 lg:hidden">
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-7 h-7 bg-primary-container rounded flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-on-primary-container" fill="currentColor">
-                <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" />
-              </svg>
-            </div>
+            <img src="/favicon.svg" alt="CryptoVault Logo" className="w-7 h-7 shrink-0" />
             <span className="font-display text-base font-bold text-[#fff4d7]">CryptoVault</span>
           </Link>
         </div>

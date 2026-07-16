@@ -34,11 +34,7 @@ export default function Navbar() {
     >
       <nav className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 bg-primary-container rounded flex items-center justify-center shrink-0">
-            <svg viewBox="0 0 24 24" className="w-4 h-4 text-on-primary-container" fill="currentColor">
-              <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" />
-            </svg>
-          </div>
+          <img src="/favicon.svg" alt="CryptoVault Logo" className="w-8 h-8 shrink-0" />
           <span className="font-display text-lg font-bold tracking-tight text-[#fff4d7]">
             CryptoVault
           </span>
