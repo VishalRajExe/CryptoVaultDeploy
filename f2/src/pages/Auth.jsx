@@ -22,17 +22,17 @@ function Field({ icon: Icon, error, ...props }) {
   return (
     <div>
       <div
-        className={`flex items-center gap-3 rounded-xl border bg-void-900/60 px-4 py-3 transition-colors ${
-          error ? 'border-carmine/50' : 'border-white/10 focus-within:border-mint/50'
+        className={`flex items-center gap-3 rounded-md border bg-surface-container-low px-4 py-3 transition-colors ${
+          error ? 'border-error/50' : 'border-outline-variant focus-within:border-primary-container'
         }`}
       >
-        <Icon size={16} className={error ? 'text-carmine' : 'text-ink-faint'} />
+        <Icon size={16} className={error ? 'text-error' : 'text-muted-strong'} />
         <input
           {...props}
-          className="flex-1 bg-transparent outline-none text-sm text-ink placeholder:text-ink-faint"
+          className="flex-1 bg-transparent outline-none text-sm text-on-surface placeholder:text-muted-tertiary font-hanken"
         />
       </div>
-      {error && <p className="mt-1.5 text-xs text-carmine">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-error font-hanken">{error}</p>}
     </div>
   );
 }
@@ -42,25 +42,25 @@ function PasswordField({ value, onChange, error, placeholder = 'Password', name 
   return (
     <div>
       <div
-        className={`flex items-center gap-3 rounded-xl border bg-void-900/60 px-4 py-3 transition-colors ${
-          error ? 'border-carmine/50' : 'border-white/10 focus-within:border-mint/50'
+        className={`flex items-center gap-3 rounded-md border bg-surface-container-low px-4 py-3 transition-colors ${
+          error ? 'border-error/50' : 'border-outline-variant focus-within:border-primary-container'
         }`}
       >
-        <Lock size={16} className={error ? 'text-carmine' : 'text-ink-faint'} />
+        <Lock size={16} className={error ? 'text-error' : 'text-muted-strong'} />
         <input
           type={show ? 'text' : 'password'}
           name={name}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className="flex-1 bg-transparent outline-none text-sm text-ink placeholder:text-ink-faint"
+          className="flex-1 bg-transparent outline-none text-sm text-on-surface placeholder:text-muted-tertiary font-hanken"
           autoComplete={name === 'password' ? 'current-password' : 'new-password'}
         />
-        <button type="button" onClick={() => setShow((s) => !s)} className="text-ink-faint hover:text-ink-muted" tabIndex={-1}>
+        <button type="button" onClick={() => setShow((s) => !s)} className="text-muted-strong hover:text-on-surface" tabIndex={-1}>
           {show ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
       </div>
-      {error && <p className="mt-1.5 text-xs text-carmine">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-error font-hanken">{error}</p>}
     </div>
   );
 }
@@ -69,7 +69,7 @@ function GoogleButton() {
   return (
     <a
       href={googleLoginUrl(API_BASE_URL)}
-      className="w-full flex items-center justify-center gap-3 rounded-xl border border-white/12 bg-white/[0.02] py-3 text-sm font-medium text-ink hover:bg-white/[0.05] transition-colors"
+      className="w-full flex items-center justify-center gap-3 rounded-md border border-outline-variant bg-surface-card py-3 text-sm font-bold text-on-surface hover:bg-surface-variant transition-colors font-button"
     >
       <svg width="16" height="16" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -162,16 +162,16 @@ function LoginForm({ onSwitch, onForgot }) {
         <button
           type="button"
           onClick={() => setTwoFactor(null)}
-          className="flex items-center gap-1.5 text-xs text-ink-faint hover:text-ink-muted"
+          className="flex items-center gap-1.5 text-xs text-muted-strong hover:text-on-surface"
         >
           <ArrowLeft size={13} /> Back
         </button>
-        <div className="w-11 h-11 rounded-xl bg-mint-900/60 text-mint flex items-center justify-center">
+        <div className="w-11 h-11 rounded-lg bg-primary-container/10 text-primary-container flex items-center justify-center">
           <ShieldCheck size={20} />
         </div>
         <div>
-          <h2 className="font-display text-xl font-semibold text-ink">Verify it's you</h2>
-          <p className="text-sm text-ink-muted mt-1">Enter the 6-digit code we emailed to {form.email}.</p>
+          <h2 className="font-hanken text-xl font-bold text-[#fff4d7]">Verify it's you</h2>
+          <p className="text-sm text-muted-tertiary mt-1">Enter the 6-digit code we emailed to {form.email}.</p>
         </div>
         <Field
           icon={ShieldCheck}
@@ -182,14 +182,14 @@ function LoginForm({ onSwitch, onForgot }) {
           onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
         />
         {apiError && (
-          <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+          <div className="text-sm text-error bg-error-container/10 border border-error/20 rounded-lg px-3.5 py-2.5 font-hanken">
             {apiError}
           </div>
         )}
         <button
           type="submit"
           disabled={otpLoading}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3.5 shadow-mint hover:bg-mint-400 transition-colors disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors py-3.5 disabled:opacity-60"
         >
           {otpLoading ? <Loader2 size={16} className="animate-spin" /> : <>Verify &amp; sign in <ArrowRight size={16} /></>}
         </button>
@@ -207,8 +207,8 @@ function LoginForm({ onSwitch, onForgot }) {
       className="space-y-5"
     >
       <div>
-        <h2 className="font-display text-2xl font-semibold text-ink">Welcome back</h2>
-        <p className="text-sm text-ink-muted mt-1.5">Sign in to access your trading desk.</p>
+        <h2 className="font-hanken text-2xl font-bold text-[#fff4d7]">Welcome back</h2>
+        <p className="text-sm text-muted-tertiary mt-1.5">Sign in to access your trading desk.</p>
       </div>
 
       <Field
@@ -227,13 +227,13 @@ function LoginForm({ onSwitch, onForgot }) {
       />
 
       <div className="flex justify-end -mt-2">
-        <button type="button" onClick={onForgot} className="text-xs text-mint hover:text-mint-400">
+        <button type="button" onClick={onForgot} className="text-xs text-primary-container hover:text-primary-active font-semibold">
           Forgot password?
         </button>
       </div>
 
       {apiError && (
-        <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+        <div className="text-sm text-error bg-error-container/10 border border-error/20 rounded-lg px-3.5 py-2.5 font-hanken">
           {apiError}
         </div>
       )}
@@ -241,22 +241,22 @@ function LoginForm({ onSwitch, onForgot }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3.5 shadow-mint hover:bg-mint-400 transition-colors disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-2 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors py-3.5 disabled:opacity-60 font-semibold"
       >
         {loading ? <Loader2 size={16} className="animate-spin" /> : <>Sign in <ArrowRight size={16} /></>}
       </button>
 
       <div className="flex items-center gap-3 py-1">
-        <div className="h-px flex-1 bg-white/10" />
-        <span className="text-xs text-ink-faint">or</span>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-outline-variant" />
+        <span className="text-xs text-muted-strong">or</span>
+        <div className="h-px flex-1 bg-outline-variant" />
       </div>
 
       <GoogleButton />
 
-      <p className="text-center text-sm text-ink-muted pt-1">
+      <p className="text-center text-sm text-muted-tertiary pt-1">
         New to CryptoVault?{' '}
-        <button type="button" onClick={onSwitch} className="text-mint hover:text-mint-400 font-medium">
+        <button type="button" onClick={onSwitch} className="text-primary-container hover:text-primary-active font-bold">
           Create an account
         </button>
       </p>
@@ -327,8 +327,8 @@ function RegisterForm({ onSwitch }) {
       className="space-y-4"
     >
       <div>
-        <h2 className="font-display text-2xl font-semibold text-ink">Open your vault</h2>
-        <p className="text-sm text-ink-muted mt-1.5">Set up your account in under a minute.</p>
+        <h2 className="font-hanken text-2xl font-bold text-[#fff4d7]">Open your vault</h2>
+        <p className="text-sm text-muted-tertiary mt-1.5">Set up your account in under a minute.</p>
       </div>
 
       <Field
@@ -373,11 +373,11 @@ function RegisterForm({ onSwitch }) {
                 className={`h-1 flex-1 rounded-full transition-colors ${
                   i < strength
                     ? strength <= 1
-                      ? 'bg-carmine'
+                      ? 'bg-error'
                       : strength <= 2
                       ? 'bg-amber-400'
-                      : 'bg-mint'
-                    : 'bg-white/10'
+                      : 'bg-secondary'
+                    : 'bg-outline-variant'
                 }`}
               />
             ))}
@@ -386,7 +386,7 @@ function RegisterForm({ onSwitch }) {
       </div>
 
       {apiError && (
-        <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+        <div className="text-sm text-error bg-error-container/10 border border-error/20 rounded-lg px-3.5 py-2.5 font-hanken">
           {apiError}
         </div>
       )}
@@ -394,22 +394,22 @@ function RegisterForm({ onSwitch }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3.5 shadow-mint hover:bg-mint-400 transition-colors disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-2 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors py-3.5 disabled:opacity-60 font-semibold"
       >
         {loading ? <Loader2 size={16} className="animate-spin" /> : <>Create account <ArrowRight size={16} /></>}
       </button>
 
       <div className="flex items-center gap-3 py-1">
-        <div className="h-px flex-1 bg-white/10" />
-        <span className="text-xs text-ink-faint">or</span>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-outline-variant" />
+        <span className="text-xs text-muted-strong">or</span>
+        <div className="h-px flex-1 bg-outline-variant" />
       </div>
 
       <GoogleButton />
 
-      <p className="text-center text-sm text-ink-muted pt-1">
+      <p className="text-center text-sm text-muted-tertiary pt-1">
         Already have a vault?{' '}
-        <button type="button" onClick={onSwitch} className="text-mint hover:text-mint-400 font-medium">
+        <button type="button" onClick={onSwitch} className="text-primary-container hover:text-primary-active font-bold">
           Sign in
         </button>
       </p>
@@ -465,22 +465,22 @@ function ForgotPasswordForm({ onBack }) {
 
   return (
     <motion.div key="forgot" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-ink-faint hover:text-ink-muted mb-5">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-strong hover:text-on-surface mb-5 font-semibold">
         <ArrowLeft size={13} /> Back to sign in
       </button>
 
       {step === 'request' && (
         <form onSubmit={requestOtp} className="space-y-5">
           <div>
-            <h2 className="font-display text-xl font-semibold text-ink">Reset your password</h2>
-            <p className="text-sm text-ink-muted mt-1">We'll email you a one-time code.</p>
+            <h2 className="font-hanken text-xl font-bold text-[#fff4d7]">Reset your password</h2>
+            <p className="text-sm text-muted-tertiary mt-1">We'll email you a one-time code.</p>
           </div>
           <Field icon={Mail} type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-          {error && <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">{error}</div>}
+          {error && <div className="text-sm text-error bg-error-container/10 border border-error/20 rounded-lg px-3.5 py-2.5 font-hanken">{error}</div>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3.5 shadow-mint hover:bg-mint-400 transition-colors disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors py-3.5 disabled:opacity-60 font-semibold"
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : 'Send code'}
           </button>
@@ -490,16 +490,16 @@ function ForgotPasswordForm({ onBack }) {
       {step === 'verify' && (
         <form onSubmit={submitReset} className="space-y-5">
           <div>
-            <h2 className="font-display text-xl font-semibold text-ink">Check your inbox</h2>
-            <p className="text-sm text-ink-muted mt-1">Enter the code and choose a new password.</p>
+            <h2 className="font-hanken text-xl font-bold text-[#fff4d7]">Check your inbox</h2>
+            <p className="text-sm text-muted-tertiary mt-1">Enter the code and choose a new password.</p>
           </div>
           <Field icon={ShieldCheck} placeholder="000000" inputMode="numeric" maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} />
           <PasswordField name="newPassword2" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="New password" />
-          {error && <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">{error}</div>}
+          {error && <div className="text-sm text-error bg-error-container/10 border border-error/20 rounded-lg px-3.5 py-2.5 font-hanken">{error}</div>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3.5 shadow-mint hover:bg-mint-400 transition-colors disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors py-3.5 disabled:opacity-60 font-semibold"
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : 'Reset password'}
           </button>
@@ -508,14 +508,14 @@ function ForgotPasswordForm({ onBack }) {
 
       {step === 'done' && (
         <div className="text-center py-6">
-          <div className="w-12 h-12 rounded-full bg-mint-900/60 text-mint flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 rounded-full bg-primary-container/10 text-primary-container flex items-center justify-center mx-auto mb-4">
             <ShieldCheck size={22} />
           </div>
-          <h2 className="font-display text-xl font-semibold text-ink mb-2">Password updated</h2>
-          <p className="text-sm text-ink-muted mb-6">You can sign in with your new password now.</p>
+          <h2 className="font-hanken text-xl font-bold text-[#fff4d7] mb-2">Password updated</h2>
+          <p className="text-sm text-muted-tertiary mb-6 font-hanken">You can sign in with your new password now.</p>
           <button
             onClick={onBack}
-            className="px-6 py-3 rounded-xl bg-mint text-void font-display font-semibold text-sm shadow-mint hover:bg-mint-400 transition-colors"
+            className="px-6 py-3 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors font-semibold"
           >
             Back to sign in
           </button>
@@ -537,21 +537,21 @@ export default function Auth() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="min-h-screen bg-void-950 text-ink font-body flex">
+    <div className="min-h-screen bg-surface-container-lowest text-on-surface antialiased flex">
       {/* ---------- visual side ---------- */}
-      <div className="hidden lg:flex w-1/2 relative overflow-hidden border-r border-white/[0.06]">
+      <div className="hidden lg:flex w-1/2 relative overflow-hidden border-r border-outline-variant bg-[#0b0e11]">
         <div className="absolute inset-0 bg-grid-faint bg-grid opacity-50" aria-hidden />
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-mint/[0.12] blur-[120px] rounded-full" aria-hidden />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-violet/[0.12] blur-[120px] rounded-full" aria-hidden />
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary-container/[0.08] blur-[120px] rounded-full" aria-hidden />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/[0.08] blur-[120px] rounded-full" aria-hidden />
 
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          <Link to="/" className="flex items-center gap-2 w-fit">
-            <span className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-mint to-violet flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none">
-                <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" fill="#05070D" />
+          <Link to="/" className="flex items-center gap-3 w-fit">
+            <div className="w-8 h-8 bg-primary-container rounded flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 text-on-primary-container" fill="currentColor">
+                <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" />
               </svg>
-            </span>
-            <span className="font-display text-lg font-semibold text-ink">CryptoVault</span>
+            </div>
+            <span className="font-display text-lg font-bold text-[#fff4d7]">CryptoVault</span>
           </Link>
 
           <div>
@@ -559,16 +559,16 @@ export default function Auth() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="rounded-2xl border border-white/10 bg-void-800/80 backdrop-blur-xl shadow-panel p-6 mb-8"
+              className="rounded-xl border border-outline-variant bg-surface-card backdrop-blur-xl p-6 mb-8"
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="font-display text-sm font-semibold text-ink">BTC/USD</div>
-                  <div className="text-[11px] text-ink-faint">Bitcoin · live</div>
+                  <div className="font-hanken text-sm font-bold text-on-surface">BTC/USD</div>
+                  <div className="text-[11px] text-muted-strong mt-0.5">Bitcoin · live</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono-tab text-mint text-base font-medium">$66,870.95</div>
-                  <div className="font-mono-tab text-[11px] text-mint">+2.41%</div>
+                  <div className="font-plex text-secondary text-base font-semibold">$66,870.95</div>
+                  <div className="font-plex text-[11px] text-secondary font-semibold">+2.41%</div>
                 </div>
               </div>
               <div className="h-32">
@@ -580,7 +580,7 @@ export default function Auth() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="font-display text-3xl font-semibold text-ink leading-tight max-w-md"
+              className="font-hanken text-3xl font-bold text-on-surface leading-tight max-w-md uppercase"
             >
               Markets don't wait. Neither should your terminal.
             </motion.h2>
@@ -588,26 +588,26 @@ export default function Auth() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-3 text-sm text-ink-muted max-w-sm"
+              className="mt-3 text-sm text-muted-tertiary max-w-sm"
             >
               Real-time pricing, instant settlement, and a wallet ledger you can audit at a glance.
             </motion.p>
           </div>
 
-          <p className="text-xs text-ink-faint">© {new Date().getFullYear()} CryptoVault. All rights reserved.</p>
+          <p className="text-xs text-muted-strong">© {new Date().getFullYear()} CryptoVault. All rights reserved.</p>
         </div>
       </div>
 
       {/* ---------- form side ---------- */}
-      <div className="w-full lg:w-1/2 flex flex-col">
+      <div className="w-full lg:w-1/2 flex flex-col bg-surface-container-lowest">
         <div className="flex items-center justify-between p-6 lg:hidden">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-mint to-violet flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none">
-                <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" fill="#05070D" />
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-7 h-7 bg-primary-container rounded flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-on-primary-container" fill="currentColor">
+                <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" />
               </svg>
-            </span>
-            <span className="font-display text-base font-semibold text-ink">CryptoVault</span>
+            </div>
+            <span className="font-display text-base font-bold text-[#fff4d7]">CryptoVault</span>
           </Link>
         </div>
 
@@ -615,24 +615,24 @@ export default function Auth() {
           <div className="w-full max-w-sm">
             {/* Toggle pill — side by side register/login */}
             {!forgot && (
-              <div className="relative grid grid-cols-2 mb-9 rounded-xl border border-white/10 bg-void-900/60 p-1">
+              <div className="relative grid grid-cols-2 mb-9 rounded-md border border-outline-variant bg-surface-card p-1">
                 <motion.div
-                  className="absolute inset-y-1 w-[calc(50%-4px)] rounded-lg bg-mint"
+                  className="absolute inset-y-1 w-[calc(50%-4px)] rounded bg-primary-container"
                   animate={{ x: mode === 'login' ? 0 : '100%' }}
                   transition={{ type: 'spring', stiffness: 380, damping: 32 }}
                 />
                 <button
                   onClick={() => setMode('login')}
-                  className={`relative z-10 py-2.5 text-sm font-display font-semibold rounded-lg transition-colors ${
-                    mode === 'login' ? 'text-void' : 'text-ink-muted'
+                  className={`relative z-10 py-2.5 text-sm font-button font-bold rounded transition-colors ${
+                    mode === 'login' ? 'text-on-primary' : 'text-muted-tertiary'
                   }`}
                 >
                   Login
                 </button>
                 <button
                   onClick={() => setMode('register')}
-                  className={`relative z-10 py-2.5 text-sm font-display font-semibold rounded-lg transition-colors ${
-                    mode === 'register' ? 'text-void' : 'text-ink-muted'
+                  className={`relative z-10 py-2.5 text-sm font-button font-bold rounded transition-colors ${
+                    mode === 'register' ? 'text-on-primary' : 'text-muted-tertiary'
                   }`}
                 >
                   Registration

@@ -72,27 +72,25 @@ function SidebarContent({ onNavigate, collapsed }) {
     .toUpperCase();
 
   return (
-    <div className="flex flex-col h-full bg-void-900/60 backdrop-blur-xl">
+    <div className="flex flex-col h-full bg-surface-container-lowest border-r border-outline-variant">
       {/* Brand logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-white/[0.04]">
-        <span className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-mint to-violet flex items-center justify-center shrink-0 shadow-mint-sm">
-          <svg viewBox="0 0 24 24" className="w-4 h-4 relative z-10" fill="none">
-            <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" fill="#05070D" />
-          </svg>
-        </span>
+      <div className="flex items-center gap-3 px-5 py-5 border-b border-outline-variant">
+        <img src="/favicon.svg" alt="CryptoVault Logo" className="w-8 h-8 shrink-0" />
         {!collapsed && (
-          <motion.span
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="font-display text-base font-semibold tracking-tight text-ink"
+            className="flex flex-col"
           >
-            CryptoVault
-          </motion.span>
+            <span className="font-display text-base font-bold tracking-tight text-primary">
+              CryptoVault
+            </span>
+          </motion.div>
         )}
       </div>
 
       {/* Nav Links — scrolls internally, logout footer stays pinned */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-none min-h-0">
+      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto custom-scrollbar min-h-0">
         {navItems.map((item) => {
           const isActive =
             item.end
@@ -104,24 +102,24 @@ function SidebarContent({ onNavigate, collapsed }) {
               key={item.to}
               to={item.to}
               onClick={onNavigate}
-              className={`group flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm transition-all duration-300 relative ${
+              className={`group flex items-center gap-3 px-4 py-3 mx-1 rounded-lg text-sm transition-all duration-200 ease-in-out relative ${
                 isActive
-                  ? 'text-void font-semibold bg-mint shadow-mint'
-                  : 'text-ink-muted hover:text-ink hover:bg-white/[0.04]'
+                  ? 'text-on-primary-container font-bold bg-primary-container shadow-sm'
+                  : 'text-muted-tertiary hover:text-on-background hover:bg-surface-variant'
               }`}
             >
               <item.icon
-                size={17}
-                className={`shrink-0 transition-transform group-hover:scale-105 duration-300 ${
-                  isActive ? 'text-void' : 'text-ink-faint group-hover:text-ink'
+                size={18}
+                className={`shrink-0 transition-transform group-hover:scale-105 duration-200 ${
+                  isActive ? 'text-on-primary-container' : 'text-muted-tertiary group-hover:text-on-background'
                 }`}
                 strokeWidth={isActive ? 2.5 : 2}
               />
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span className="font-button text-button">{item.label}</span>}
               {isActive && !collapsed && (
                 <motion.span
                   layoutId="activeSideIndicator"
-                  className="absolute right-3 w-1.5 h-1.5 rounded-full bg-void"
+                  className="absolute right-3 w-1.5 h-1.5 rounded-full bg-on-primary-container"
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />
               )}
@@ -131,30 +129,30 @@ function SidebarContent({ onNavigate, collapsed }) {
       </nav>
 
       {/* User profile footer */}
-      <div className="p-3 border-t border-white/[0.06]">
-        <div className="flex items-center gap-3 px-2.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] mb-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600/20 to-violet/20 border border-violet/20 text-violet-400 flex items-center justify-center font-display text-xs font-bold shrink-0">
-            {initials}
-          </div>
-          {!collapsed && (
+      <div className="p-3 border-t border-outline-variant">
+        {!collapsed && (
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface-container-low border border-outline-variant mb-2">
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center font-bold text-xs text-primary-container">
+              {initials}
+            </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-semibold text-ink truncate leading-tight">
+              <div className="text-xs font-bold text-on-surface truncate leading-tight">
                 {user?.fullName || 'Trader'}
               </div>
-              <div className="text-[10px] text-ink-faint truncate mt-0.5 font-mono">
-                {isAdmin ? 'Administrator' : 'Verified desk'}
+              <div className="text-[10px] text-secondary font-semibold leading-none mt-1">
+                {isAdmin ? 'Admin desk' : 'Verified desk'}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm text-ink-muted hover:text-carmine hover:bg-carmine/10 transition-colors ${
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-muted-tertiary hover:text-error hover:bg-error-container/10 transition-colors ${
             collapsed ? 'justify-center' : ''
           }`}
         >
           <LogOut size={16} />
-          {!collapsed && <span>Sign out</span>}
+          {!collapsed && <span className="font-button text-button">Sign out</span>}
         </button>
       </div>
     </div>
@@ -254,19 +252,18 @@ export default function DashboardLayout() {
   }, [isAdmin, location.pathname, navigate]);
 
   return (
-    <div className="min-h-screen bg-void-950 text-ink font-body flex">
+    <div className="min-h-screen bg-surface-container-lowest text-on-surface antialiased flex">
       {/* Desktop sidebar */}
       <aside
         className={`hidden lg:flex flex-col shrink-0 transition-all duration-300 sticky top-0 h-screen z-40 ${
           collapsed ? 'w-20' : 'w-64'
         }`}
-        style={{ boxShadow: '1px 0 0 0 rgba(255,255,255,0.06)' }}
       >
         <SidebarContent collapsed={collapsed} />
         {/* Toggle Collapse Button */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3.5 top-[4.5rem] z-50 w-7 h-7 rounded-full bg-void-800 border border-white/10 flex items-center justify-center text-ink-muted hover:text-ink hover:border-white/20 transition-all shadow-md"
+          className="absolute -right-3.5 top-[4.5rem] z-50 w-7 h-7 rounded-full bg-surface-elevated border border-outline-variant flex items-center justify-center text-muted-tertiary hover:text-on-surface transition-all shadow-md"
         >
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
@@ -298,10 +295,10 @@ export default function DashboardLayout() {
 
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top bar */}
-        <header className="h-16 shrink-0 border-b border-white/[0.06] bg-[#101012]/85 backdrop-blur-xl flex items-center justify-between px-4 sm:px-6 sticky top-0 z-[50]">
+        <header className="h-16 shrink-0 border-b border-outline-variant bg-surface flex items-center justify-between px-4 sm:px-6 sticky top-0 z-[50]">
           <div className="flex items-center gap-4">
             <button
-              className="lg:hidden text-ink p-2 -ml-2 rounded-xl hover:bg-white/[0.05]"
+              className="lg:hidden text-on-surface p-2 -ml-2 rounded-xl hover:bg-surface-variant"
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
             >
@@ -309,23 +306,23 @@ export default function DashboardLayout() {
             </button>
             
             {/* Breadcrumb locator from reference UI */}
-            <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-ink-muted">
+            <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-muted-tertiary">
               <span>Dashboards</span>
               <span className="opacity-30">/</span>
-              <span className="text-ink font-semibold">
+              <span className="text-primary font-bold">
                 {location.pathname === '/app' ? 'Overview' : location.pathname.split('/').pop().charAt(0).toUpperCase() + location.pathname.split('/').pop().slice(1)}
               </span>
             </div>
             
-            <div className="flex items-center gap-2 text-[10px] font-mono-tab text-ink-faint py-1 px-2.5 rounded-lg border border-white/[0.05] bg-white/[0.02]">
-              <span className="w-1.5 h-1.5 rounded-full bg-mint animate-pulse-glow" />
-              <span>DESK STATUS: STABLE</span>
+            <div className="flex items-center gap-xs ml-md px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant">
+              <div className="w-2 h-2 rounded-full bg-secondary"></div>
+              <span className="text-[10px] uppercase font-bold text-muted-strong tracking-widest">Desk Status: Stable</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden md:flex items-center gap-1.5 text-xs text-mint font-mono-tab px-2.5 py-1.5 rounded-full bg-mint-900/40 border border-mint/15">
-              <span className="w-1.5 h-1.5 rounded-full bg-mint animate-pulse-glow" />
+            <span className="hidden md:flex items-center gap-xs text-secondary bg-surface-elevated hover:bg-surface-variant font-button text-button px-3 py-1.5 rounded-lg border border-outline-variant">
+              <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
               Live market feed
             </span>
             <NotificationBell />

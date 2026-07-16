@@ -24,16 +24,16 @@ function FAQItem({ faq, isOpen, onClick }) {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl glass-card overflow-hidden"
+      className="rounded-lg bg-surface-card border border-outline-variant overflow-hidden"
     >
       <button
         onClick={onClick}
-        className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-white/[0.02] transition-colors"
+        className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-surface-variant transition-colors"
       >
-        <span className="font-display text-sm font-semibold text-ink">{faq.q}</span>
+        <span className="font-hanken text-sm font-semibold text-on-surface">{faq.q}</span>
         <ChevronDown
           size={16}
-          className={`text-ink-faint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+          className={`text-muted-strong shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
       <AnimatePresence>
@@ -45,7 +45,7 @@ function FAQItem({ faq, isOpen, onClick }) {
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <div className="px-6 pb-5 text-sm text-ink-muted leading-relaxed border-t border-white/[0.06] pt-4">
+            <div className="px-6 pb-5 text-sm text-muted-tertiary leading-relaxed border-t border-outline-variant pt-4 font-hanken">
               {faq.a}
             </div>
           </motion.div>
@@ -68,7 +68,7 @@ export default function FAQ() {
     : faqs;
 
   return (
-    <div className="min-h-screen bg-void-950">
+    <div className="min-h-screen bg-surface-container-lowest text-on-surface antialiased">
       <Navbar />
       <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-24 pb-20">
         <motion.div
@@ -78,39 +78,39 @@ export default function FAQ() {
         >
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink mb-8 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-tertiary hover:text-on-surface mb-8 transition-colors font-semibold"
           >
             <ArrowLeft size={14} /> Back to home
           </Link>
 
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-mint-900/60 text-mint flex items-center justify-center">
+            <div className="w-12 h-12 rounded-lg bg-primary-container/10 text-primary-container flex items-center justify-center">
               <HelpCircle size={22} />
             </div>
             <div>
-              <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink">
+              <h1 className="font-hanken text-2xl sm:text-3xl font-bold text-[#fff4d7] uppercase">
                 Frequently Asked Questions
               </h1>
-              <p className="text-sm text-ink-muted">Everything you need to know about CryptoVault</p>
+              <p className="text-sm text-muted-tertiary">Everything you need to know about CryptoVault</p>
             </div>
           </div>
 
           {/* Search */}
-          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 mb-8">
-            <Search size={16} className="text-ink-faint" />
+          <div className="flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 mb-8">
+            <Search size={16} className="text-muted-strong" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search FAQs…"
-              className="flex-1 bg-transparent outline-none text-sm text-ink placeholder:text-ink-faint"
+              className="flex-1 bg-transparent outline-none text-sm text-on-surface placeholder:text-muted-tertiary font-hanken"
             />
           </div>
 
           <div className="space-y-3">
             {filtered.length === 0 ? (
               <div className="text-center py-12">
-                <HelpCircle size={28} className="mx-auto text-ink-faint mb-3" />
-                <p className="text-sm text-ink-muted">No results found for "{search}"</p>
+                <HelpCircle size={28} className="mx-auto text-muted-strong mb-3" />
+                <p className="text-sm text-muted-tertiary">No results found for "{search}"</p>
               </div>
             ) : (
               filtered.map((faq, i) => (

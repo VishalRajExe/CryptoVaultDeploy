@@ -23,63 +23,63 @@ export default function AdminUsers() {
   const currentUsers = users.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="pb-16">
+    <div className="pb-16 font-hanken">
       <PageHeader eyebrow="People" title="Users" description={`${users.length} registered account${users.length === 1 ? '' : 's'}.`} />
 
       <div className="px-4 sm:px-8">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 overflow-hidden"
+          className="rounded-lg border border-outline-variant bg-surface-card overflow-hidden"
         >
           {loading ? (
             <div className="p-6 space-y-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-12 rounded-lg bg-white/5 animate-pulse" />
+                <div key={i} className="h-12 rounded-lg bg-surface-container-low border border-outline-variant animate-pulse" />
               ))}
             </div>
           ) : error ? (
-            <div className="p-10 text-center text-sm text-ink-muted">{error}</div>
+            <div className="p-10 text-center text-sm text-error">{error}</div>
           ) : users.length === 0 ? (
             <div className="p-12 text-center">
-              <Users size={28} className="mx-auto text-ink-faint mb-3" />
-              <p className="text-sm text-ink-muted">No users yet.</p>
+              <Users size={28} className="mx-auto text-muted-strong mb-3" />
+              <p className="text-sm text-muted-tertiary font-bold">No users yet.</p>
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="text-left text-ink-faint text-xs uppercase tracking-wide font-mono-tab">
-                    <th className="px-5 sm:px-6 py-3 font-normal">User</th>
-                    <th className="px-4 py-3 font-normal">Mobile</th>
-                    <th className="px-4 py-3 font-normal">Role</th>
-                    <th className="px-4 py-3 font-normal">Verified</th>
-                    <th className="px-4 py-3 font-normal">2FA</th>
-                    <th className="px-5 sm:px-6 py-3 font-normal text-right">Status</th>
+                  <tr className="text-left bg-surface-container-low border-b border-outline-variant text-muted-strong text-[10px] uppercase tracking-wider font-plex font-bold">
+                    <th className="px-5 sm:px-6 py-3 font-bold">User</th>
+                    <th className="px-4 py-3 font-bold">Mobile</th>
+                    <th className="px-4 py-3 font-bold">Role</th>
+                    <th className="px-4 py-3 font-bold">Verified</th>
+                    <th className="px-4 py-3 font-bold">2FA</th>
+                    <th className="px-5 sm:px-6 py-3 font-bold text-right">Status</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-outline-variant/40">
                   {currentUsers.map((u) => (
-                    <tr key={u.id} className="border-t border-white/[0.05]">
+                    <tr key={u.id} className="hover:bg-surface-variant/20 transition-colors">
                       <td className="px-5 sm:px-6 py-3.5">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-violet-600/20 text-violet-400 flex items-center justify-center font-display text-[10px] font-semibold shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-primary-container/10 text-primary-container border border-outline-variant flex items-center justify-center font-bold text-[10px] shrink-0">
                             {(u.fullName || u.email || 'U').slice(0, 1).toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <div className="text-ink font-medium truncate">{u.fullName}</div>
-                            <div className="text-xs text-ink-faint truncate">{u.email}</div>
+                            <div className="text-on-surface font-bold truncate">{u.fullName}</div>
+                            <div className="text-xs text-muted-strong truncate font-medium">{u.email}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3.5 text-ink-muted font-mono-tab text-xs">{u.mobile || '—'}</td>
+                      <td className="px-4 py-3.5 text-muted-tertiary font-plex text-xs font-bold">{u.mobile || '—'}</td>
                       <td className="px-4 py-3.5">
                         <span
-                          className={`text-[11px] font-mono-tab px-2 py-1 rounded-full border ${
+                          className={`text-[10px] font-plex font-bold px-2 py-0.5 rounded border ${
                             u.role === 'ROLE_ADMIN'
-                              ? 'text-violet-400 bg-violet-600/10 border-violet/20'
-                              : 'text-ink-muted bg-white/5 border-white/10'
+                              ? 'text-primary-container bg-primary-container/10 border-primary-container/20'
+                              : 'text-muted-strong bg-surface-container-low border-outline-variant'
                           }`}
                         >
                           {u.role === 'ROLE_ADMIN' ? 'Admin' : 'User'}
@@ -87,20 +87,20 @@ export default function AdminUsers() {
                       </td>
                       <td className="px-4 py-3.5">
                         {u.isVerified ? (
-                          <CheckCircle2 size={15} className="text-mint" />
+                          <CheckCircle2 size={15} className="text-secondary" />
                         ) : (
-                          <span className="text-xs text-ink-faint">—</span>
+                          <span className="text-xs text-muted-strong">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3.5">
                         {u.twoFactorAuth?.isEnabled ? (
-                          <ShieldCheck size={15} className="text-mint" />
+                          <ShieldCheck size={15} className="text-secondary" />
                         ) : (
-                          <span className="text-xs text-ink-faint">—</span>
+                          <span className="text-xs text-muted-strong">—</span>
                         )}
                       </td>
                       <td className="px-5 sm:px-6 py-3.5 text-right">
-                        <span className="text-[11px] font-mono-tab px-2 py-1 rounded-full border border-white/10 text-ink-muted">
+                        <span className="text-[10px] font-plex font-bold px-2 py-0.5 rounded border border-outline-variant text-muted-strong bg-surface-container-low">
                           {u.status}
                         </span>
                       </td>

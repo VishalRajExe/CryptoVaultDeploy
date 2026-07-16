@@ -24,18 +24,18 @@ const navItems = [
 
 export default function AdminLayout() {
   return (
-    <div className="min-h-screen bg-void-950">
-      <div className="border-b border-violet/20 bg-violet-600/[0.06]">
+    <div className="min-h-screen bg-surface-container-lowest font-hanken">
+      <div className="border-b border-outline-variant bg-surface-card">
         <div className="px-4 sm:px-8 py-4 flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <span className="px-2.5 py-1 rounded-full bg-violet-600/20 text-violet-400 text-[11px] font-mono-tab font-semibold tracking-wide uppercase">
+            <span className="px-2.5 py-1 rounded bg-primary-container/10 text-primary-container text-[11px] font-plex font-bold tracking-wider uppercase border border-primary-container/20">
               Admin
             </span>
-            <h1 className="font-display text-lg font-semibold text-ink">Platform control</h1>
+            <h1 className="font-hanken text-lg font-bold text-on-surface">Platform control</h1>
           </div>
           <Link
             to="/app"
-            className="flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink transition-colors"
+            className="flex items-center gap-1.5 text-xs text-muted-strong hover:text-on-surface font-bold transition-colors"
           >
             <ArrowLeft size={13} /> Back to trading desk
           </Link>
@@ -47,10 +47,10 @@ export default function AdminLayout() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
+                `flex items-center gap-2 px-3.5 py-2.5 text-sm font-bold border-b-2 whitespace-nowrap transition-colors ${
                   isActive
-                    ? 'border-violet-400 text-ink'
-                    : 'border-transparent text-ink-muted hover:text-ink'
+                    ? 'border-primary-container text-on-surface'
+                    : 'border-transparent text-muted-strong hover:text-on-surface'
                 }`
               }
             >

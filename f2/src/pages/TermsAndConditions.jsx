@@ -48,7 +48,7 @@ const sections = [
 
 export default function TermsAndConditions() {
   return (
-    <div className="min-h-screen bg-void-950">
+    <div className="min-h-screen bg-surface-container-lowest text-on-surface antialiased">
       <Navbar />
       <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-24 pb-20">
         <motion.div
@@ -58,33 +58,33 @@ export default function TermsAndConditions() {
         >
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink mb-8 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-tertiary hover:text-on-surface mb-8 transition-colors font-semibold"
           >
             <ArrowLeft size={14} /> Back to home
           </Link>
 
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-violet-600/15 text-violet-400 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-lg bg-primary-container/10 text-primary-container flex items-center justify-center">
               <FileText size={22} />
             </div>
             <div>
-              <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink">Terms & Conditions</h1>
-              <p className="text-sm text-ink-muted">Last updated: July 2026</p>
+              <h1 className="font-hanken text-2xl sm:text-3xl font-bold text-[#fff4d7] uppercase">Terms &amp; Conditions</h1>
+              <p className="text-sm text-muted-tertiary">Last updated: July 2026</p>
             </div>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-8 font-hanken">
             {sections.map((s, i) => (
               <motion.section
                 key={i}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
-                className="rounded-2xl glass-card p-6"
+                className="rounded-lg bg-surface-card border border-outline-variant p-6"
                 id={`section-${i + 1}`}
               >
-                <h2 className="font-display text-base font-semibold text-ink mb-3">{s.title}</h2>
-                <p className="text-sm text-ink-muted leading-relaxed">{s.content}</p>
+                <h2 className="font-hanken text-base font-bold text-on-surface mb-3">{s.title}</h2>
+                <p className="text-sm text-muted-tertiary leading-relaxed">{s.content}</p>
               </motion.section>
             ))}
           </div>

@@ -6,15 +6,15 @@ import { getAllActivity } from '../../api/admin';
 import Pagination from '../../components/Pagination';
 
 const typeIcon = {
-  SIGNUP: { icon: UserPlus, color: 'text-violet-400 bg-violet-600/15' },
-  DEPOSIT: { icon: ArrowDownLeft, color: 'text-mint bg-mint-900/50' },
-  WITHDRAWAL_REQUESTED: { icon: ArrowUpRight, color: 'text-amber-400 bg-amber-400/10' },
-  WITHDRAWAL_APPROVED: { icon: ArrowDownLeft, color: 'text-mint bg-mint-900/50' },
-  WITHDRAWAL_DECLINED: { icon: ArrowUpRight, color: 'text-carmine bg-carmine/10' },
-  WALLET_TRANSFER_SENT: { icon: Send, color: 'text-violet-400 bg-violet-600/15' },
-  WALLET_TRANSFER_RECEIVED: { icon: ArrowDownLeft, color: 'text-mint bg-mint-900/50' },
-  ORDER_BUY: { icon: ArrowUpRight, color: 'text-carmine bg-carmine/10' },
-  ORDER_SELL: { icon: ArrowDownLeft, color: 'text-mint bg-mint-900/50' },
+  SIGNUP: { icon: UserPlus, color: 'text-primary-container bg-primary-container/10 border border-primary-container/20' },
+  DEPOSIT: { icon: ArrowDownLeft, color: 'text-secondary bg-secondary/10 border border-secondary/20' },
+  WITHDRAWAL_REQUESTED: { icon: ArrowUpRight, color: 'text-[#FCD535] bg-[#FCD535]/10 border border-[#FCD535]/20' },
+  WITHDRAWAL_APPROVED: { icon: ArrowDownLeft, color: 'text-secondary bg-secondary/10 border border-secondary/20' },
+  WITHDRAWAL_DECLINED: { icon: ArrowUpRight, color: 'text-error bg-error/10 border border-error/20' },
+  WALLET_TRANSFER_SENT: { icon: Send, color: 'text-primary-container bg-primary-container/10 border border-primary-container/20' },
+  WALLET_TRANSFER_RECEIVED: { icon: ArrowDownLeft, color: 'text-secondary bg-secondary/10 border border-secondary/20' },
+  ORDER_BUY: { icon: ArrowUpRight, color: 'text-error bg-error/10 border border-error/20' },
+  ORDER_SELL: { icon: ArrowDownLeft, color: 'text-secondary bg-secondary/10 border border-secondary/20' },
 };
 
 export default function AdminActivity() {
@@ -43,7 +43,7 @@ export default function AdminActivity() {
   const currentItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="pb-16">
+    <div className="pb-16 font-hanken">
       <PageHeader
         eyebrow="Audit trail"
         title="Full activity"
@@ -53,7 +53,7 @@ export default function AdminActivity() {
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="rounded-lg border border-white/10 bg-void-900/60 px-3 py-2 text-xs text-ink outline-none focus:border-violet/50"
+              className="rounded border border-outline-variant bg-surface-container-low px-3 py-2 text-xs text-on-surface font-plex font-bold outline-none focus:border-primary-container"
             >
               {types.map((t) => (
                 <option key={t} value={t}>
@@ -69,42 +69,42 @@ export default function AdminActivity() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 overflow-hidden"
+          className="rounded-lg border border-outline-variant bg-surface-card overflow-hidden"
         >
           {loading ? (
             <div className="p-6 space-y-3">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-14 rounded-lg bg-white/5 animate-pulse" />
+                <div key={i} className="h-14 rounded-lg bg-surface-container-low border border-outline-variant animate-pulse" />
               ))}
             </div>
           ) : error ? (
-            <div className="p-10 text-center text-sm text-ink-muted">{error}</div>
+            <div className="p-10 text-center text-sm text-error">{error}</div>
           ) : filtered.length === 0 ? (
             <div className="p-12 text-center">
-              <Activity size={28} className="mx-auto text-ink-faint mb-3" />
-              <p className="text-sm text-ink-muted">No activity recorded yet.</p>
+              <Activity size={28} className="mx-auto text-muted-strong mb-3" />
+              <p className="text-sm text-muted-tertiary font-bold">No activity recorded yet.</p>
             </div>
           ) : (
             <>
-              <div className="divide-y divide-white/[0.05]">
+              <div className="divide-y divide-outline-variant/40">
                 {currentItems.map((n) => {
-                  const meta = typeIcon[n.type] || { icon: Activity, color: 'text-ink-muted bg-white/5' };
+                  const meta = typeIcon[n.type] || { icon: Activity, color: 'text-muted-strong bg-surface-container-low border border-outline-variant' };
                   const Icon = meta.icon;
                   return (
-                    <div key={n.id} className="flex items-start gap-3 px-5 sm:px-6 py-3.5">
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${meta.color}`}>
+                    <div key={n.id} className="flex items-start gap-3 px-5 sm:px-6 py-3.5 hover:bg-surface-variant/20 transition-colors">
+                      <div className={`w-9 h-9 rounded flex items-center justify-center shrink-0 ${meta.color}`}>
                         <Icon size={15} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-3">
-                          <span className="text-sm text-ink font-medium truncate">
+                          <span className="text-sm text-on-surface font-bold truncate">
                             {n.user?.fullName || n.user?.email || 'Unknown user'}
                           </span>
-                          <span className="text-xs text-ink-faint font-mono-tab shrink-0">
+                          <span className="text-xs text-muted-strong font-plex shrink-0 font-semibold">
                             {n.timestamp ? new Date(n.timestamp).toLocaleString() : ''}
                           </span>
                         </div>
-                        <p className="text-xs text-ink-muted mt-0.5">{n.message}</p>
+                        <p className="text-xs text-muted-tertiary mt-0.5 font-medium">{n.message}</p>
                       </div>
                     </div>
                   );

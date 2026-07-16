@@ -35,8 +35,8 @@ const stagger = {
 function SectionEyebrow({ children }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <span className="w-1.5 h-1.5 rounded-full bg-mint" />
-      <span className="font-mono-tab text-xs tracking-[0.18em] uppercase text-mint">{children}</span>
+      <span className="w-1.5 h-1.5 rounded-full bg-primary-container" />
+      <span className="font-plex text-xs tracking-[0.18em] uppercase text-primary-container">{children}</span>
     </div>
   );
 }
@@ -122,22 +122,22 @@ function FeatureCard({ icon: Icon, title, desc, accent }) {
   return (
     <motion.div
       variants={fadeUp}
-      className="group relative rounded-2xl border border-white/[0.07] bg-void-800/60 p-6 hover:border-white/[0.14] transition-colors duration-300 overflow-hidden"
+      className="group relative rounded-xl border border-outline-variant bg-surface-card p-6 hover:border-outline transition-colors duration-300 overflow-hidden"
     >
       <div
         className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-          isMint ? 'bg-mint/20' : 'bg-violet/20'
+          isMint ? 'bg-primary-container/20' : 'bg-info/20'
         }`}
       />
       <div
-        className={`relative w-10 h-10 rounded-xl flex items-center justify-center mb-5 ${
-          isMint ? 'bg-mint-900/60 text-mint' : 'bg-violet-600/15 text-violet-400'
+        className={`relative w-10 h-10 rounded-lg flex items-center justify-center mb-5 ${
+          isMint ? 'bg-primary-container/10 text-primary-container' : 'bg-surface-elevated text-info'
         }`}
       >
         <Icon size={18} strokeWidth={1.75} />
       </div>
-      <h3 className="relative font-display text-base font-semibold text-ink mb-2">{title}</h3>
-      <p className="relative text-sm text-ink-muted leading-relaxed">{desc}</p>
+      <h3 className="relative font-hanken text-base font-bold text-on-surface mb-2">{title}</h3>
+      <p className="relative text-sm text-muted-tertiary leading-relaxed">{desc}</p>
     </motion.div>
   );
 }
@@ -145,24 +145,24 @@ function FeatureCard({ icon: Icon, title, desc, accent }) {
 function StatBlock({ value, label, suffix = '' }) {
   return (
     <motion.div variants={fadeUp} className="text-center sm:text-left">
-      <div className="font-display text-3xl sm:text-4xl font-semibold text-ink">
+      <div className="font-plex text-3xl sm:text-4xl font-bold text-on-surface">
         {value}
-        <span className="text-mint">{suffix}</span>
+        <span className="text-primary-container">{suffix}</span>
       </div>
-      <div className="text-xs text-ink-faint mt-1.5 tracking-wide uppercase font-mono-tab">{label}</div>
+      <div className="text-[10px] text-muted-strong mt-1.5 tracking-wider uppercase font-plex">{label}</div>
     </motion.div>
   );
 }
 
 function FaqItem({ q, a, isOpen, onClick }) {
   return (
-    <div className="border-b border-white/[0.07]">
+    <div className="border-b border-outline-variant">
       <button
         onClick={onClick}
         className="w-full flex items-center justify-between gap-4 py-5 text-left"
       >
-        <span className="font-display text-sm sm:text-base text-ink font-medium">{q}</span>
-        <span className="shrink-0 w-6 h-6 rounded-full border border-white/15 flex items-center justify-center text-ink-muted">
+        <span className="font-hanken text-sm sm:text-base text-on-surface font-semibold">{q}</span>
+        <span className="shrink-0 w-6 h-6 rounded-full border border-outline-variant flex items-center justify-center text-muted-tertiary">
           {isOpen ? <Minus size={13} /> : <Plus size={13} />}
         </span>
       </button>
@@ -172,7 +172,7 @@ function FaqItem({ q, a, isOpen, onClick }) {
         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         className="overflow-hidden"
       >
-        <p className="text-sm text-ink-muted leading-relaxed pb-5 pr-10">{a}</p>
+        <p className="text-sm text-muted-tertiary leading-relaxed pb-5 pr-10">{a}</p>
       </motion.div>
     </div>
   );
@@ -191,7 +191,7 @@ export default function Landing() {
   const [sparks] = useState(() => marketCoins.map(() => generateCandles(28, 100, 0.025).map((c) => c.close)));
 
   return (
-    <div className="min-h-screen bg-void-950 text-ink font-body overflow-x-hidden">
+    <div className="min-h-screen bg-surface-container-lowest text-on-surface antialiased overflow-x-hidden">
       <Navbar />
 
       {/* ---------------- HERO ---------------- */}
@@ -201,30 +201,30 @@ export default function Landing() {
           style={{ maskImage: 'radial-gradient(ellipse 80% 50% at 50% 0%, black 40%, transparent 100%)' }}
           aria-hidden
         />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-mint/[0.08] blur-[140px] rounded-full" aria-hidden />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-primary-container/[0.08] blur-[140px] rounded-full" aria-hidden />
 
         <div className="relative max-w-7xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-16 items-center">
           <motion.div initial="hidden" animate="show" variants={stagger}>
             <motion.div
               variants={fadeUp}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 mb-7"
+              className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3.5 py-1.5 mb-7"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-mint animate-pulse-glow" />
-              <span className="text-xs text-ink-muted font-mono-tab">Markets open · settling in real time</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse-glow" />
+              <span className="text-xs text-muted-strong font-plex">Markets open · settling in real time</span>
             </motion.div>
 
             <motion.h1
               variants={fadeUp}
-              className="font-display text-[2.6rem] leading-[1.05] sm:text-6xl sm:leading-[1.04] font-semibold tracking-tight text-ink"
+              className="font-hanken text-[2.6rem] leading-[1.05] sm:text-6xl sm:leading-[1.04] font-bold tracking-tight text-on-surface uppercase"
             >
               Trade digital assets
               <br />
-              with <span className="text-transparent bg-clip-text bg-gradient-to-r from-mint to-violet-400">conviction</span>,
+              with <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-container to-secondary">conviction</span>,
               <br />
               not guesswork.
             </motion.h1>
 
-            <motion.p variants={fadeUp} className="mt-6 text-base sm:text-lg text-ink-muted max-w-lg leading-relaxed">
+            <motion.p variants={fadeUp} className="mt-6 text-base sm:text-lg text-muted-tertiary max-w-lg leading-relaxed">
               CryptoVault is a precision trading desk for crypto — live order books,
               instant wallet settlement, and bank-grade custody, built for people who
               treat trading as a discipline.
@@ -233,30 +233,28 @@ export default function Landing() {
             <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
               <button
                 onClick={() => navigate('/auth?mode=register')}
-                className="group relative px-6 py-3.5 rounded-xl bg-mint text-void font-display font-semibold text-sm overflow-hidden shadow-mint hover:shadow-[0_0_0_1px_rgba(215,255,79,0.3),0_12px_50px_-8px_rgba(215,255,79,0.55)] transition-shadow"
+                className="px-6 py-3.5 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors shadow-sm inline-flex items-center gap-2"
               >
-                <span className="relative z-10 flex items-center gap-2">
-                  Open your vault
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </span>
+                <span>Open your vault</span>
+                <ArrowRight size={16} />
               </button>
               <button
                 onClick={() => navigate('/auth?mode=login')}
-                className="px-6 py-3.5 rounded-xl border border-white/12 text-ink font-display font-semibold text-sm hover:bg-white/[0.04] transition-colors"
+                className="px-6 py-3.5 rounded-md border border-outline-variant text-on-surface font-button hover:bg-surface-variant transition-colors"
               >
                 Sign in
               </button>
             </motion.div>
 
-            <motion.div variants={fadeUp} className="mt-10 flex items-center gap-6 text-xs text-ink-faint">
+            <motion.div variants={fadeUp} className="mt-10 flex items-center gap-6 text-xs text-muted-strong">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-mint" /> 2FA secured
+                <ShieldCheck size={14} className="text-primary-container" /> 2FA secured
               </span>
               <span className="flex items-center gap-1.5">
-                <Lock size={14} className="text-mint" /> Encrypted wallets
+                <Lock size={14} className="text-primary-container" /> Encrypted wallets
               </span>
               <span className="flex items-center gap-1.5">
-                <Globe2 size={14} className="text-mint" /> Global markets
+                <Globe2 size={14} className="text-primary-container" /> Global markets
               </span>
             </motion.div>
           </motion.div>
@@ -279,11 +277,11 @@ export default function Landing() {
           >
             <div>
               <SectionEyebrow>Live snapshot</SectionEyebrow>
-              <motion.h2 variants={fadeUp} className="font-display text-3xl sm:text-4xl font-semibold text-ink max-w-md">
+              <motion.h2 variants={fadeUp} className="font-hanken text-3xl sm:text-4xl font-bold text-on-surface max-w-md">
                 The market, refreshed every tick.
               </motion.h2>
             </div>
-            <motion.p variants={fadeUp} className="text-sm text-ink-muted max-w-xs">
+            <motion.p variants={fadeUp} className="text-sm text-muted-tertiary max-w-xs">
               A preview of what loads in your terminal — full top-50 rankings, search, and detail charts on every coin.
             </motion.p>
           </motion.div>
@@ -299,24 +297,24 @@ export default function Landing() {
               <motion.div
                 key={c.sym}
                 variants={fadeUp}
-                className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 hover:border-white/[0.15] transition-colors"
+                className="rounded-xl border border-outline-variant bg-surface-card p-5 hover:border-outline transition-colors"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2.5">
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center font-display text-[10px] font-bold"
+                      className="w-8 h-8 rounded-full flex items-center justify-center font-plex text-[10px] font-bold"
                       style={{ background: `${c.color}22`, color: c.color }}
                     >
                       {c.sym.slice(0, 1)}
                     </div>
                     <div>
-                      <div className="font-display text-sm font-semibold text-ink leading-none">{c.sym}</div>
-                      <div className="text-[11px] text-ink-faint mt-1">{c.name}</div>
+                      <div className="font-hanken text-sm font-bold text-on-surface leading-none">{c.sym}</div>
+                      <div className="text-[11px] text-muted-strong mt-1">{c.name}</div>
                     </div>
                   </div>
                   <span
-                    className={`font-mono-tab text-[11px] px-1.5 py-0.5 rounded ${
-                      c.change >= 0 ? 'text-mint bg-mint-900/40' : 'text-carmine bg-carmine/10'
+                    className={`font-plex text-[11px] px-1.5 py-0.5 rounded font-semibold ${
+                      c.change >= 0 ? 'text-secondary bg-secondary-container/10' : 'text-error bg-error-container/10'
                     }`}
                   >
                     {c.change >= 0 ? '+' : ''}
@@ -326,7 +324,7 @@ export default function Landing() {
                 <div className="h-10 -mx-1 mb-2">
                   <Sparkline data={sparks[idx]} width={240} height={40} color={c.color} />
                 </div>
-                <div className="font-mono-tab text-lg text-ink font-medium">
+                <div className="font-plex text-lg text-on-surface font-semibold">
                   ${c.price < 1 ? c.price.toFixed(3) : c.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </motion.div>
@@ -336,7 +334,7 @@ export default function Landing() {
       </section>
 
       {/* ---------------- FEATURES ---------------- */}
-      <section id="platform" className="py-24 px-5 sm:px-8 bg-void-900/40 border-y border-white/[0.05]">
+      <section id="platform" className="py-24 px-5 sm:px-8 bg-[#0b0e11] border-y border-outline-variant">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial="hidden"
@@ -346,10 +344,10 @@ export default function Landing() {
             className="max-w-xl mb-14"
           >
             <SectionEyebrow>The terminal</SectionEyebrow>
-            <motion.h2 variants={fadeUp} className="font-display text-3xl sm:text-4xl font-semibold text-ink">
+            <motion.h2 variants={fadeUp} className="font-hanken text-3xl sm:text-4xl font-bold text-on-surface">
               Every module a trading desk needs, none it doesn't.
             </motion.h2>
-            <motion.p variants={fadeUp} className="mt-4 text-ink-muted text-sm sm:text-base">
+            <motion.p variants={fadeUp} className="mt-4 text-muted-tertiary text-sm sm:text-base">
               Built directly on top of CryptoVault's trading engine — wallets, orders, assets, and watchlists all stay in sync.
             </motion.p>
           </motion.div>
@@ -379,18 +377,19 @@ export default function Landing() {
             className="lg:sticky lg:top-28"
           >
             <SectionEyebrow>Getting started</SectionEyebrow>
-            <motion.h2 variants={fadeUp} className="font-display text-3xl sm:text-4xl font-semibold text-ink mb-5">
+            <motion.h2 variants={fadeUp} className="font-hanken text-3xl sm:text-4xl font-bold text-on-surface mb-5">
               From sign-up to first trade in three steps.
             </motion.h2>
-            <motion.p variants={fadeUp} className="text-ink-muted text-sm sm:text-base mb-8">
+            <motion.p variants={fadeUp} className="text-muted-tertiary text-sm sm:text-base mb-8">
               No paperwork queue, no waiting period on your balance. Your vault is ready the moment verification clears.
             </motion.p>
             <motion.div variants={fadeUp}>
               <button
                 onClick={() => navigate('/auth?mode=register')}
-                className="px-6 py-3.5 rounded-xl bg-mint text-void font-display font-semibold text-sm shadow-mint hover:bg-mint-400 transition-colors inline-flex items-center gap-2"
+                className="px-6 py-3.5 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors shadow-sm inline-flex items-center gap-2"
               >
-                Create your vault <ArrowRight size={16} />
+                <span>Create your vault</span>
+                <ArrowRight size={16} />
               </button>
             </motion.div>
           </motion.div>
@@ -406,14 +405,14 @@ export default function Landing() {
               <motion.div
                 key={s.n}
                 variants={fadeUp}
-                className="flex gap-6 rounded-2xl border border-white/[0.07] bg-void-800/50 p-6 sm:p-7"
+                className="flex gap-6 rounded-xl border border-outline-variant bg-surface-card p-6 sm:p-7"
               >
-                <span className="font-display text-3xl font-semibold text-white/10 leading-none shrink-0">
+                <span className="font-plex text-3xl font-bold text-outline-variant leading-none shrink-0">
                   {s.n}
                 </span>
                 <div>
-                  <h3 className="font-display text-base font-semibold text-ink mb-1.5">{s.title}</h3>
-                  <p className="text-sm text-ink-muted leading-relaxed">{s.desc}</p>
+                  <h3 className="font-hanken text-base font-bold text-on-surface mb-1.5">{s.title}</h3>
+                  <p className="text-sm text-muted-tertiary leading-relaxed">{s.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -422,7 +421,7 @@ export default function Landing() {
       </section>
 
       {/* ---------------- SECURITY ---------------- */}
-      <section id="security" className="py-24 px-5 sm:px-8 bg-void-900/40 border-y border-white/[0.05]">
+      <section id="security" className="py-24 px-5 sm:px-8 bg-[#0b0e11] border-y border-outline-variant">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <motion.div
             initial="hidden"
@@ -431,10 +430,10 @@ export default function Landing() {
             variants={stagger}
           >
             <SectionEyebrow>Security</SectionEyebrow>
-            <motion.h2 variants={fadeUp} className="font-display text-3xl sm:text-4xl font-semibold text-ink mb-5">
+            <motion.h2 variants={fadeUp} className="font-hanken text-3xl sm:text-4xl font-bold text-on-surface mb-5">
               Custody that takes nothing for granted.
             </motion.h2>
-            <motion.p variants={fadeUp} className="text-ink-muted text-sm sm:text-base mb-8 max-w-md">
+            <motion.p variants={fadeUp} className="text-muted-tertiary text-sm sm:text-base mb-8 max-w-md">
               Every account ships with email verification and optional two-factor
               authentication. Every withdrawal checks against your saved bank details
               and a real-time balance — never an assumption.
@@ -447,12 +446,12 @@ export default function Landing() {
                 { icon: Eye, title: 'Full transaction visibility', desc: 'Every deposit, transfer, and withdrawal is logged to your wallet ledger.' },
               ].map((item) => (
                 <motion.div key={item.title} variants={fadeUp} className="flex items-start gap-4">
-                  <div className="w-9 h-9 rounded-lg bg-mint-900/50 text-mint flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-9 h-9 rounded-lg bg-primary-container/10 text-primary-container flex items-center justify-center shrink-0 mt-0.5">
                     <item.icon size={16} strokeWidth={1.75} />
                   </div>
                   <div>
-                    <div className="font-display text-sm font-semibold text-ink">{item.title}</div>
-                    <div className="text-sm text-ink-muted mt-0.5">{item.desc}</div>
+                    <div className="font-hanken text-sm font-bold text-on-surface">{item.title}</div>
+                    <div className="text-sm text-muted-tertiary mt-0.5">{item.desc}</div>
                   </div>
                 </motion.div>
               ))}
@@ -466,41 +465,41 @@ export default function Landing() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
           >
-            <div className="absolute -inset-10 bg-violet/10 blur-[100px] rounded-full" aria-hidden />
-            <div className="relative rounded-2xl border border-white/10 bg-void-800/80 backdrop-blur-xl shadow-panel p-7">
+            <div className="absolute -inset-10 bg-primary-container/5 blur-[100px] rounded-full" aria-hidden />
+            <div className="relative rounded-xl border border-outline-variant bg-surface-card backdrop-blur-xl p-7">
               <div className="flex items-center justify-between mb-6">
-                <span className="font-display text-sm font-semibold text-ink">Two-factor authentication</span>
-                <span className="w-10 h-5 rounded-full bg-mint/90 relative">
-                  <span className="absolute right-0.5 top-0.5 w-4 h-4 rounded-full bg-void" />
+                <span className="font-hanken text-sm font-bold text-on-surface">Two-factor authentication</span>
+                <span className="w-10 h-5 rounded-full bg-primary-container/90 relative">
+                  <span className="absolute right-0.5 top-0.5 w-4 h-4 rounded-full bg-[#0b0e11]" />
                 </span>
               </div>
-              <p className="text-xs text-ink-faint mb-6">A code was sent to your email</p>
+              <p className="text-xs text-muted-strong mb-6">A code was sent to your email</p>
               <div className="flex gap-2.5 mb-7">
                 {['4', '1', '9', '2', '0', '7'].map((d, i) => (
                   <div
                     key={i}
-                    className={`w-10 h-12 rounded-lg border flex items-center justify-center font-mono-tab text-lg ${
-                      i < 4 ? 'border-mint/40 bg-mint-900/30 text-mint' : 'border-white/10 text-ink-faint animate-blink'
+                    className={`w-10 h-12 rounded-lg border flex items-center justify-center font-plex text-lg ${
+                      i < 4 ? 'border-primary-container/40 bg-primary-container/10 text-primary-container' : 'border-outline-variant text-muted-strong animate-blink'
                     }`}
                   >
                     {i < 4 ? d : ''}
                   </div>
                 ))}
               </div>
-              <div className="h-px bg-white/[0.07] mb-6" />
+              <div className="h-px bg-outline-variant mb-6" />
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-ink-faint">Session</span>
-                  <span className="font-mono-tab text-ink-muted">7f2a-91cd-44e0</span>
+                  <span className="text-muted-strong">Session</span>
+                  <span className="font-plex text-on-surface">7f2a-91cd-44e0</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-ink-faint">Device</span>
-                  <span className="text-ink-muted">Verified · Chrome on macOS</span>
+                  <span className="text-muted-strong">Device</span>
+                  <span className="text-on-surface">Verified · Chrome on macOS</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-ink-faint">Status</span>
-                  <span className="text-mint flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-mint animate-pulse-glow" /> Verifying
+                  <span className="text-muted-strong">Status</span>
+                  <span className="text-secondary flex items-center gap-1.5 font-semibold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse-glow" /> Verifying
                   </span>
                 </div>
               </div>
@@ -526,7 +525,7 @@ export default function Landing() {
       </section>
 
       {/* ---------------- FAQ ---------------- */}
-      <section className="py-24 px-5 sm:px-8 bg-void-900/40 border-y border-white/[0.05]">
+      <section className="py-24 px-5 sm:px-8 bg-[#0b0e11] border-y border-outline-variant">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial="hidden"
@@ -538,7 +537,7 @@ export default function Landing() {
             <div className="flex justify-center">
               <SectionEyebrow>Questions</SectionEyebrow>
             </div>
-            <motion.h2 variants={fadeUp} className="font-display text-3xl sm:text-4xl font-semibold text-ink">
+            <motion.h2 variants={fadeUp} className="font-hanken text-3xl sm:text-4xl font-bold text-on-surface">
               Frequently asked
             </motion.h2>
           </motion.div>
@@ -556,7 +555,7 @@ export default function Landing() {
       {/* ---------------- FINAL CTA ---------------- */}
       <section className="relative py-28 px-5 sm:px-8 overflow-hidden">
         <div className="absolute inset-0 bg-grid-faint bg-grid opacity-40" style={{ maskImage: 'radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 100%)' }} aria-hidden />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-mint/[0.1] blur-[150px] rounded-full" aria-hidden />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-primary-container/[0.05] blur-[150px] rounded-full" aria-hidden />
         <motion.div
           initial="hidden"
           whileInView="show"
@@ -564,39 +563,41 @@ export default function Landing() {
           variants={stagger}
           className="relative max-w-3xl mx-auto text-center"
         >
-          <motion.h2 variants={fadeUp} className="font-display text-3xl sm:text-5xl font-semibold text-ink leading-tight">
+          <motion.h2 variants={fadeUp} className="font-hanken text-3xl sm:text-5xl font-bold text-on-surface leading-tight uppercase">
             Your vault is one sign-up away.
           </motion.h2>
-          <motion.p variants={fadeUp} className="mt-5 text-ink-muted text-base max-w-lg mx-auto">
+          <motion.p variants={fadeUp} className="mt-5 text-muted-tertiary text-base max-w-lg mx-auto">
             Join a desk built for traders who want speed, clarity, and custody they can verify — not just trust.
           </motion.p>
           <motion.div variants={fadeUp} className="mt-9 flex flex-wrap justify-center gap-4">
             <button
               onClick={() => navigate('/auth?mode=register')}
-              className="px-7 py-3.5 rounded-xl bg-mint text-void font-display font-semibold text-sm shadow-mint hover:bg-mint-400 transition-colors inline-flex items-center gap-2"
+              className="px-7 py-3.5 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors shadow-sm inline-flex items-center gap-2"
             >
-              Open your vault <ArrowRight size={16} />
+              <span>Open your vault</span>
+              <ArrowRight size={16} />
             </button>
           </motion.div>
         </motion.div>
       </section>
 
-      <footer className="border-t border-white/[0.06] py-12 px-5 sm:px-8 bg-void-950">
+      {/* ---------------- LIGHT FOOTER ---------------- */}
+      <footer className="border-t border-[#eaecef] py-12 px-5 sm:px-8 bg-[#fafafa] text-[#181a20]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-mint to-violet flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none">
-                <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" fill="#05070D" />
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-md bg-primary-container flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-on-primary-container" fill="currentColor">
+                <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" />
               </svg>
-            </span>
-            <span className="font-display text-sm font-semibold text-ink">CryptoVault</span>
+            </div>
+            <span className="font-display text-sm font-bold text-on-primary-container">CryptoVault</span>
           </div>
-          <p className="text-xs text-ink-faint text-center">
+          <p className="text-xs text-[#707a8a] text-center">
             Digital asset trading carries risk. CryptoVault is a demonstration trading interface.
           </p>
-          <div className="flex items-center gap-6 text-xs text-ink-faint">
-            <Link to="/faq" className="hover:text-ink-muted transition-colors">FAQ</Link>
-            <Link to="/terms" className="hover:text-ink-muted transition-colors">Terms &amp; Conditions</Link>
+          <div className="flex items-center gap-6 text-xs text-[#707a8a]">
+            <Link to="/faq" className="hover:text-[#181a20] transition-colors">FAQ</Link>
+            <Link to="/terms" className="hover:text-[#181a20] transition-colors">Terms &amp; Conditions</Link>
             <span>© {new Date().getFullYear()} CryptoVault</span>
           </div>
         </div>

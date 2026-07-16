@@ -10,12 +10,12 @@ import { getAllOrders } from '../../api/trading';
 import { formatCurrency } from '../../utils/chartData';
 
 const statusColors = {
-  PENDING: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
-  FILLED: 'text-mint bg-mint-900/40 border-mint/20',
-  SUCCESS: 'text-mint bg-mint-900/40 border-mint/20',
-  CANCELLED: 'text-ink-faint bg-white/5 border-white/10',
-  PARTIALLY_FILLED: 'text-violet-400 bg-violet-600/10 border-violet/20',
-  ERROR: 'text-carmine bg-carmine/10 border-carmine/20',
+  PENDING: 'text-[#FCD535] bg-[#FCD535]/10 border-[#FCD535]/20',
+  FILLED: 'text-[#02C076] bg-[#02C076]/10 border-[#02C076]/20',
+  SUCCESS: 'text-[#02C076] bg-[#02C076]/10 border-[#02C076]/20',
+  CANCELLED: 'text-muted-strong bg-surface-container-low border-outline-variant',
+  PARTIALLY_FILLED: 'text-primary-container bg-primary-container/10 border-primary-container/20',
+  ERROR: 'text-error bg-error/10 border-error/20',
 };
 
 export default function Orders() {
@@ -33,7 +33,7 @@ export default function Orders() {
   }, [filter]);
 
   return (
-    <PageTransition className="pb-16">
+    <PageTransition className="pb-16 font-hanken">
       <PageHeader
         eyebrow="Activity"
         title="Orders Ledger"
@@ -41,13 +41,13 @@ export default function Orders() {
         action={
           <div className="flex items-center gap-3">
             <ExportOrdersButton orders={orders} />
-            <div className="flex items-center gap-1 p-0.5 rounded-xl border border-white/10 bg-void-900/60 backdrop-blur-xl">
+            <div className="flex items-center gap-1 p-0.5 rounded-md border border-outline-variant bg-surface-container-low">
               {['ALL', 'BUY', 'SELL'].map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-display font-semibold transition-all ${
-                    filter === f ? 'bg-mint text-void font-bold shadow-mint-sm' : 'text-ink-muted hover:text-ink'
+                  className={`px-3.5 py-1.5 rounded text-xs font-button font-bold transition-all ${
+                    filter === f ? 'bg-primary-container text-on-primary-container' : 'text-muted-tertiary hover:text-on-surface'
                   }`}
                 >
                   {f === 'ALL' ? 'All' : f.charAt(0) + f.slice(1).toLowerCase()}
@@ -62,12 +62,12 @@ export default function Orders() {
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 overflow-hidden backdrop-blur-xl"
+          className="rounded-lg border border-outline-variant bg-surface-card overflow-hidden"
         >
           {loading ? (
             <SkeletonTable rows={5} cols={7} />
           ) : error ? (
-            <div className="p-10 text-center text-sm text-carmine">{error}</div>
+            <div className="p-10 text-center text-sm text-error bg-error-container/10 border border-error/20 m-4 rounded">{error}</div>
           ) : orders.length === 0 ? (
             <EmptyState
               icon={ArrowLeftRight}
@@ -80,7 +80,7 @@ export default function Orders() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-ink-faint text-[10px] uppercase tracking-wider font-mono-tab border-b border-white/[0.04]">
+                  <tr className="text-left text-muted-strong text-[10px] uppercase tracking-wider font-plex border-b border-outline-variant">
                     <th className="px-5 sm:px-6 py-3.5 font-normal">Order</th>
                     <th className="px-4 py-3.5 font-normal">Type</th>
                     <th className="px-4 py-3.5 font-normal">Asset</th>
@@ -90,14 +90,14 @@ export default function Orders() {
                     <th className="px-5 sm:px-6 py-3.5 font-normal text-right">Timestamp</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.04]">
+                <tbody className="divide-y divide-outline-variant">
                   {orders.map((o) => (
-                    <tr key={o.id} className="hover:bg-white/[0.01] transition-colors">
-                      <td className="px-5 sm:px-6 py-4 font-mono-tab text-ink-faint text-xs">#{o.id}</td>
+                    <tr key={o.id} className="hover:bg-surface-variant/30 transition-colors">
+                      <td className="px-5 sm:px-6 py-4 font-plex text-muted-strong text-xs">#{o.id}</td>
                       <td className="px-4 py-4">
                         <span
-                          className={`inline-flex items-center gap-1 text-xs font-display font-bold ${
-                            o.orderType === 'BUY' ? 'text-mint' : 'text-carmine'
+                          className={`inline-flex items-center gap-1 text-xs font-bold ${
+                            o.orderType === 'BUY' ? 'text-secondary' : 'text-error'
                           }`}
                         >
                           {o.orderType === 'BUY' ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
@@ -109,21 +109,21 @@ export default function Orders() {
                           {o.orderItem?.coin?.image && (
                             <img src={o.orderItem.coin.image} alt="" className="w-5 h-5 rounded-full" />
                           )}
-                          <span className="text-ink font-semibold">{o.orderItem?.coin?.symbol?.toUpperCase() || '—'}</span>
+                          <span className="text-on-surface font-bold">{o.orderItem?.coin?.symbol?.toUpperCase() || '—'}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-4 font-mono-tab text-ink-muted">{o.orderItem?.quantity ?? '—'}</td>
-                      <td className="px-4 py-4 font-mono-tab text-ink-muted font-medium">{formatCurrency(o.price)}</td>
+                      <td className="px-4 py-4 font-plex text-muted-tertiary">{o.orderItem?.quantity ?? '—'}</td>
+                      <td className="px-4 py-4 font-plex text-muted-tertiary font-semibold">{formatCurrency(o.price)}</td>
                       <td className="px-4 py-4">
                         <span
-                          className={`inline-block text-[10px] font-mono-tab px-2 py-0.5 rounded-full border ${
+                          className={`inline-block text-[10px] font-plex font-bold px-2 py-0.5 rounded-full border ${
                             statusColors[o.status] || statusColors.PENDING
                           }`}
                         >
                           {o.status}
                         </span>
                       </td>
-                      <td className="px-5 sm:px-6 py-4 text-right text-xs text-ink-faint font-mono-tab">
+                      <td className="px-5 sm:px-6 py-4 text-right text-xs text-muted-strong font-plex font-semibold">
                         {o.timestamp ? new Date(o.timestamp).toLocaleString() : '—'}
                       </td>
                     </tr>

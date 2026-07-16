@@ -95,35 +95,35 @@ function InteractiveChartInner({
       height,
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#5B6378',
-        fontFamily: '"Inter", sans-serif',
+        textColor: '#707a8a',
+        fontFamily: '"IBM Plex Sans", sans-serif',
         fontSize: 11,
       },
       grid: {
-        vertLines: { color: 'rgba(255,255,255,0.03)' },
-        horzLines: { color: 'rgba(255,255,255,0.03)' },
+        vertLines: { color: 'rgba(255,255,255,0.015)' },
+        horzLines: { color: 'rgba(255,255,255,0.015)' },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: 'rgba(215,255,79,0.3)',
+          color: 'rgba(252,213,53,0.25)',
           width: 1,
           style: 2,
-          labelBackgroundColor: '#121826',
+          labelBackgroundColor: '#1e2329',
         },
         horzLine: {
-          color: 'rgba(215,255,79,0.3)',
+          color: 'rgba(252,213,53,0.25)',
           width: 1,
           style: 2,
-          labelBackgroundColor: '#121826',
+          labelBackgroundColor: '#1e2329',
         },
       },
       rightPriceScale: {
-        borderColor: 'rgba(255,255,255,0.06)',
+        borderColor: 'rgba(255,255,255,0.04)',
         scaleMargins: { top: 0.1, bottom: 0.1 },
       },
       timeScale: {
-        borderColor: 'rgba(255,255,255,0.06)',
+        borderColor: 'rgba(255,255,255,0.04)',
         timeVisible: timeVisible || selectedRange <= 1,
         secondsVisible: false,
         fixLeftEdge: true,
@@ -138,42 +138,42 @@ function InteractiveChartInner({
     let series;
     if (chartType === 'candlestick') {
       series = chart.addCandlestickSeries({
-        upColor: '#D7FF4F',
-        downColor: '#FF3B69',
-        borderUpColor: '#D7FF4F',
-        borderDownColor: '#FF3B69',
-        wickUpColor: 'rgba(215,255,79,0.6)',
-        wickDownColor: 'rgba(255,59,105,0.6)',
+        upColor: '#02C076',
+        downColor: '#E84158',
+        borderUpColor: '#02C076',
+        borderDownColor: '#E84158',
+        wickUpColor: 'rgba(2,192,118,0.6)',
+        wickDownColor: 'rgba(232,65,88,0.6)',
       });
     } else if (chartType === 'area') {
       // Fix for addAreaSeries not being a function in some versions
       if (chart && typeof chart.addAreaSeries === 'function') {
         series = chart.addAreaSeries({
-          lineColor: '#D7FF4F',
-          topColor: 'rgba(215,255,79,0.25)',
-          bottomColor: 'rgba(215,255,79,0.01)',
+          lineColor: '#FCD535',
+          topColor: 'rgba(252,213,53,0.18)',
+          bottomColor: 'rgba(252,213,53,0.0)',
           lineWidth: 2,
           crosshairMarkerRadius: 5,
-          crosshairMarkerBorderColor: '#D7FF4F',
-          crosshairMarkerBackgroundColor: '#05070D',
+          crosshairMarkerBorderColor: '#FCD535',
+          crosshairMarkerBackgroundColor: '#0b0e11',
         });
       } else {
         // Fallback to line series if addAreaSeries is not available
         series = chart.addLineSeries({
-          color: '#D7FF4F',
+          color: '#FCD535',
           lineWidth: 2,
           crosshairMarkerRadius: 5,
-          crosshairMarkerBorderColor: '#D7FF4F',
-          crosshairMarkerBackgroundColor: '#05070D',
+          crosshairMarkerBorderColor: '#FCD535',
+          crosshairMarkerBackgroundColor: '#0b0e11',
         });
       }
     } else {
       series = chart.addLineSeries({
-        color: '#D7FF4F',
+        color: '#FCD535',
         lineWidth: 2,
         crosshairMarkerRadius: 5,
-        crosshairMarkerBorderColor: '#D7FF4F',
-        crosshairMarkerBackgroundColor: '#05070D',
+        crosshairMarkerBorderColor: '#FCD535',
+        crosshairMarkerBackgroundColor: '#0b0e11',
       });
     }
 
@@ -295,23 +295,23 @@ function InteractiveChartInner({
 
   return (
     <div className={isFullscreen 
-      ? "w-full h-full flex flex-col justify-between bg-[#0b0b0c]"
-      : `rounded-2xl glass-card overflow-hidden ${className}`
+      ? "w-full h-full flex flex-col justify-between bg-[#0b0e11]"
+      : `rounded-lg bg-surface-card border border-outline-variant overflow-hidden ${className}`
     }>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-white/[0.06]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-outline-variant">
         <div className="flex items-center gap-3">
           {/* Chart type toggle */}
-          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-void-900/60 p-0.5">
+          <div className="flex items-center gap-1 rounded-md border border-outline-variant bg-surface-container-low p-0.5">
             {CHART_TYPES.map((t) => (
               <button
                 key={t.key}
                 type="button"
                 onClick={() => setChartType(t.key)}
-                className={`px-2.5 py-1.5 rounded-md text-[11px] font-display font-semibold transition-all ${
+                className={`px-2.5 py-1.5 rounded text-[11px] font-button font-bold transition-all ${
                   chartType === t.key
-                    ? 'bg-mint text-void shadow-mint-sm'
-                    : 'text-ink-faint hover:text-ink'
+                    ? 'bg-primary-container text-on-primary-container'
+                    : 'text-muted-strong hover:text-on-surface'
                 }`}
               >
                 {t.label}
@@ -324,14 +324,14 @@ function InteractiveChartInner({
             <div className="hidden sm:flex items-center gap-3 text-xs font-mono">
               {crosshairData.open != null && (
                 <>
-                  <span className="text-ink-faint">O <span className="text-ink">{formatPrice(crosshairData.open)}</span></span>
-                  <span className="text-ink-faint">H <span className="text-ink">{formatPrice(crosshairData.high)}</span></span>
-                  <span className="text-ink-faint">L <span className="text-ink">{formatPrice(crosshairData.low)}</span></span>
-                  <span className="text-ink-faint">C <span className="text-ink">{formatPrice(crosshairData.close)}</span></span>
+                  <span className="text-muted-strong">O <span className="text-on-surface font-semibold">{formatPrice(crosshairData.open)}</span></span>
+                  <span className="text-muted-strong">H <span className="text-on-surface font-semibold">{formatPrice(crosshairData.high)}</span></span>
+                  <span className="text-muted-strong">L <span className="text-on-surface font-semibold">{formatPrice(crosshairData.low)}</span></span>
+                  <span className="text-muted-strong">C <span className="text-on-surface font-semibold">{formatPrice(crosshairData.close)}</span></span>
                 </>
               )}
               {crosshairData.open == null && (
-                <span className="text-mint font-medium">{formatPrice(crosshairData.value)}</span>
+                <span className="text-primary-container font-bold">{formatPrice(crosshairData.value)}</span>
               )}
             </div>
           )}
@@ -340,16 +340,16 @@ function InteractiveChartInner({
         {/* Time range + Fullscreen toggle */}
         <div className="flex items-center gap-2">
           {!hideTimeRanges && (
-            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-void-900/60 p-0.5">
+            <div className="flex items-center gap-1 rounded-md border border-outline-variant bg-surface-container-low p-0.5">
               {TIME_RANGES.map((r) => (
                 <button
                   key={r.label}
                   type="button"
                   onClick={() => onRangeChange?.(r.days)}
-                  className={`px-2.5 py-1.5 rounded-md text-[11px] font-display font-semibold transition-all ${
+                  className={`px-2.5 py-1.5 rounded text-[11px] font-button font-bold transition-all ${
                     selectedRange === r.days
-                      ? 'bg-white/[0.08] text-ink'
-                      : 'text-ink-faint hover:text-ink'
+                      ? 'bg-surface-elevated text-on-surface'
+                      : 'text-muted-strong hover:text-on-surface'
                   }`}
                 >
                   {r.label}
@@ -361,7 +361,7 @@ function InteractiveChartInner({
           <button
             type="button"
             onClick={onFullscreenToggle}
-            className="p-1.5 rounded-lg border border-white/10 bg-void-900/60 text-ink-faint hover:text-ink transition-colors flex items-center justify-center"
+            className="p-1.5 rounded-md border border-outline-variant bg-surface-container-low text-muted-strong hover:text-on-surface transition-colors flex items-center justify-center"
             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
           >
             {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
@@ -372,8 +372,8 @@ function InteractiveChartInner({
       {/* Chart area */}
       <div className={isFullscreen ? "flex-1 relative w-full flex items-center justify-center mt-4" : "relative"}>
         {loading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-void-800/80 backdrop-blur-sm">
-            <div className="w-8 h-8 border-2 border-mint/20 border-t-mint rounded-full animate-spin" />
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface/80 backdrop-blur-sm">
+            <div className="w-8 h-8 border-2 border-primary-container/20 border-t-primary-container rounded-full animate-spin" />
           </div>
         )}
         <div ref={containerRef} className="w-full" style={{ height }} />

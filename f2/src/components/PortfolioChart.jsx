@@ -6,14 +6,14 @@ import {
 import { formatCurrency, formatPercent } from '../utils/chartData';
 import { ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
 
-const COLORS = ['#D7FF4F', '#7C5CFF', '#FF3B69', '#4DFFC1', '#9A82FF', '#FF6B8C', '#FBBF24', '#34D399'];
+const COLORS = ['#FCD535', '#02C076', '#E84158', '#4285F4', '#9C27B0', '#FF9800'];
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="glass-card rounded-lg px-3 py-2 text-xs border border-white/10">
-      <p className="text-ink-faint mb-1">{label}</p>
-      <p className="text-mint font-mono font-semibold">
+    <div className="bg-surface-card rounded-md px-3 py-2 text-xs border border-outline-variant font-hanken">
+      <p className="text-muted-strong mb-1">{label}</p>
+      <p className="text-primary-container font-plex font-bold">
         {formatCurrency(payload[0].value)}
       </p>
     </div>
@@ -25,15 +25,15 @@ function CustomTooltip({ active, payload, label }) {
  */
 export function PortfolioGrowthChart({ data = [], height = 200, className = '' }) {
   return (
-    <div className={`rounded-2xl glass-card p-5 sm:p-6 ${className}`}>
+    <div className={`rounded-lg border border-outline-variant bg-surface-card p-5 sm:p-6 ${className} font-hanken`}>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <div className="font-display text-sm font-semibold text-ink">Portfolio Growth</div>
-          <div className="text-xs text-ink-faint">Value over time</div>
+          <div className="font-hanken text-sm font-bold text-on-surface">Portfolio Growth</div>
+          <div className="text-xs text-muted-strong">Value over time</div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <TrendingUp size={14} className="text-mint" />
-          <span className="text-xs text-mint font-mono font-medium">
+        <div className="flex items-center gap-1.5 font-plex">
+          <TrendingUp size={14} className="text-secondary" />
+          <span className="text-xs text-secondary font-bold">
             {data.length > 1
               ? formatPercent(((data[data.length - 1]?.value - data[0]?.value) / (data[0]?.value || 1)) * 100)
               : '—'}
@@ -45,8 +45,8 @@ export function PortfolioGrowthChart({ data = [], height = 200, className = '' }
           <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
             <defs>
               <linearGradient id="portfolioGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#D7FF4F" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="#D7FF4F" stopOpacity={0} />
+                <stop offset="0%" stopColor="#FCD535" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="#FCD535" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -63,15 +63,15 @@ export function PortfolioGrowthChart({ data = [], height = 200, className = '' }
               tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
               width={50}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(215,255,79,0.2)' }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(252,213,53,0.2)' }} />
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#D7FF4F"
+              stroke="#FCD535"
               strokeWidth={2}
               fill="url(#portfolioGrad)"
               dot={false}
-              activeDot={{ r: 4, fill: '#D7FF4F', stroke: '#05070D', strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: '#FCD535', stroke: '#0b0e11', strokeWidth: 2 }}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -101,9 +101,9 @@ export function AllocationChart({ assets = [], className = '' }) {
   if (!chartData.length) return null;
 
   return (
-    <div className={`rounded-2xl glass-card p-5 sm:p-6 ${className}`}>
-      <div className="font-display text-sm font-semibold text-ink mb-4">Asset Allocation</div>
-      <div className="flex items-center gap-6">
+    <div className={`rounded-lg border border-outline-variant bg-surface-card p-5 sm:p-6 ${className} font-hanken`}>
+      <div className="font-hanken text-sm font-bold text-on-surface mb-4">Asset Allocation</div>
+      <div className="flex items-center gap-6 font-plex">
         <div className="w-32 h-32 shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -127,28 +127,28 @@ export function AllocationChart({ assets = [], className = '' }) {
         <div className="flex-1 min-w-0 space-y-2">
           {chartData.slice(0, 5).map((d, i) => (
             <div key={d.name} className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2 min-w-0 font-hanken">
                 <span
                   className="w-2.5 h-2.5 rounded-full shrink-0"
                   style={{ background: COLORS[i % COLORS.length] }}
                 />
-                <span className="text-xs text-ink truncate">{d.name}</span>
+                <span className="text-xs text-on-surface font-semibold truncate">{d.name}</span>
               </div>
               <div className="text-right">
-                <span className="text-xs font-mono text-ink-muted">{d.pct.toFixed(1)}%</span>
+                <span className="text-xs font-plex text-muted-tertiary font-semibold">{d.pct.toFixed(1)}%</span>
               </div>
             </div>
           ))}
           {chartData.length > 5 && (
-            <p className="text-[10px] text-ink-faint">
+            <p className="text-[10px] text-muted-strong font-hanken">
               +{chartData.length - 5} more
             </p>
           )}
         </div>
       </div>
-      <div className="mt-4 pt-3 border-t border-white/[0.06] text-center">
-        <span className="text-xs text-ink-faint">Total</span>
-        <div className="font-display text-lg font-semibold text-ink">
+      <div className="mt-4 pt-3 border-t border-outline-variant text-center">
+        <span className="text-xs text-muted-strong font-hanken">Total</span>
+        <div className="font-hanken text-lg font-bold text-on-surface">
           {formatCurrency(totalValue)}
         </div>
       </div>
@@ -182,38 +182,38 @@ export function PerformanceCard({ assets = [], className = '' }) {
   }, [assets]);
 
   return (
-    <div className={`rounded-2xl glass-card p-5 sm:p-6 ${className}`}>
-      <div className="font-display text-sm font-semibold text-ink mb-4">Performance</div>
-      <div className="space-y-3">
+    <div className={`rounded-lg border border-outline-variant bg-surface-card p-5 sm:p-6 ${className} font-hanken`}>
+      <div className="font-hanken text-sm font-bold text-on-surface mb-4">Performance</div>
+      <div className="space-y-3 font-plex">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-ink-faint">Total P&L</span>
-          <span className={`text-sm font-mono font-semibold flex items-center gap-1 ${stats.totalPnl >= 0 ? 'text-mint' : 'text-carmine'}`}>
+          <span className="text-xs text-muted-strong font-hanken">Total P&L</span>
+          <span className={`text-sm font-plex font-bold flex items-center gap-1 ${stats.totalPnl >= 0 ? 'text-secondary' : 'text-error'}`}>
             {stats.totalPnl >= 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
             {formatCurrency(Math.abs(stats.totalPnl))}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-ink-faint">Return</span>
-          <span className={`text-sm font-mono font-semibold ${stats.returnPct >= 0 ? 'text-mint' : 'text-carmine'}`}>
+          <span className="text-xs text-muted-strong font-hanken">Return</span>
+          <span className={`text-sm font-plex font-bold ${stats.returnPct >= 0 ? 'text-secondary' : 'text-error'}`}>
             {formatPercent(stats.returnPct)}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-ink-faint">Total Invested</span>
-          <span className="text-sm font-mono text-ink-muted">{formatCurrency(stats.totalCost)}</span>
+          <span className="text-xs text-muted-strong font-hanken">Total Invested</span>
+          <span className="text-sm font-plex text-muted-tertiary font-semibold">{formatCurrency(stats.totalCost)}</span>
         </div>
         {stats.bestAsset && (
-          <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
-            <span className="text-xs text-ink-faint">Best performer</span>
-            <span className="text-xs font-mono text-mint">
+          <div className="flex items-center justify-between pt-2 border-t border-outline-variant">
+            <span className="text-xs text-muted-strong font-hanken">Best performer</span>
+            <span className="text-xs font-plex text-secondary font-bold">
               {stats.bestAsset.coin?.symbol?.toUpperCase()} ({formatPercent(stats.bestReturn)})
             </span>
           </div>
         )}
         {stats.worstAsset && (
           <div className="flex items-center justify-between">
-            <span className="text-xs text-ink-faint">Worst performer</span>
-            <span className="text-xs font-mono text-carmine">
+            <span className="text-xs text-muted-strong font-hanken">Worst performer</span>
+            <span className="text-xs font-plex text-error font-bold">
               {stats.worstAsset.coin?.symbol?.toUpperCase()} ({formatPercent(stats.worstReturn)})
             </span>
           </div>

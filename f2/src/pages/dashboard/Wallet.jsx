@@ -9,7 +9,6 @@ import {
   X,
   Loader2,
   Building2,
-  CreditCard,
   Copy,
   Check,
 } from 'lucide-react';
@@ -17,7 +16,6 @@ import PageHeader from '../../components/PageHeader';
 import {
   getWallet,
   getWalletTransactions,
-  depositMoney,
   initiateWithdrawal,
   requestWithdrawal,
   getWithdrawalHistory,
@@ -31,11 +29,11 @@ import { useToast } from '../../context/ToastContext';
 import Pagination from '../../components/Pagination';
 
 const txIcon = {
-  DEPOSIT: { icon: ArrowDownLeft, color: 'text-mint bg-mint-900/50' },
-  WITHDRAWAL: { icon: ArrowUpRight, color: 'text-carmine bg-carmine/10' },
-  WALLET_TRANSFER: { icon: Send, color: 'text-violet-400 bg-violet-600/15' },
-  BUY_ASSET: { icon: ArrowUpRight, color: 'text-carmine bg-carmine/10' },
-  SELL_ASSET: { icon: ArrowDownLeft, color: 'text-mint bg-mint-900/50' },
+  DEPOSIT: { icon: ArrowDownLeft, color: 'text-secondary bg-secondary/10' },
+  WITHDRAWAL: { icon: ArrowUpRight, color: 'text-error bg-error/10' },
+  WALLET_TRANSFER: { icon: Send, color: 'text-primary-container bg-primary-container/10' },
+  BUY_ASSET: { icon: ArrowUpRight, color: 'text-error bg-error/10' },
+  SELL_ASSET: { icon: ArrowDownLeft, color: 'text-secondary bg-secondary/10' },
 };
 
 function Modal({ title, onClose, children }) {
@@ -45,7 +43,7 @@ function Modal({ title, onClose, children }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[90] bg-black/65 backdrop-blur-sm flex items-center justify-center p-4"
+        className="fixed inset-0 z-[90] bg-[#0b0e11]/85 backdrop-blur-sm flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
@@ -54,11 +52,11 @@ function Modal({ title, onClose, children }) {
           exit={{ opacity: 0, scale: 0.96, y: 8 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-sm rounded-2xl border border-white/10 bg-void-800 shadow-panel overflow-hidden"
+          className="w-full max-w-sm rounded-lg border border-outline-variant bg-surface-card shadow-md overflow-hidden"
         >
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-            <span className="font-display text-sm font-semibold text-ink">{title}</span>
-            <button onClick={onClose} className="text-ink-faint hover:text-ink p-1">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
+            <span className="font-hanken text-sm font-bold text-on-surface">{title}</span>
+            <button onClick={onClose} className="text-muted-strong hover:text-on-surface p-1">
               <X size={18} />
             </button>
           </div>
@@ -116,15 +114,15 @@ function DepositModal({ onClose, onDone }) {
 
   return (
     <Modal title="Deposit funds" onClose={onClose}>
-      <form onSubmit={submit} className="space-y-4">
+      <form onSubmit={submit} className="space-y-4 font-hanken">
 
         <div>
-          <label className="text-xs text-ink-faint mb-1.5 block">
+          <label className="text-xs text-muted-strong mb-1.5 block font-bold">
             Amount (INR)
           </label>
 
-          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 focus-within:border-mint/50 transition-colors">
-            <span className="text-ink-faint">₹</span>
+          <div className="flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 focus-within:border-primary-container transition-colors">
+            <span className="text-muted-strong font-bold">₹</span>
 
             <input
               type="number"
@@ -133,31 +131,31 @@ function DepositModal({ onClose, onDone }) {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="1000"
-              className="flex-1 bg-transparent outline-none text-sm text-ink font-mono-tab"
+              className="flex-1 bg-transparent outline-none text-sm text-on-surface font-plex font-semibold"
               autoFocus
             />
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 font-plex">
           {[1000, 5000, 10000, 50000].map((v) => (
             <button
               key={v}
               type="button"
               onClick={() => setAmount(String(v))}
-              className="flex-1 py-2 rounded-lg border border-white/10 text-xs text-ink-muted hover:bg-white/[0.05] transition-colors"
+              className="flex-1 py-2 rounded border border-outline-variant text-xs text-muted-tertiary hover:bg-surface-variant font-bold transition-colors"
             >
               ₹{v}
             </button>
           ))}
         </div>
 
-        <p className="text-xs text-ink-faint leading-relaxed text-center">
+        <p className="text-[11px] text-muted-strong leading-relaxed text-center font-bold">
           Secure payments powered by Razorpay
         </p>
 
         {error && (
-          <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+          <div className="text-sm text-error bg-error-container/10 border border-error/20 rounded-lg px-3.5 py-2.5">
             {error}
           </div>
         )}
@@ -165,21 +163,21 @@ function DepositModal({ onClose, onDone }) {
         <button
           type="submit"
           disabled={loading}
-          className="group w-full rounded-2xl border border-white/10 bg-void-900/50 py-4 hover:border-[#528FF0]/30 hover:bg-void-900/80 transition-all disabled:opacity-60 disabled:pointer-events-none"
+          className="group w-full rounded-md border border-outline-variant bg-surface-container-low py-4 hover:border-primary-container hover:bg-surface-variant transition-all disabled:opacity-60 disabled:pointer-events-none"
         >
           {loading ? (
             <Loader2
               size={18}
-              className="animate-spin text-ink-muted mx-auto"
+              className="animate-spin text-muted-tertiary mx-auto"
             />
           ) : (
             <div className="flex items-center justify-center gap-4">
 
-              <span className="text-sm text-ink-faint tracking-wide">
+              <span className="text-sm text-muted-strong tracking-wide font-bold">
                 Pay with
               </span>
 
-              <div className="bg-white rounded-xl px-5 py-3 shadow-md">
+              <div className="bg-white rounded-md px-5 py-3 shadow-sm border border-outline-variant">
                 <img
                   src="/razorpay-logo.png"
                   alt="Razorpay"
@@ -266,16 +264,16 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
   return (
     <Modal title={step === 'INIT' ? 'Withdraw funds' : 'Verify Withdrawal OTP'} onClose={onClose}>
       {!hasPaymentDetails && step === 'INIT' && (
-        <div className="mb-4 text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3.5 py-2.5">
+        <div className="mb-4 text-xs text-error bg-error-container/10 border border-error/20 rounded px-3.5 py-2.5 font-hanken">
           Add your bank details below before requesting a withdrawal.
         </div>
       )}
       {step === 'INIT' ? (
-        <form onSubmit={handleSendOtp} className="space-y-4">
+        <form onSubmit={handleSendOtp} className="space-y-4 font-hanken">
           <div>
-            <label className="text-xs text-ink-faint mb-1.5 block">Amount (USD)</label>
-            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 focus-within:border-mint/50 transition-colors">
-              <span className="text-ink-faint">$</span>
+            <label className="text-xs text-muted-strong mb-1.5 block font-bold">Amount (USD)</label>
+            <div className="flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 focus-within:border-primary-container transition-colors">
+              <span className="text-muted-strong font-bold">$</span>
               <input
                 type="number"
                 min="1"
@@ -283,13 +281,13 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="100"
-                className="flex-1 bg-transparent outline-none text-sm text-ink font-mono-tab"
+                className="flex-1 bg-transparent outline-none text-sm text-on-surface font-plex"
                 autoFocus
               />
             </div>
           </div>
           <div>
-            <label className="text-xs text-ink-faint mb-1.5 block">Withdrawal PIN <span className="text-ink-faint/60">(if set)</span></label>
+            <label className="text-xs text-muted-strong mb-1.5 block font-bold">Withdrawal PIN <span className="text-muted-tertiary">(if set)</span></label>
             <input
               type="password"
               value={pin}
@@ -297,29 +295,29 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
               inputMode="numeric"
               maxLength={4}
               placeholder="••••"
-              className="w-full rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 transition-colors"
+              className="w-full rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface font-plex outline-none focus:border-primary-container transition-colors"
             />
           </div>
           {error && (
-            <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+            <div className="text-sm text-error bg-error-container/10 border border-error/20 rounded px-3.5 py-2.5">
               {error}
             </div>
           )}
           <button
             type="submit"
             disabled={loading || !hasPaymentDetails}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] border border-white/12 text-ink font-display font-semibold text-sm py-3.5 hover:bg-white/[0.1] transition-colors disabled:opacity-60 disabled:pointer-events-none"
+            className="w-full flex items-center justify-center gap-2 rounded-md bg-surface-container-low border border-outline-variant text-primary-container font-button font-bold text-sm py-3.5 hover:bg-surface-variant hover:border-primary-container transition-colors disabled:opacity-60 disabled:pointer-events-none"
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : 'Send Verification OTP'}
           </button>
         </form>
       ) : (
-        <form onSubmit={handleConfirmWithdraw} className="space-y-4">
-          <div className="text-xs text-ink-muted leading-relaxed">
-            A 6-digit verification code has been sent to your email to authorize the withdrawal of <span className="font-semibold font-mono-tab text-ink">{formatCurrency(amount)}</span>.
+        <form onSubmit={handleConfirmWithdraw} className="space-y-4 font-hanken">
+          <div className="text-xs text-muted-tertiary leading-relaxed">
+            A 6-digit verification code has been sent to your email to authorize the withdrawal of <span className="font-bold font-plex text-on-surface">{formatCurrency(amount)}</span>.
           </div>
           <div>
-            <label className="text-xs text-ink-faint mb-1.5 block">Email OTP</label>
+            <label className="text-xs text-muted-strong mb-1.5 block font-bold">Email OTP</label>
             <input
               type="text"
               value={otp}
@@ -327,27 +325,27 @@ function WithdrawModal({ onClose, onDone, hasPaymentDetails }) {
               inputMode="numeric"
               maxLength={6}
               placeholder="000000"
-              className="w-full rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 text-sm text-ink font-mono-tab outline-none focus:border-mint/50 transition-colors text-center tracking-widest text-lg font-bold"
+              className="w-full rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface font-plex outline-none focus:border-primary-container transition-colors text-center tracking-widest text-lg font-bold"
               autoFocus
             />
           </div>
           {error && (
-            <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+            <div className="text-sm text-error bg-error-container/10 border border-error/20 rounded px-3.5 py-2.5">
               {error}
             </div>
           )}
-          <div className="flex gap-3">
+          <div className="flex gap-3 font-button">
             <button
               type="button"
               onClick={() => setStep('INIT')}
-              className="flex-1 rounded-xl bg-white/[0.04] border border-white/10 text-ink-muted font-display text-xs py-3 hover:bg-white/[0.06] transition-colors"
+              className="flex-1 rounded-md bg-surface-container-low border border-outline-variant text-muted-tertiary text-xs py-3 hover:bg-surface-variant hover:border-outline transition-colors font-bold"
             >
               Back
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-[2] flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3 hover:bg-mint-400 shadow-mint transition-colors"
+              className="flex-[2] flex items-center justify-center gap-2 rounded-md bg-primary-container text-on-primary-container font-bold text-sm py-3 hover:bg-primary-active transition-colors shadow-sm"
             >
               {loading ? <Loader2 size={16} className="animate-spin" /> : 'Confirm & Withdraw'}
             </button>
@@ -410,52 +408,52 @@ function BankDetailsModal({ onClose, onDone, existing }) {
 
   return (
     <Modal title="Bank details" onClose={onClose}>
-      <form onSubmit={submit} className="space-y-3">
+      <form onSubmit={submit} className="space-y-3 font-hanken">
         <div>
           <input
             placeholder="Account holder name"
             value={form.accountHolderName}
             onChange={(e) => { setForm({ ...form, accountHolderName: e.target.value }); setErrors({ ...errors, accountHolderName: null }); }}
-            className={`w-full rounded-xl border bg-void-900/60 px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint ${errors.accountHolderName ? 'border-carmine/50 focus:border-carmine' : 'border-white/10 focus:border-mint/50'}`}
+            className={`w-full rounded-md border bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none placeholder:text-muted-tertiary ${errors.accountHolderName ? 'border-error/50 focus:border-error' : 'border-outline-variant focus:border-primary-container'}`}
           />
-          {errors.accountHolderName && <p className="mt-1.5 text-xs text-carmine">{errors.accountHolderName}</p>}
+          {errors.accountHolderName && <p className="mt-1.5 text-xs text-error font-semibold">{errors.accountHolderName}</p>}
         </div>
         <div>
           <input
             placeholder="Account number"
             value={form.accountNumber}
             onChange={(e) => { setForm({ ...form, accountNumber: e.target.value }); setErrors({ ...errors, accountNumber: null }); }}
-            className={`w-full rounded-xl border bg-void-900/60 px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint ${errors.accountNumber ? 'border-carmine/50 focus:border-carmine' : 'border-white/10 focus:border-mint/50'}`}
+            className={`w-full rounded-md border bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none placeholder:text-muted-tertiary ${errors.accountNumber ? 'border-error/50 focus:border-error' : 'border-outline-variant focus:border-primary-container'}`}
           />
-          {errors.accountNumber && <p className="mt-1.5 text-xs text-carmine">{errors.accountNumber}</p>}
+          {errors.accountNumber && <p className="mt-1.5 text-xs text-error font-semibold">{errors.accountNumber}</p>}
         </div>
         <div>
           <input
             placeholder="IFSC code"
             value={form.ifsc}
             onChange={(e) => { setForm({ ...form, ifsc: e.target.value }); setErrors({ ...errors, ifsc: null }); }}
-            className={`w-full rounded-xl border bg-void-900/60 px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint ${errors.ifsc ? 'border-carmine/50 focus:border-carmine' : 'border-white/10 focus:border-mint/50'}`}
+            className={`w-full rounded-md border bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none placeholder:text-muted-tertiary ${errors.ifsc ? 'border-error/50 focus:border-error' : 'border-outline-variant focus:border-primary-container'}`}
           />
-          {errors.ifsc && <p className="mt-1.5 text-xs text-carmine">{errors.ifsc}</p>}
+          {errors.ifsc && <p className="mt-1.5 text-xs text-error font-semibold">{errors.ifsc}</p>}
         </div>
         <div>
           <input
             placeholder="Bank name"
             value={form.bankName}
             onChange={(e) => { setForm({ ...form, bankName: e.target.value }); setErrors({ ...errors, bankName: null }); }}
-            className={`w-full rounded-xl border bg-void-900/60 px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint ${errors.bankName ? 'border-carmine/50 focus:border-carmine' : 'border-white/10 focus:border-mint/50'}`}
+            className={`w-full rounded-md border bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none placeholder:text-muted-tertiary ${errors.bankName ? 'border-error/50 focus:border-error' : 'border-outline-variant focus:border-primary-container'}`}
           />
-          {errors.bankName && <p className="mt-1.5 text-xs text-carmine">{errors.bankName}</p>}
+          {errors.bankName && <p className="mt-1.5 text-xs text-error font-semibold">{errors.bankName}</p>}
         </div>
         {error && (
-          <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+          <div className="text-sm text-error bg-error/10 border border-error/20 rounded-lg px-3.5 py-2.5">
             {error}
           </div>
         )}
         <button
           type="submit"
           disabled={loading || !form.accountHolderName.trim() || form.accountNumber.trim().length < 8 || form.ifsc.trim().length !== 11 || !form.bankName.trim()}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3.5 shadow-mint hover:bg-mint-400 transition-colors disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 rounded-md bg-primary-container text-on-primary-container font-button font-bold text-sm py-3.5 hover:bg-primary-active transition-colors disabled:opacity-60"
         >
           {loading ? <Loader2 size={16} className="animate-spin" /> : 'Save details'}
         </button>
@@ -519,25 +517,25 @@ function TransferModal({ onClose, onDone, myWalletId }) {
 
   return (
     <Modal title="Transfer to another wallet" onClose={onClose}>
-      <div className="mb-4 rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 flex items-center justify-between gap-3">
+      <div className="mb-4 rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 flex items-center justify-between gap-3 font-hanken">
         <div className="min-w-0">
-          <div className="text-[11px] text-ink-faint mb-0.5">Your wallet ID (share this to receive funds)</div>
-          <div className="font-mono-tab text-sm text-ink truncate">#{myWalletId ?? '—'}</div>
+          <div className="text-[11px] text-muted-strong mb-0.5 font-bold">Your wallet ID (share this to receive funds)</div>
+          <div className="font-plex text-sm text-on-surface truncate font-semibold">#{myWalletId ?? '—'}</div>
         </div>
         <button
           type="button"
           onClick={copyId}
-          className="shrink-0 w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-ink-muted hover:text-ink hover:bg-white/[0.05] transition-colors"
+          className="shrink-0 w-8 h-8 rounded border border-outline-variant flex items-center justify-center text-muted-tertiary hover:text-on-surface hover:bg-surface-variant transition-colors"
         >
-          {copied ? <Check size={14} className="text-mint" /> : <Copy size={14} />}
+          {copied ? <Check size={14} className="text-secondary" /> : <Copy size={14} />}
         </button>
       </div>
 
-      <form onSubmit={submit} className="space-y-4">
+      <form onSubmit={submit} className="space-y-4 font-hanken font-bold">
         <div>
-          <label className="text-xs text-ink-faint mb-1.5 block">Amount (USD)</label>
-          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 focus-within:border-mint/50 transition-colors">
-            <span className="text-ink-faint">$</span>
+          <label className="text-xs text-muted-strong mb-1.5 block">Amount (USD)</label>
+          <div className="flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 focus-within:border-primary-container transition-colors">
+            <span className="text-muted-strong">$</span>
             <input
               type="number"
               min="1"
@@ -545,15 +543,15 @@ function TransferModal({ onClose, onDone, myWalletId }) {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="100"
-              className="flex-1 bg-transparent outline-none text-sm text-ink font-mono-tab"
+              className="flex-1 bg-transparent outline-none text-sm text-on-surface font-plex"
               autoFocus
             />
           </div>
         </div>
         <div>
-          <label className="text-xs text-ink-faint mb-1.5 block">Recipient's wallet ID</label>
-          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 focus-within:border-mint/50 transition-colors">
-            <span className="text-ink-faint">#</span>
+          <label className="text-xs text-muted-strong mb-1.5 block">Recipient's wallet ID</label>
+          <div className="flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 focus-within:border-primary-container transition-colors">
+            <span className="text-muted-strong">#</span>
             <input
               type="number"
               min="1"
@@ -561,29 +559,29 @@ function TransferModal({ onClose, onDone, myWalletId }) {
               value={walletId}
               onChange={(e) => setWalletId(e.target.value)}
               placeholder="e.g. 14"
-              className="flex-1 bg-transparent outline-none text-sm text-ink font-mono-tab"
+              className="flex-1 bg-transparent outline-none text-sm text-on-surface font-plex"
             />
           </div>
         </div>
         <div>
-          <label className="text-xs text-ink-faint mb-1.5 block">Purpose (optional)</label>
+          <label className="text-xs text-muted-strong mb-1.5 block">Purpose (optional)</label>
           <input
             value={purpose}
             onChange={(e) => setPurpose(e.target.value)}
             placeholder="gift for your friend…"
-            className="w-full rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 text-sm text-ink outline-none focus:border-mint/50 placeholder:text-ink-faint"
+            className="w-full rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none focus:border-primary-container placeholder:text-muted-tertiary"
           />
         </div>
 
         {error && (
-          <div className="text-sm text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3.5 py-2.5">
+          <div className="text-sm text-error bg-error/10 border border-error/20 rounded-lg px-3.5 py-2.5">
             {error}
           </div>
         )}
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3.5 shadow-mint hover:bg-mint-400 transition-colors disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 rounded-md bg-primary-container text-on-primary-container font-button font-bold text-sm py-3.5 hover:bg-primary-active transition-colors disabled:opacity-60"
         >
           {loading ? <Loader2 size={16} className="animate-spin" /> : 'Send'}
         </button>
@@ -632,46 +630,46 @@ export default function Wallet() {
   const currentWithdrawals = withdrawals.slice((currentPageWithdrawals - 1) * itemsPerPage, currentPageWithdrawals * itemsPerPage);
 
   return (
-    <div className="pb-16">
+    <div className="pb-16 font-hanken">
       <PageHeader eyebrow="Funds" title="Wallet" description="Deposit, withdraw, and review your transaction ledger." />
 
       <div className="px-4 sm:px-8 space-y-6">
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-void-800 to-void-900 p-7 sm:p-8"
+          className="relative overflow-hidden rounded-lg border border-outline-variant bg-gradient-to-br from-surface-card to-surface p-7 sm:p-8"
         >
-          <div className="absolute -right-10 -top-10 w-48 h-48 bg-mint/10 blur-[80px] rounded-full" aria-hidden />
+          <div className="absolute -right-10 -top-10 w-48 h-48 bg-primary-container/10 blur-[80px] rounded-full" aria-hidden />
           <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <WalletIcon size={16} className="text-mint" />
-                <span className="text-xs text-ink-faint uppercase tracking-wide font-mono-tab">Available balance</span>
+                <WalletIcon size={16} className="text-primary-container" />
+                <span className="text-xs text-muted-strong uppercase tracking-widest font-plex font-semibold">Available balance</span>
               </div>
               {loading ? (
                 <div className="h-10 w-48 rounded bg-white/5 animate-pulse" />
               ) : (
-                <div className="font-display text-4xl sm:text-5xl font-semibold text-ink">
+                <div className="font-hanken text-4xl sm:text-5xl font-bold text-on-surface">
                   {formatCurrency(wallet?.balance ?? 0)}
                 </div>
               )}
             </div>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap gap-2.5 font-button font-bold">
               <button
                 onClick={() => setModal('deposit')}
-                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-xl bg-mint text-void font-display font-semibold text-sm shadow-mint hover:bg-mint-400 transition-colors"
+                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-md bg-primary-container text-on-primary-container font-bold text-sm shadow-sm hover:bg-primary-active transition-colors"
               >
                 <Plus size={16} /> Deposit
               </button>
               <button
                 onClick={() => setModal('withdraw')}
-                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-xl border border-white/12 text-ink font-display font-semibold text-sm hover:bg-white/[0.05] transition-colors"
+                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-md border border-outline-variant text-on-surface text-sm hover:bg-surface-variant transition-colors"
               >
                 <Send size={16} /> Withdraw
               </button>
               <button
                 onClick={() => setModal('transfer')}
-                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-xl border border-white/12 text-ink font-display font-semibold text-sm hover:bg-white/[0.05] transition-colors"
+                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-md border border-outline-variant text-on-surface text-sm hover:bg-surface-variant transition-colors"
               >
                 <ArrowUpRight size={16} /> Transfer
               </button>
@@ -683,22 +681,22 @@ export default function Wallet() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 sm:p-6 flex items-center justify-between gap-4"
+          className="rounded-lg border border-outline-variant bg-surface-card p-5 sm:p-6 flex items-center justify-between gap-4"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-violet-600/15 text-violet-400 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-md bg-primary-container/15 text-primary-container flex items-center justify-center shrink-0">
               <Building2 size={18} />
             </div>
             <div>
-              <div className="text-sm text-ink font-medium">Bank details</div>
-              <div className="text-xs text-ink-faint">
+              <div className="text-sm text-on-surface font-bold">Bank details</div>
+              <div className="text-xs text-muted-strong">
                 {paymentDetails ? `${paymentDetails.bankName} · •••• ${String(paymentDetails.accountNumber).slice(-4)}` : 'Not added yet'}
               </div>
             </div>
           </div>
           <button
             onClick={() => setModal('bank')}
-            className="px-4 py-2 rounded-lg border border-white/12 text-xs text-ink font-display font-semibold hover:bg-white/[0.05] transition-colors shrink-0"
+            className="px-4 py-2 rounded-md border border-outline-variant text-xs text-primary-container font-button font-bold hover:bg-surface-variant hover:border-primary-container transition-colors shrink-0"
           >
             {paymentDetails ? 'Update' : 'Add details'}
           </button>
@@ -708,26 +706,26 @@ export default function Wallet() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.14 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 overflow-hidden"
+          className="rounded-lg border border-outline-variant bg-surface-card overflow-hidden"
         >
           {/* Tab selectors */}
-          <div className="flex border-b border-white/[0.06] bg-void-900/40">
+          <div className="flex border-b border-outline-variant bg-surface-container-low font-hanken font-bold">
             <button
               onClick={() => setActiveTab('ledger')}
-              className={`px-6 py-4 text-xs font-display font-semibold border-b-2 transition-colors ${
+              className={`px-6 py-4 text-xs border-b-2 transition-colors ${
                 activeTab === 'ledger'
-                  ? 'border-mint text-ink'
-                  : 'border-transparent text-ink-faint hover:text-ink-muted'
+                  ? 'border-primary-container text-on-surface'
+                  : 'border-transparent text-muted-strong hover:text-on-surface'
               }`}
             >
               Ledger history
             </button>
             <button
               onClick={() => setActiveTab('withdrawals')}
-              className={`px-6 py-4 text-xs font-display font-semibold border-b-2 transition-colors ${
+              className={`px-6 py-4 text-xs border-b-2 transition-colors ${
                 activeTab === 'withdrawals'
-                  ? 'border-mint text-ink'
-                  : 'border-transparent text-ink-faint hover:text-ink-muted'
+                  ? 'border-primary-container text-on-surface'
+                  : 'border-transparent text-muted-strong hover:text-on-surface'
               }`}
             >
               Withdrawal requests
@@ -737,31 +735,31 @@ export default function Wallet() {
           {loading ? (
             <div className="p-6 space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-12 rounded-lg bg-white/5 animate-pulse" />
+                <div key={i} className="h-12 rounded-lg bg-surface-container-low border border-outline-variant animate-pulse" />
               ))}
             </div>
           ) : activeTab === 'ledger' ? (
             transactions.length === 0 ? (
-              <div className="p-12 text-center text-sm text-ink-muted">No transactions in ledger.</div>
+              <div className="p-12 text-center text-sm text-muted-strong">No transactions in ledger.</div>
             ) : (
               <>
-                <div className="divide-y divide-white/[0.05]">
+                <div className="divide-y divide-outline-variant/40 font-hanken">
                   {currentTransactions.map((t) => {
                     const meta = txIcon[t.type] || txIcon.DEPOSIT;
                     const Icon = meta.icon;
                     const positive = (t.amount || 0) >= 0;
                     return (
-                      <div key={t.id} className="flex items-center justify-between gap-4 px-5 sm:px-6 py-3.5 hover:bg-white/[0.01] transition-colors">
+                      <div key={t.id} className="flex items-center justify-between gap-4 px-5 sm:px-6 py-3.5 hover:bg-surface-variant/30 transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${meta.color}`}>
+                          <div className={`w-9 h-9 rounded-md flex items-center justify-center shrink-0 ${meta.color}`}>
                             <Icon size={15} />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-sm text-ink truncate">{t.purpose || t.type?.replace(/_/g, ' ')}</div>
-                            <div className="text-xs text-ink-faint">{t.date ? new Date(t.date).toLocaleDateString() : ''}</div>
+                            <div className="text-sm text-on-surface font-bold truncate">{t.purpose || t.type?.replace(/_/g, ' ')}</div>
+                            <div className="text-xs text-muted-strong font-plex">{t.date ? new Date(t.date).toLocaleDateString() : ''}</div>
                           </div>
                         </div>
-                        <span className={`font-mono-tab text-sm font-medium shrink-0 ${positive ? 'text-mint' : 'text-carmine'}`}>
+                        <span className={`font-plex text-sm font-bold shrink-0 ${positive ? 'text-secondary' : 'text-error'}`}>
                           {positive ? '+' : ''}
                           {formatCurrency(t.amount)}
                         </span>
@@ -777,29 +775,29 @@ export default function Wallet() {
               </>
             )
           ) : withdrawals.length === 0 ? (
-            <div className="p-12 text-center text-sm text-ink-muted">No withdrawal requests placed yet.</div>
+            <div className="p-12 text-center text-sm text-muted-strong">No withdrawal requests placed yet.</div>
           ) : (
             <>
-              <div className="divide-y divide-white/[0.05]">
+              <div className="divide-y divide-outline-variant/40 font-hanken">
                 {currentWithdrawals.map((w) => {
                   const statusColors = {
-                    PENDING: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
-                    SUCCESS: 'text-mint bg-mint-900/40 border-mint/20',
-                    DECLINE: 'text-carmine bg-carmine/10 border-carmine/20',
+                    PENDING: 'text-[#FCD535] bg-[#FCD535]/10 border-[#FCD535]/20',
+                    SUCCESS: 'text-[#02C076] bg-[#02C076]/10 border-[#02C076]/20',
+                    DECLINE: 'text-error bg-error/10 border-error/20',
                   };
                   return (
-                    <div key={w.id} className="flex items-center justify-between gap-4 px-5 sm:px-6 py-3.5 hover:bg-white/[0.01] transition-colors">
+                    <div key={w.id} className="flex items-center justify-between gap-4 px-5 sm:px-6 py-3.5 hover:bg-surface-variant/30 transition-colors">
                       <div className="min-w-0">
-                        <div className="text-sm text-ink font-medium">Bank Withdrawal Request</div>
-                        <div className="text-xs text-ink-faint mt-0.5">
+                        <div className="text-sm text-on-surface font-bold">Bank Withdrawal Request</div>
+                        <div className="text-xs text-muted-strong font-plex mt-0.5">
                           {w.date ? new Date(w.date).toLocaleString() : ''}
                         </div>
                       </div>
                       <div className="flex items-center gap-3.5">
-                        <span className="font-mono-tab text-sm font-semibold text-ink">
+                        <span className="font-plex text-sm font-bold text-on-surface">
                           {formatCurrency(w.amount)}
                         </span>
-                        <span className={`text-[10px] font-mono-tab px-2 py-0.5 rounded-full border ${statusColors[w.status] || 'text-ink-muted border-white/10'}`}>
+                        <span className={`text-[10px] font-plex font-bold px-2 py-0.5 rounded-full border ${statusColors[w.status] || 'text-muted-tertiary border-outline-variant bg-surface-container-low'}`}>
                           {w.status}
                         </span>
                       </div>

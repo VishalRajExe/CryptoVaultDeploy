@@ -100,7 +100,7 @@ export default function AdminNotifications() {
   const currentHistory = history.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="pb-16">
+    <div className="pb-16 font-hanken">
       <PageHeader eyebrow="Management" title="Announcements & Notifications" description="Dispatch global banner alerts, popup broadcasts, or direct targeted user notifications." />
 
       <div className="px-4 sm:px-8 grid lg:grid-cols-[1.2fr_1fr] gap-6 items-start">
@@ -108,25 +108,25 @@ export default function AdminNotifications() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-5 sm:p-6 backdrop-blur-xl space-y-6"
+          className="rounded-lg border border-outline-variant bg-surface-card p-5 sm:p-6 space-y-6"
         >
-          <div className="flex items-center gap-2 pb-4 border-b border-white/[0.06]">
-            <Bell size={18} className="text-mint" />
-            <h2 className="font-display text-base font-semibold text-ink">Compose Broadcast</h2>
+          <div className="flex items-center gap-2 pb-4 border-b border-outline-variant">
+            <Bell size={18} className="text-primary-container" />
+            <h2 className="font-hanken text-base font-bold text-on-surface">Compose Broadcast</h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Target group */}
             <div>
-              <label className="text-xs text-ink-faint mb-1.5 block">Target Audience</label>
+              <label className="text-xs text-muted-strong font-bold font-plex uppercase tracking-wider mb-1.5 block">Target Audience</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setTargetType('GLOBAL')}
-                  className={`flex items-center justify-center gap-2 py-3.5 rounded-xl border text-xs font-semibold font-display transition-colors ${
+                  className={`flex items-center justify-center gap-2 py-3 rounded border text-xs font-bold transition-colors ${
                     targetType === 'GLOBAL'
-                      ? 'border-mint bg-mint/5 text-mint'
-                      : 'border-white/10 bg-white/[0.01] text-ink-muted hover:bg-white/[0.03]'
+                      ? 'border-primary-container bg-primary-container/10 text-primary-container shadow-sm'
+                      : 'border-outline-variant bg-surface-container-low text-muted-strong hover:bg-surface-variant'
                   }`}
                 >
                   <Globe size={14} /> All Users
@@ -134,10 +134,10 @@ export default function AdminNotifications() {
                 <button
                   type="button"
                   onClick={() => setTargetType('SELECTED')}
-                  className={`flex items-center justify-center gap-2 py-3.5 rounded-xl border text-xs font-semibold font-display transition-colors ${
+                  className={`flex items-center justify-center gap-2 py-3 rounded border text-xs font-bold transition-colors ${
                     targetType === 'SELECTED'
-                      ? 'border-mint bg-mint/5 text-mint'
-                      : 'border-white/10 bg-white/[0.01] text-ink-muted hover:bg-white/[0.03]'
+                      ? 'border-primary-container bg-primary-container/10 text-primary-container shadow-sm'
+                      : 'border-outline-variant bg-surface-container-low text-muted-strong hover:bg-surface-variant'
                   }`}
                 >
                   <Users size={14} /> Selected Users
@@ -147,35 +147,35 @@ export default function AdminNotifications() {
 
             {/* User Selector for targeted audience */}
             {targetType === 'SELECTED' && (
-              <div className="border border-white/10 rounded-xl bg-void-900/40 p-4 space-y-3">
+              <div className="border border-outline-variant rounded bg-surface-container-low p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-ink-muted">Select Target Users ({selectedUserIds.size} chosen)</span>
+                  <span className="text-xs font-bold text-muted-strong font-plex">Select Target Users ({selectedUserIds.size} chosen)</span>
                   <button
                     type="button"
                     onClick={handleSelectAllUsers}
-                    className="text-[10px] font-mono-tab text-mint hover:text-mint-400 font-semibold"
+                    className="text-[10px] font-plex text-primary-container hover:text-primary-active font-bold"
                   >
                     {selectedUserIds.size === users.length ? 'Deselect All' : 'Select All'}
                   </button>
                 </div>
-                <div className="max-h-40 overflow-y-auto divide-y divide-white/[0.04] scrollbar-none pr-1">
+                <div className="max-h-40 overflow-y-auto divide-y divide-outline-variant/40 scrollbar-none pr-1">
                   {users.map(u => (
                     <div
                       key={u.id}
                       onClick={() => handleToggleUser(u.id)}
-                      className={`flex items-center justify-between py-2 px-2.5 rounded-lg cursor-pointer transition-colors ${
-                        selectedUserIds.has(u.id) ? 'bg-white/[0.04]' : 'hover:bg-white/[0.02]'
+                      className={`flex items-center justify-between py-2 px-2.5 rounded cursor-pointer transition-colors ${
+                        selectedUserIds.has(u.id) ? 'bg-surface-variant' : 'hover:bg-surface-variant/40'
                       }`}
                     >
                       <div className="min-w-0">
-                        <div className="text-xs font-medium text-ink truncate">{u.fullName}</div>
-                        <div className="text-[10px] text-ink-faint truncate">{u.email}</div>
+                        <div className="text-xs font-bold text-on-surface truncate">{u.fullName}</div>
+                        <div className="text-[10px] text-muted-strong truncate font-plex font-semibold">{u.email}</div>
                       </div>
                       <input
                         type="checkbox"
                         checked={selectedUserIds.has(u.id)}
                         onChange={() => {}} // Click handled by div
-                        className="rounded border-white/10 text-mint focus:ring-mint bg-void"
+                        className="rounded border-outline-variant text-primary-container focus:ring-primary-container bg-surface-container-low"
                       />
                     </div>
                   ))}
@@ -185,15 +185,15 @@ export default function AdminNotifications() {
 
             {/* Notification Mode */}
             <div>
-              <label className="text-xs text-ink-faint mb-1.5 block">Notification Delivery Mode</label>
+              <label className="text-xs text-muted-strong font-bold font-plex uppercase tracking-wider mb-1.5 block">Notification Delivery Mode</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setNotifType('IN_APP')}
-                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-xs font-semibold font-display transition-colors ${
+                  className={`flex items-center justify-center gap-2 py-3 rounded border text-xs font-bold transition-colors ${
                     notifType === 'IN_APP'
-                      ? 'border-mint bg-mint/5 text-mint'
-                      : 'border-white/10 bg-white/[0.01] text-ink-muted hover:bg-white/[0.03]'
+                      ? 'border-primary-container bg-primary-container/10 text-primary-container shadow-sm'
+                      : 'border-outline-variant bg-surface-container-low text-muted-strong hover:bg-surface-variant'
                   }`}
                 >
                   <Bell size={14} /> In-App Notification
@@ -201,10 +201,10 @@ export default function AdminNotifications() {
                 <button
                   type="button"
                   onClick={() => setNotifType('POPUP')}
-                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-xs font-semibold font-display transition-colors ${
+                  className={`flex items-center justify-center gap-2 py-3 rounded border text-xs font-bold transition-colors ${
                     notifType === 'POPUP'
-                      ? 'border-mint bg-mint/5 text-mint'
-                      : 'border-white/10 bg-white/[0.01] text-ink-muted hover:bg-white/[0.03]'
+                      ? 'border-primary-container bg-primary-container/10 text-primary-container shadow-sm'
+                      : 'border-outline-variant bg-surface-container-low text-muted-strong hover:bg-surface-variant'
                   }`}
                 >
                   <AlertCircle size={14} /> Dashboard Popup
@@ -214,33 +214,33 @@ export default function AdminNotifications() {
 
             {/* Message Body */}
             <div>
-              <label className="text-xs text-ink-faint mb-1.5 block">Message Content</label>
+              <label className="text-xs text-muted-strong font-bold font-plex uppercase tracking-wider mb-1.5 block">Message Content</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Enter important alert message or announcement info..."
                 rows={4}
-                className="w-full rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 text-sm text-ink outline-none focus:border-mint/50 placeholder:text-ink-faint resize-none"
+                className="w-full rounded border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none focus:border-primary-container placeholder:text-muted-strong font-medium resize-none"
               />
             </div>
 
             {/* Scheduled Date/Time */}
             <div>
-              <label className="text-xs text-ink-faint mb-1.5 block flex items-center gap-1.5">
-                <Calendar size={13} className="text-mint" /> Schedule Release <span className="text-[10px] text-ink-faint">(Optional)</span>
+              <label className="text-xs text-muted-strong font-bold font-plex uppercase tracking-wider mb-1.5 block flex items-center gap-1.5">
+                <Calendar size={13} className="text-primary-container" /> Schedule Release <span className="text-[10px] text-muted-strong font-plex font-bold">(Optional)</span>
               </label>
               <input
                 type="datetime-local"
                 value={scheduledTime}
                 onChange={(e) => setScheduledTime(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-void-900/60 px-4 py-3 text-xs text-ink outline-none focus:border-mint/50 font-mono-tab"
+                className="w-full rounded border border-outline-variant bg-surface-container-low px-4 py-3 text-xs text-on-surface outline-none focus:border-primary-container font-plex"
               />
             </div>
 
             <button
               type="submit"
               disabled={sending}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-mint text-void font-display font-semibold text-sm py-3.5 shadow-mint hover:bg-mint-400 transition-colors disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 rounded bg-primary-container text-on-primary-container font-button font-bold text-sm py-3.5 hover:bg-primary-active transition-colors disabled:opacity-60 shadow-sm"
             >
               {sending ? (
                 <>Sending...</>
@@ -258,47 +258,47 @@ export default function AdminNotifications() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 overflow-hidden"
+          className="rounded-lg border border-outline-variant bg-surface-card overflow-hidden"
         >
-          <div className="px-5 sm:px-6 py-4 border-b border-white/[0.06] flex items-center gap-2">
-            <Clock size={16} className="text-mint" />
-            <span className="font-display text-sm font-semibold text-ink">Broadcast Log</span>
+          <div className="px-5 sm:px-6 py-4 border-b border-outline-variant flex items-center gap-2 bg-surface-container-low">
+            <Clock size={16} className="text-primary-container" />
+            <span className="font-hanken text-sm font-bold text-on-surface">Broadcast Log</span>
           </div>
 
           {loading ? (
             <div className="p-6 space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-14 rounded-lg bg-white/5 animate-pulse" />
+                <div key={i} className="h-14 rounded-lg bg-surface-container-low border border-outline-variant animate-pulse" />
               ))}
             </div>
           ) : history.length === 0 ? (
-            <div className="p-16 text-center text-ink-faint space-y-2">
+            <div className="p-16 text-center text-muted-strong space-y-2">
               <Bell size={24} className="mx-auto" />
-              <p className="text-xs">No broadcasts dispatched yet.</p>
+              <p className="text-xs font-bold font-hanken">No broadcasts dispatched yet.</p>
             </div>
           ) : (
             <>
-              <div className="divide-y divide-white/[0.05]">
+              <div className="divide-y divide-outline-variant/40">
                 {currentHistory.map((item) => (
-                  <div key={item.id} className="p-4 flex items-start gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      item.type === 'POPUP' ? 'bg-amber-400/10 text-amber-400' : 'bg-mint-900/50 text-mint'
+                  <div key={item.id} className="p-4 flex items-start gap-3 hover:bg-surface-variant/20 transition-colors">
+                    <div className={`w-8 h-8 rounded flex items-center justify-center shrink-0 border ${
+                      item.type === 'POPUP' ? 'bg-[#FCD535]/10 text-[#FCD535] border-[#FCD535]/20' : 'bg-primary-container/10 text-primary-container border-primary-container/20'
                     }`}>
                       {item.type === 'POPUP' ? <AlertCircle size={14} /> : <Bell size={14} />}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-mono-tab text-ink-faint">
+                        <span className="text-[11px] font-plex text-muted-strong font-bold">
                           To: {item.user ? item.user.fullName : 'All Users'}
                         </span>
                         {item.scheduledTime && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20 font-mono-tab">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary-container/10 text-primary-container border border-primary-container/20 font-plex font-bold">
                             Scheduled
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-ink mt-1 font-medium leading-snug">{item.message}</p>
-                      <div className="flex items-center justify-between mt-2 text-[9px] text-ink-faint font-mono-tab">
+                      <p className="text-xs text-on-surface mt-1 font-semibold leading-snug">{item.message}</p>
+                      <div className="flex items-center justify-between mt-2 text-[9px] text-muted-strong font-plex font-bold">
                         <span>Created: {new Date(item.timestamp).toLocaleString()}</span>
                         {item.scheduledTime && (
                           <span>Release: {new Date(item.scheduledTime).toLocaleString()}</span>

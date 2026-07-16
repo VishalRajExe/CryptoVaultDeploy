@@ -333,15 +333,15 @@ export default function Markets() {
   const up = (selected?.priceChangePercentage24h ?? 0) >= 0;
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col lg:flex-row bg-void-950 text-ink overflow-hidden">
+    <div className="h-[calc(100vh-4rem)] flex flex-col lg:flex-row bg-surface-container-lowest text-on-surface antialiased overflow-hidden font-hanken">
 
       {/* Mobile navigation tab selector */}
-      <div className="lg:hidden flex border-b border-white/[0.06] bg-[#101012]/85 backdrop-blur-xl shrink-0 z-30">
+      <div className="lg:hidden flex border-b border-outline-variant bg-surface shrink-0 z-30">
         <button
           type="button"
           onClick={() => setActiveMobileView('markets')}
-          className={`flex-1 py-3 text-xs font-semibold text-center border-r border-white/[0.06] transition-colors ${
-            activeMobileView === 'markets' ? 'text-mint bg-white/[0.02] border-b-2 border-b-mint font-bold' : 'text-ink-muted'
+          className={`flex-1 py-3 text-xs font-bold text-center border-r border-outline-variant transition-colors ${
+            activeMobileView === 'markets' ? 'text-primary-container bg-surface-container-low border-b-2 border-b-primary-container' : 'text-muted-tertiary'
           }`}
         >
           Markets
@@ -349,8 +349,8 @@ export default function Markets() {
         <button
           type="button"
           onClick={() => setActiveMobileView('chart')}
-          className={`flex-1 py-3 text-xs font-semibold text-center border-r border-white/[0.06] transition-colors ${
-            activeMobileView === 'chart' ? 'text-mint bg-white/[0.02] border-b-2 border-b-mint font-bold' : 'text-ink-muted'
+          className={`flex-1 py-3 text-xs font-bold text-center border-r border-outline-variant transition-colors ${
+            activeMobileView === 'chart' ? 'text-primary-container bg-surface-container-low border-b-2 border-b-primary-container' : 'text-muted-tertiary'
           }`}
         >
           Chart
@@ -358,8 +358,8 @@ export default function Markets() {
         <button
           type="button"
           onClick={() => setActiveMobileView('trade')}
-          className={`flex-1 py-3 text-xs font-semibold text-center transition-colors ${
-            activeMobileView === 'trade' ? 'text-mint bg-white/[0.02] border-b-2 border-b-mint font-bold' : 'text-ink-muted'
+          className={`flex-1 py-3 text-xs font-bold text-center transition-colors ${
+            activeMobileView === 'trade' ? 'text-primary-container bg-surface-container-low border-b-2 border-b-primary-container' : 'text-muted-tertiary'
           }`}
         >
           Trade
@@ -367,38 +367,38 @@ export default function Markets() {
       </div>
 
       {/* ===== Market list column ===== */}
-      <div className={`w-full lg:w-[300px] shrink-0 border-r border-white/[0.06] bg-void-900/40 flex flex-col min-h-0 ${
+      <div className={`w-full lg:w-[300px] shrink-0 border-r border-outline-variant bg-surface-container-lowest flex flex-col min-h-0 ${
         activeMobileView === 'markets' ? 'flex' : 'hidden lg:flex'
       }`}>
-        <div className="px-4 pt-4 pb-3 border-b border-white/[0.06]">
-          <h1 className="font-display text-[17px] font-semibold mb-3">Exchange</h1>
+        <div className="px-4 pt-4 pb-3 border-b border-outline-variant">
+          <h1 className="font-hanken text-[17px] font-bold uppercase tracking-wider text-[#fff4d7] mb-3">Exchange</h1>
           <div className="flex items-center gap-1.5 mb-3 flex-wrap">
             {TABS.map((t) => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-                  tab === t.key ? 'bg-mint text-void font-bold shadow-mint-sm' : 'bg-white/[0.04] text-ink-muted hover:text-ink'
+                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors ${
+                  tab === t.key ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low text-muted-strong hover:text-on-surface'
                 }`}
               >
                 {t.label}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2">
-            {searching ? <Loader2 size={14} className="text-ink-faint animate-spin" /> : <Search size={14} className="text-ink-faint" />}
+          <div className="flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2">
+            {searching ? <Loader2 size={14} className="text-muted-strong animate-spin" /> : <Search size={14} className="text-muted-strong" />}
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search markets…"
-              className="flex-1 bg-transparent outline-none text-[12.5px] text-ink placeholder:text-ink-faint"
+              className="flex-1 bg-transparent outline-none text-[12.5px] text-on-surface placeholder:text-muted-tertiary font-hanken"
             />
           </div>
         </div>
 
-        <div className="relative flex items-center justify-between px-4 py-2 text-[11px] text-ink-faint border-b border-white/[0.04]">
+        <div className="relative flex items-center justify-between px-4 py-2 text-[11px] text-muted-strong border-b border-outline-variant">
           <span>Sorted by {SORTS.find((s) => s.key === sortKey)?.label}</span>
-          <button onClick={() => setSortOpen((o) => !o)} className="flex items-center gap-1 hover:text-ink">
+          <button onClick={() => setSortOpen((o) => !o)} className="flex items-center gap-1 hover:text-on-surface font-semibold">
             Sort <ChevronDown size={12} />
           </button>
           <AnimatePresence>
@@ -407,13 +407,13 @@ export default function Markets() {
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="absolute right-3 top-8 z-20 w-36 rounded-xl border border-white/10 bg-void-800 shadow-panel overflow-hidden"
+                className="absolute right-3 top-8 z-20 w-36 rounded-md border border-outline-variant bg-surface-card shadow-md overflow-hidden"
               >
                 {SORTS.map((s) => (
                   <button
                     key={s.key}
                     onClick={() => { setSortKey(s.key); setSortOpen(false); }}
-                    className={`w-full text-left px-3 py-2 text-xs hover:bg-white/[0.05] ${sortKey === s.key ? 'text-mint' : 'text-ink-muted'}`}
+                    className={`w-full text-left px-3 py-2 text-xs hover:bg-surface-variant ${sortKey === s.key ? 'text-primary-container font-bold' : 'text-muted-tertiary'}`}
                   >
                     {s.label}
                   </button>
@@ -425,7 +425,7 @@ export default function Markets() {
 
         <div className="flex-1 overflow-y-auto">
           {loadingList ? (
-            <div className="p-8 text-center text-xs text-ink-faint">Loading markets…</div>
+            <div className="p-8 text-center text-xs text-muted-strong">Loading markets…</div>
           ) : sortedList?.length ? (
             sortedList.map((c) => (
               <button
@@ -438,34 +438,34 @@ export default function Markets() {
                   setActiveMobileView('chart');
                 }}
                 className={`w-full flex items-center justify-between px-4 py-2.5 text-left border-l-2 transition-colors ${
-                  selected?.id === c.id ? 'bg-white/[0.04] border-mint' : 'border-transparent hover:bg-white/[0.02]'
+                  selected?.id === c.id ? 'bg-surface-container-low border-primary-container' : 'border-transparent hover:bg-surface-container-low/50'
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span
                     onClick={(e) => handleWatch(c, e)}
-                    className={`shrink-0 ${watchlistIds.has(c.id) ? 'text-amber-400' : 'text-ink-faint hover:text-ink-muted'}`}
+                    className={`shrink-0 ${watchlistIds.has(c.id) ? 'text-primary-container' : 'text-muted-strong hover:text-on-surface'}`}
                   >
                     <Star size={13} fill={watchlistIds.has(c.id) ? 'currentColor' : 'none'} />
                   </span>
                   {c.image && <img src={c.image} alt="" className="w-6 h-6 rounded-full shrink-0" />}
-                  <div className="min-w-0">
-                    <div className="text-[12.5px] font-semibold truncate">{c.symbol?.toUpperCase()}/USDT</div>
-                    <div className="text-[10.5px] text-ink-faint truncate">{c.name}</div>
+                  <div className="min-w-0 font-hanken">
+                    <div className="text-[12.5px] font-bold truncate text-on-surface">{c.symbol?.toUpperCase()}/USDT</div>
+                    <div className="text-[10.5px] text-muted-strong truncate">{c.name}</div>
                   </div>
                 </div>
-                <div className="text-right shrink-0 pl-2">
-                  <div className="text-[12.5px] font-mono-tab">
+                <div className="text-right shrink-0 pl-2 font-plex">
+                  <div className="text-[12.5px] font-bold text-on-surface">
                     {c.currentPrice != null ? formatCurrency(c.currentPrice, 'USD', c.currentPrice < 1 ? 4 : 2) : '—'}
                   </div>
-                  <div className={`text-[11px] font-mono-tab ${(c.priceChangePercentage24h ?? 0) >= 0 ? 'text-mint' : 'text-carmine'}`}>
+                  <div className={`text-[11px] font-bold ${(c.priceChangePercentage24h ?? 0) >= 0 ? 'text-secondary' : 'text-error'}`}>
                     {c.priceChangePercentage24h != null ? formatPercent(c.priceChangePercentage24h) : '—'}
                   </div>
                 </div>
               </button>
             ))
           ) : (
-            <div className="p-8 text-center text-xs text-ink-faint">
+            <div className="p-8 text-center text-xs text-muted-strong font-hanken">
               {tab === 'fav' ? 'No favorites yet — tap the star on any market.' : 'No markets found.'}
             </div>
           )}
@@ -473,53 +473,53 @@ export default function Markets() {
       </div>
 
       {/* ===== Main column: chart + orders ===== */}
-      <div className={`flex-1 min-w-0 flex flex-col border-r border-white/[0.06] ${
+      <div className={`flex-1 min-w-0 flex flex-col border-r border-outline-variant ${
         activeMobileView === 'chart' ? 'flex' : 'hidden lg:flex'
       }`}>
         {selected ? (
           <>
-            <div className="flex items-center justify-between px-6 py-3.5 border-b border-white/[0.06] flex-wrap gap-3">
+            <div className="flex items-center justify-between px-6 py-3.5 border-b border-outline-variant flex-wrap gap-3 font-hanken">
               <div className="flex items-center gap-3">
                 {selected.image && <img src={selected.image} alt="" className="w-7 h-7 rounded-full" />}
-                <span className="font-display text-lg font-semibold">{selected.symbol?.toUpperCase()}/USDT</span>
-                <span className={`font-mono-tab text-lg ${up ? 'text-mint' : 'text-carmine'}`}>
+                <span className="font-hanken text-lg font-bold text-[#fff4d7]">{selected.symbol?.toUpperCase()}/USDT</span>
+                <span className={`font-plex text-lg font-bold ${up ? 'text-secondary' : 'text-error'}`}>
                   {formatCurrency(selected.currentPrice, 'USD', selected.currentPrice < 1 ? 4 : 2)}
                 </span>
               </div>
-              <div className="flex gap-6 text-[11px] text-ink-faint overflow-x-auto scrollbar-none py-1">
-                <div className="shrink-0">24h Change<br /><b className={`font-mono-tab ${up ? 'text-mint' : 'text-carmine'}`}>{formatPercent(selected.priceChangePercentage24h ?? 0)}</b></div>
-                <div className="shrink-0">24h High<br /><b className="font-mono-tab text-ink">{selected.high24h != null ? formatCurrency(selected.high24h) : '—'}</b></div>
-                <div className="shrink-0">24h Low<br /><b className="font-mono-tab text-ink">{selected.low24h != null ? formatCurrency(selected.low24h) : '—'}</b></div>
-                <div className="shrink-0">Market Cap<br /><b className="font-mono-tab text-ink">{selected.marketCap ? formatCurrency(selected.marketCap, 'USD', 0) : '—'}</b></div>
+              <div className="flex gap-6 text-[11px] text-muted-strong overflow-x-auto scrollbar-none py-1">
+                <div className="shrink-0">24h Change<br /><b className={`font-plex ${up ? 'text-secondary' : 'text-error'}`}>{formatPercent(selected.priceChangePercentage24h ?? 0)}</b></div>
+                <div className="shrink-0">24h High<br /><b className="font-plex text-on-surface font-semibold">{selected.high24h != null ? formatCurrency(selected.high24h) : '—'}</b></div>
+                <div className="shrink-0">24h Low<br /><b className="font-plex text-on-surface font-semibold">{selected.low24h != null ? formatCurrency(selected.low24h) : '—'}</b></div>
+                <div className="shrink-0">Market Cap<br /><b className="font-plex text-on-surface font-semibold">{selected.marketCap ? formatCurrency(selected.marketCap, 'USD', 0) : '—'}</b></div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between px-6 py-2.5 border-b border-white/[0.04] flex-wrap gap-2">
+            <div className="flex items-center justify-between px-6 py-2.5 border-b border-outline-variant flex-wrap gap-2">
               {isReplayMode ? (
                 <div className="flex items-center gap-3 w-full justify-between flex-wrap">
                    <div className="flex items-center gap-2">
-                     <span className="text-[10px] font-bold text-mint bg-mint/10 px-2 py-1 rounded">REPLAY MODE</span>
-                     <span className="text-xs text-ink-faint">{activeSession?.symbol}</span>
+                     <span className="text-[10px] font-bold text-primary-container bg-primary-container/10 border border-primary-container/20 px-2 py-1 rounded">REPLAY MODE</span>
+                     <span className="text-xs text-muted-strong">{activeSession?.symbol}</span>
                    </div>
-                   <div className="flex items-center gap-2">
-                     <button onClick={() => executeControl('skipBackward', 1)} className="p-1.5 hover:bg-white/10 rounded"><SkipBack size={14}/></button>
+                   <div className="flex items-center gap-2 text-on-surface">
+                     <button onClick={() => executeControl('skipBackward', 1)} className="p-1.5 hover:bg-surface-variant rounded"><SkipBack size={14}/></button>
                      {activeSession?.replayStatus === 'PLAYING' ? (
-                       <button onClick={() => executeControl('pauseReplaySession')} className="p-1.5 hover:bg-white/10 rounded text-mint"><Pause size={14}/></button>
+                       <button onClick={() => executeControl('pauseReplaySession')} className="p-1.5 hover:bg-surface-variant rounded text-primary-container"><Pause size={14}/></button>
                      ) : (
-                       <button onClick={() => executeControl(activeSession?.replayStatus === 'PAUSED' ? 'resumeReplaySession' : 'startReplaySession')} className="p-1.5 hover:bg-white/10 rounded text-mint"><Play size={14}/></button>
+                       <button onClick={() => executeControl(activeSession?.replayStatus === 'PAUSED' ? 'resumeReplaySession' : 'startReplaySession')} className="p-1.5 hover:bg-surface-variant rounded text-primary-container"><Play size={14}/></button>
                      )}
-                     <button onClick={() => executeControl('nextReplayCandle')} className="p-1.5 hover:bg-white/10 rounded"><SkipForward size={14}/></button>
+                     <button onClick={() => executeControl('nextReplayCandle')} className="p-1.5 hover:bg-surface-variant rounded"><SkipForward size={14}/></button>
                      
-                     <div className="w-px h-4 bg-white/10 mx-1"/>
+                     <div className="w-px h-4 bg-outline-variant mx-1"/>
                      
-                     <select onChange={(e) => executeControl('updateReplaySpeed', parseFloat(e.target.value))} value={activeSession?.replaySpeed || 1} className="bg-transparent text-xs outline-none cursor-pointer text-ink-muted">
+                     <select onChange={(e) => executeControl('updateReplaySpeed', parseFloat(e.target.value))} value={activeSession?.replaySpeed || 1} className="bg-surface-container-low border border-outline-variant text-xs outline-none cursor-pointer text-muted-tertiary rounded px-1.5 py-0.5">
                         <option value={0.5}>0.5x</option>
                         <option value={1}>1x</option>
                         <option value={2}>2x</option>
                         <option value={5}>5x</option>
                      </select>
                      
-                     <button onClick={exitReplayMode} className="ml-2 px-2 py-1 bg-carmine/20 text-carmine rounded text-[10px] uppercase font-bold hover:bg-carmine/40 transition-colors">Exit</button>
+                     <button onClick={exitReplayMode} className="ml-2 px-2 py-1 bg-error/10 border border-error/20 text-error rounded text-[10px] uppercase font-bold hover:bg-error/20 transition-colors">Exit</button>
                    </div>
                 </div>
               ) : (
@@ -529,8 +529,8 @@ export default function Markets() {
                       <button
                         key={tf.key}
                         onClick={() => setTimeframe(tf.key)}
-                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium shrink-0 ${
-                          timeframe === tf.key ? 'bg-mint text-void font-bold' : 'bg-white/[0.04] text-ink-muted hover:text-ink'
+                        className={`px-2.5 py-1 rounded text-[11px] font-bold shrink-0 ${
+                          timeframe === tf.key ? 'bg-primary-container text-on-primary-container font-bold' : 'bg-surface-container-low border border-outline-variant text-muted-tertiary hover:text-on-surface hover:border-outline'
                         }`}
                       >
                         {tf.label}
@@ -546,7 +546,7 @@ export default function Markets() {
                         setUpgradeModalOpen(true);
                       }
                     }} 
-                    className="px-3 py-1.5 text-[11px] bg-void-800 border border-white/10 rounded-md hover:border-mint/50 transition-colors text-mint font-semibold flex items-center gap-1.5 shadow-mint-sm hover:shadow-mint"
+                    className="px-3 py-1.5 text-[11px] bg-surface-container-low border border-outline-variant rounded hover:border-primary-container transition-colors text-primary-container font-bold flex items-center gap-1.5 shadow-sm"
                   >
                     <FastForward size={13}/> Market Replay
                   </button>
@@ -556,7 +556,7 @@ export default function Markets() {
 
             <div className="flex-1 min-h-[260px] p-4 relative">
               {chartLoading ? (
-                <div className="w-full h-full flex items-center justify-center text-ink-faint text-xs">
+                <div className="w-full h-full flex items-center justify-center text-muted-strong text-xs font-hanken">
                   <Loader2 size={16} className="animate-spin mr-2" /> Loading chart…
                 </div>
               ) : chartData.length ? (
@@ -569,74 +569,74 @@ export default function Markets() {
                   className="w-full h-full"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-ink-faint text-xs">
+                <div className="w-full h-full flex items-center justify-center text-muted-strong text-xs font-hanken">
                   No chart data available.
                 </div>
               )}
             </div>
 
-            <div className="border-t border-white/[0.06] max-h-[220px] overflow-y-auto shrink-0">
-              <div className="px-6 py-2.5 text-xs text-ink-muted border-b border-white/[0.04] font-semibold">
+            <div className="border-t border-outline-variant max-h-[220px] overflow-y-auto shrink-0 font-hanken">
+              <div className="px-6 py-2.5 text-xs text-muted-tertiary border-b border-outline-variant font-bold">
                 Orders ({(isReplayMode ? replayOrders : orders).length})
               </div>
               <table className="w-full text-[11.5px]">
                 <thead>
-                  <tr className="text-left text-ink-faint text-[10px] uppercase tracking-wider">
-                    <th className="px-6 py-2 font-normal">Asset</th>
-                    <th className="px-4 py-2 font-normal">Side</th>
-                    <th className="px-4 py-2 font-normal">Amount</th>
-                    <th className="px-4 py-2 font-normal">Price</th>
-                    <th className="px-6 py-2 font-normal text-right">Status</th>
+                  <tr className="text-left text-muted-strong text-[10px] uppercase tracking-wider font-plex">
+                    <th className="px-6 py-2 font-normal border-b border-outline-variant">Asset</th>
+                    <th className="px-4 py-2 font-normal border-b border-outline-variant">Side</th>
+                    <th className="px-4 py-2 font-normal border-b border-outline-variant">Amount</th>
+                    <th className="px-4 py-2 font-normal border-b border-outline-variant">Price</th>
+                    <th className="px-6 py-2 font-normal text-right border-b border-outline-variant">Status</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-outline-variant/40">
                   {(isReplayMode ? replayOrders : orders).length ? (
                     (isReplayMode ? replayOrders : orders).slice(0, 20).map((o) => (
-                      <tr key={o.id} className="border-t border-white/[0.03] hover:bg-white/[0.02]">
-                        <td className="px-6 py-2 font-mono-tab">{o.orderItem?.coin?.symbol?.toUpperCase() || (isReplayMode && selected ? selected.symbol.toUpperCase() : '—')}</td>
-                        <td className={`px-4 py-2 font-semibold ${o.orderType === 'BUY' ? 'text-mint' : 'text-carmine'}`}>{o.orderType}</td>
-                        <td className="px-4 py-2 font-mono-tab">{o.orderItem?.quantity ?? '—'}</td>
-                        <td className="px-4 py-2 font-mono-tab">{o.price != null ? formatCurrency(o.price) : '—'}</td>
-                        <td className="px-6 py-2 text-right text-ink-faint">{o.status}</td>
+                      <tr key={o.id} className="hover:bg-surface-variant/20 transition-colors">
+                        <td className="px-6 py-2 font-plex font-semibold text-on-surface">{o.orderItem?.coin?.symbol?.toUpperCase() || (isReplayMode && selected ? selected.symbol.toUpperCase() : '—')}</td>
+                        <td className={`px-4 py-2 font-bold ${o.orderType === 'BUY' ? 'text-secondary' : 'text-error'}`}>{o.orderType}</td>
+                        <td className="px-4 py-2 font-plex text-muted-tertiary">{o.orderItem?.quantity ?? '—'}</td>
+                        <td className="px-4 py-2 font-plex text-muted-tertiary">{o.price != null ? formatCurrency(o.price) : '—'}</td>
+                        <td className="px-6 py-2 text-right text-muted-strong font-semibold">{o.status}</td>
                       </tr>
                     ))
                   ) : (
-                    <tr><td colSpan={5} className="px-6 py-6 text-center text-ink-faint">No orders yet.</td></tr>
+                    <tr><td colSpan={5} className="px-6 py-6 text-center text-muted-strong">No orders yet.</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-ink-faint text-sm">Select a market to begin.</div>
+          <div className="flex-1 flex items-center justify-center text-muted-strong text-sm font-hanken">Select a market to begin.</div>
         )}
       </div>
 
       {/* ===== Order panel ===== */}
-      <div className={`w-full lg:w-[300px] shrink-0 bg-void-900/40 p-4 flex flex-col overflow-y-auto ${
+      <div className={`w-full lg:w-[300px] shrink-0 bg-surface-container-lowest border-l border-outline-variant p-4 flex flex-col overflow-y-auto ${
         activeMobileView === 'trade' ? 'flex' : 'hidden lg:flex'
       }`}>
-        <div className="grid grid-cols-3 rounded-xl border border-white/10 bg-void-900/60 p-1 mb-4">
+        <div className="grid grid-cols-3 rounded-md border border-outline-variant bg-surface-card p-1 mb-4">
           <button
             onClick={() => { setSide('BUY'); setFormError(''); }}
-            className={`py-2 rounded-lg text-xs font-display font-semibold transition-colors flex items-center justify-center gap-1 ${
-              side === 'BUY' ? 'bg-mint text-void shadow-mint' : 'text-ink-muted'
+            className={`py-2 rounded text-xs font-button font-bold outline-none transition-colors flex items-center justify-center gap-1 ${
+              side === 'BUY' ? 'bg-primary-container text-on-primary-container' : 'text-muted-tertiary hover:text-on-surface'
             }`}
           >
             <ArrowUpRight size={12} /> Buy
           </button>
           <button
             onClick={() => { setSide('SELL'); setFormError(''); }}
-            className={`py-2 rounded-lg text-xs font-display font-semibold transition-colors flex items-center justify-center gap-1 ${
-              side === 'SELL' ? 'bg-carmine text-void' : 'text-ink-muted'
+            className={`py-2 rounded text-xs font-button font-bold outline-none transition-colors flex items-center justify-center gap-1 ${
+              side === 'SELL' ? 'bg-error text-white' : 'text-muted-tertiary hover:text-on-surface'
             }`}
           >
             <ArrowDownRight size={12} /> Sell
           </button>
           <button
             onClick={() => { setSide('EXCHANGE'); setFormError(''); }}
-            className={`py-2 rounded-lg text-xs font-display font-semibold transition-colors flex items-center justify-center gap-1 ${
-              side === 'EXCHANGE' ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 text-orange-400' : 'text-ink-muted'
+            className={`py-2 rounded text-xs font-button font-bold outline-none transition-colors flex items-center justify-center gap-1 ${
+              side === 'EXCHANGE' ? 'bg-surface-elevated text-on-surface border border-outline-variant' : 'text-muted-tertiary hover:text-on-surface'
             }`}
           >
             <RefreshCw size={12} /> Exchange
@@ -644,16 +644,16 @@ export default function Markets() {
         </div>
 
         {side === 'EXCHANGE' ? (
-          <form onSubmit={submitExchange} className="space-y-4">
-            <div className="rounded-xl border border-white/10 bg-void-900/60 p-3">
-              <div className="flex justify-between text-[11px] text-ink-faint mb-2">
+          <form onSubmit={submitExchange} className="space-y-4 font-hanken">
+            <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
+              <div className="flex justify-between text-[11px] text-muted-strong mb-2">
                 <span>From</span>
-                <span className="font-mono-tab">
+                <span className="font-plex font-semibold">
                   Balance: {(userAssets.find(a => a.coin?.id === fromCoin?.id)?.quantity || 0).toFixed(6)}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 bg-void-850 px-2 py-1 rounded-lg border border-white/5">
+                <div className="flex items-center gap-1.5 bg-surface-elevated px-2 py-1 rounded border border-outline-variant">
                   {fromCoin?.image && <img src={fromCoin.image} alt="" className="w-4 h-4 rounded-full" />}
                   <select
                     value={fromCoin?.id || ''}
@@ -661,10 +661,10 @@ export default function Markets() {
                       const c = coins.find(coin => coin.id === e.target.value) || top50.find(coin => coin.id === e.target.value);
                       if (c) setFromCoin(c);
                     }}
-                    className="bg-transparent text-xs font-semibold text-ink outline-none cursor-pointer"
+                    className="bg-transparent text-xs font-bold text-on-surface outline-none cursor-pointer"
                   >
                     {coins.concat(top50).filter((c, i, self) => self.findIndex(o => o.id === c.id) === i).map(c => (
-                      <option key={c.id} value={c.id} className="bg-void-900 text-ink">
+                      <option key={c.id} value={c.id} className="bg-surface-card text-on-surface">
                         {c.symbol?.toUpperCase()}
                       </option>
                     ))}
@@ -677,7 +677,7 @@ export default function Markets() {
                   value={exchangeQuantity}
                   onChange={(e) => setExchangeQuantity(e.target.value)}
                   placeholder="0.00"
-                  className="w-1/2 bg-transparent text-right outline-none text-sm font-mono-tab text-ink placeholder:text-ink-faint"
+                  className="w-1/2 bg-transparent text-right outline-none text-sm font-plex text-on-surface placeholder:text-muted-tertiary"
                 />
               </div>
             </div>
@@ -690,21 +690,21 @@ export default function Markets() {
                   setFromCoin(toCoin);
                   setToCoin(temp);
                 }}
-                className="w-8 h-8 rounded-full border border-white/10 bg-void-900 text-mint flex items-center justify-center hover:border-mint/50 transition-colors shadow-panel"
+                className="w-8 h-8 rounded-full border border-outline-variant bg-surface-card text-primary-container flex items-center justify-center hover:border-primary-container transition-colors shadow-sm"
               >
                 <ArrowLeftRight size={14} className="rotate-90" />
               </button>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-void-900/60 p-3">
-              <div className="flex justify-between text-[11px] text-ink-faint mb-2">
+            <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
+              <div className="flex justify-between text-[11px] text-muted-strong mb-2">
                 <span>To</span>
-                <span className="font-mono-tab">
+                <span className="font-plex font-semibold">
                   Balance: {(userAssets.find(a => a.coin?.id === toCoin?.id)?.quantity || 0).toFixed(6)}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 bg-void-850 px-2 py-1 rounded-lg border border-white/5">
+                <div className="flex items-center gap-1.5 bg-surface-elevated px-2 py-1 rounded border border-outline-variant">
                   {toCoin?.image && <img src={toCoin.image} alt="" className="w-4 h-4 rounded-full" />}
                   <select
                     value={toCoin?.id || ''}
@@ -712,16 +712,16 @@ export default function Markets() {
                       const c = coins.find(coin => coin.id === e.target.value) || top50.find(coin => coin.id === e.target.value);
                       if (c) setToCoin(c);
                     }}
-                    className="bg-transparent text-xs font-semibold text-ink outline-none cursor-pointer"
+                    className="bg-transparent text-xs font-bold text-on-surface outline-none cursor-pointer"
                   >
                     {coins.concat(top50).filter((c, i, self) => self.findIndex(o => o.id === c.id) === i).map(c => (
-                      <option key={c.id} value={c.id} className="bg-void-900 text-ink">
+                      <option key={c.id} value={c.id} className="bg-surface-card text-on-surface">
                         {c.symbol?.toUpperCase()}
                       </option>
                     ))}
                   </select>
                 </div>
-                <div className="text-right text-sm font-mono-tab text-ink-muted">
+                <div className="text-right text-sm font-plex text-muted-tertiary">
                   {fromCoin && toCoin && exchangeQuantity
                     ? (parseFloat(exchangeQuantity) * fromCoin.currentPrice / toCoin.currentPrice).toFixed(6)
                     : '0.00'}
@@ -730,44 +730,44 @@ export default function Markets() {
             </div>
 
             {fromCoin && toCoin && (
-              <div className="text-[11px] text-ink-faint text-center">
+              <div className="text-[11px] text-muted-strong text-center font-plex">
                 1 {fromCoin.symbol?.toUpperCase()} = {(fromCoin.currentPrice / toCoin.currentPrice).toFixed(6)} {toCoin.symbol?.toUpperCase()}
               </div>
             )}
 
             {formError && (
-              <div className="text-xs text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3 py-2">
+              <div className="text-xs text-error bg-error-container/10 border border-error/20 rounded-lg px-3 py-2 font-hanken">
                 {formError}
               </div>
             )}
 
             {isReplayMode ? (
-              <div className="text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2 text-center">
+              <div className="text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2 text-center font-hanken">
                 Exchange is not supported in Market Replay mode.
               </div>
             ) : (
               <button
                 type="submit"
                 disabled={exchanging || !fromCoin || !toCoin}
-                className="w-full flex items-center justify-center gap-2 rounded-xl font-display font-semibold text-sm py-3 transition-colors bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg"
+                className="w-full flex items-center justify-center gap-2 rounded-md font-button font-bold text-sm py-3 transition-colors bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-sm"
               >
                 {exchanging ? <Loader2 size={16} className="animate-spin" /> : 'Exchange Now'}
               </button>
             )}
           </form>
         ) : (
-          <form onSubmit={submitOrder} className="space-y-4">
+          <form onSubmit={submitOrder} className="space-y-4 font-hanken">
             <div>
-              <label className="text-[10.5px] uppercase tracking-wide text-ink-faint mb-1.5 block">Price</label>
-              <div className="flex items-center justify-between rounded-lg border border-white/10 bg-void-900/60 px-3 py-2.5">
-                <span className="font-mono-tab text-sm text-ink">{price ? formatCurrency(price, 'USD', price < 1 ? 4 : 2) : '—'}</span>
-                <span className="text-[11px] text-ink-faint">USDT</span>
+              <label className="text-[10.5px] uppercase tracking-wide text-muted-strong mb-1.5 block">Price</label>
+              <div className="flex items-center justify-between rounded-md border border-outline-variant bg-surface-container-low px-3 py-2.5">
+                <span className="font-plex text-sm text-on-surface font-semibold">{price ? formatCurrency(price, 'USD', price < 1 ? 4 : 2) : '—'}</span>
+                <span className="text-[11px] text-muted-strong font-plex">USDT</span>
               </div>
             </div>
 
             <div>
-              <label className="text-[10.5px] uppercase tracking-wide text-ink-faint mb-1.5 block">Amount</label>
-              <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-void-900/60 px-3 py-2.5 focus-within:border-mint/50">
+              <label className="text-[10.5px] uppercase tracking-wide text-muted-strong mb-1.5 block">Amount</label>
+              <div className="flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2.5 focus-within:border-primary-container">
                 <input
                   type="number"
                   step="any"
@@ -775,31 +775,31 @@ export default function Markets() {
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   placeholder="0.00000"
-                  className="flex-1 bg-transparent outline-none text-sm font-mono-tab text-ink placeholder:text-ink-faint"
+                  className="flex-1 bg-transparent outline-none text-sm font-plex text-on-surface placeholder:text-muted-tertiary"
                 />
-                <span className="text-[11px] text-ink-faint">{selected?.symbol?.toUpperCase() || ''}</span>
+                <span className="text-[11px] text-muted-strong font-plex">{selected?.symbol?.toUpperCase() || ''}</span>
               </div>
             </div>
 
-            <div className="flex justify-between text-[11px] text-ink-faint">
+            <div className="flex justify-between text-[11px] text-muted-strong font-hanken">
               <span>Available</span>
-              <b className="text-ink font-mono-tab">{availableBalance != null ? formatCurrency(availableBalance) : '—'}</b>
+              <b className="text-on-surface font-plex">{availableBalance != null ? formatCurrency(availableBalance) : '—'}</b>
             </div>
 
-            <div className="rounded-lg bg-void-900/60 border border-white/[0.06] px-3 py-2.5 flex justify-between text-sm">
-              <span className="text-ink-faint">Estimated total</span>
-              <span className="font-mono-tab font-semibold text-ink">{formatCurrency(total)}</span>
+            <div className="rounded-md bg-surface-container-high border border-outline-variant px-3 py-2.5 flex justify-between text-sm">
+              <span className="text-muted-strong">Estimated total</span>
+              <span className="font-plex font-bold text-on-surface">{formatCurrency(total)}</span>
             </div>
 
             {formError && (
-              <div className="text-xs text-carmine bg-carmine/10 border border-carmine/20 rounded-lg px-3 py-2">{formError}</div>
+              <div className="text-xs text-error bg-error-container/10 border border-error/20 rounded px-3 py-2 font-hanken">{formError}</div>
             )}
 
             <button
               type="submit"
               disabled={placing || !selected}
-              className={`w-full flex items-center justify-center gap-2 rounded-xl font-display font-semibold text-sm py-3 transition-colors disabled:opacity-60 ${
-                side === 'BUY' ? 'bg-mint text-void shadow-mint hover:bg-mint-400' : 'bg-carmine text-void hover:bg-carmine-400'
+              className={`w-full flex items-center justify-center gap-2 rounded-md font-button font-bold text-sm py-3 transition-colors disabled:opacity-60 ${
+                side === 'BUY' ? 'bg-primary-container text-on-primary-container hover:bg-primary-active' : 'bg-error text-white hover:bg-error-active'
               }`}
             >
               {placing ? <Loader2 size={16} className="animate-spin" /> : `Place ${side === 'BUY' ? 'Buy' : 'Sell'} Order`}
@@ -811,32 +811,32 @@ export default function Markets() {
       {/* Replay Modal */}
       <AnimatePresence>
         {replayModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-void/80 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-md bg-void-900 border border-white/10 rounded-2xl shadow-panel overflow-hidden flex flex-col max-h-[85vh]">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
-                <h3 className="font-display font-semibold text-lg">Market Replay</h3>
-                <button onClick={() => setReplayModalOpen(false)} className="text-ink-muted hover:text-ink"><X size={18}/></button>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0b0e11]/85 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-md bg-surface-card border border-outline-variant rounded-lg shadow-md overflow-hidden flex flex-col max-h-[85vh]">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant shrink-0 font-hanken">
+                <h3 className="font-bold text-lg text-on-surface">Market Replay</h3>
+                <button onClick={() => setReplayModalOpen(false)} className="text-muted-tertiary hover:text-on-surface"><X size={18}/></button>
               </div>
-              <div className="flex border-b border-white/5 shrink-0">
-                <button onClick={() => setReplayModalTab('new')} className={`flex-1 py-3 text-xs font-semibold ${replayModalTab === 'new' ? 'text-mint border-b-2 border-mint bg-white/[0.02]' : 'text-ink-muted hover:text-ink hover:bg-white/[0.01]'}`}>New Session</button>
-                <button onClick={() => setReplayModalTab('saved')} className={`flex-1 py-3 text-xs font-semibold ${replayModalTab === 'saved' ? 'text-mint border-b-2 border-mint bg-white/[0.02]' : 'text-ink-muted hover:text-ink hover:bg-white/[0.01]'}`}>Saved Sessions</button>
+              <div className="flex border-b border-outline-variant shrink-0 font-hanken">
+                <button onClick={() => setReplayModalTab('new')} className={`flex-1 py-3 text-xs font-bold ${replayModalTab === 'new' ? 'text-primary-container border-b-2 border-b-primary-container bg-surface-container-low' : 'text-muted-tertiary hover:text-on-surface hover:bg-surface-container-low/50'}`}>New Session</button>
+                <button onClick={() => setReplayModalTab('saved')} className={`flex-1 py-3 text-xs font-bold ${replayModalTab === 'saved' ? 'text-primary-container border-b-2 border-b-primary-container bg-surface-container-low' : 'text-muted-tertiary hover:text-on-surface hover:bg-surface-container-low/50'}`}>Saved Sessions</button>
               </div>
               
-              <div className="p-6 overflow-y-auto">
+              <div className="p-6 overflow-y-auto font-hanken">
                 {replayModalTab === 'new' ? (
                   <div className="space-y-4">
                     <div>
-                      <label className="text-[11px] uppercase tracking-wide text-ink-faint mb-1.5 block">Session Name</label>
-                      <input type="text" className="w-full bg-void-800 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-mint/50 font-mono-tab" value={replayForm.name} onChange={e => setReplayForm(p => ({...p, name: e.target.value}))} placeholder="e.g. BTC 2021 Bull Run" />
+                      <label className="text-[11px] uppercase tracking-wide text-muted-strong mb-1.5 block">Session Name</label>
+                      <input type="text" className="w-full bg-surface-container-low border border-outline-variant rounded-md px-3 py-2 text-sm outline-none focus:border-primary-container text-on-surface font-plex placeholder:text-muted-tertiary" value={replayForm.name} onChange={e => setReplayForm(p => ({...p, name: e.target.value}))} placeholder="e.g. BTC 2021 Bull Run" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[11px] uppercase tracking-wide text-ink-faint mb-1.5 block">Start Date</label>
-                        <input type="date" className="w-full bg-void-800 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-mint/50 font-mono-tab" value={replayForm.startTime} onChange={e => setReplayForm(p => ({...p, startTime: e.target.value}))} />
+                        <label className="text-[11px] uppercase tracking-wide text-muted-strong mb-1.5 block">Start Date</label>
+                        <input type="date" className="w-full bg-surface-container-low border border-outline-variant rounded-md px-3 py-2 text-sm outline-none focus:border-primary-container text-on-surface font-plex" value={replayForm.startTime} onChange={e => setReplayForm(p => ({...p, startTime: e.target.value}))} />
                       </div>
                       <div>
-                        <label className="text-[11px] uppercase tracking-wide text-ink-faint mb-1.5 block">Timeframe</label>
-                        <select className="w-full bg-void-800 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-mint/50 font-mono-tab" value={replayForm.timeframe} onChange={e => setReplayForm(p => ({...p, timeframe: e.target.value}))}>
+                        <label className="text-[11px] uppercase tracking-wide text-muted-strong mb-1.5 block">Timeframe</label>
+                        <select className="w-full bg-surface-container-low border border-outline-variant rounded-md px-3 py-2 text-sm outline-none focus:border-primary-container text-on-surface font-plex" value={replayForm.timeframe} onChange={e => setReplayForm(p => ({...p, timeframe: e.target.value}))}>
                           <option value="1m">1m</option>
                           <option value="5m">5m</option>
                           <option value="15m">15m</option>
@@ -847,8 +847,8 @@ export default function Markets() {
                       </div>
                     </div>
                     <div>
-                      <label className="text-[11px] uppercase tracking-wide text-ink-faint mb-1.5 block">Initial Virtual Balance (USDT)</label>
-                      <input type="number" className="w-full bg-void-800 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-mint/50 font-mono-tab" value={replayForm.initialBalance} onChange={e => setReplayForm(p => ({...p, initialBalance: e.target.value}))} />
+                      <label className="text-[11px] uppercase tracking-wide text-muted-strong mb-1.5 block">Initial Virtual Balance (USDT)</label>
+                      <input type="number" className="w-full bg-surface-container-low border border-outline-variant rounded-md px-3 py-2 text-sm outline-none focus:border-primary-container text-on-surface font-plex" value={replayForm.initialBalance} onChange={e => setReplayForm(p => ({...p, initialBalance: e.target.value}))} />
                     </div>
                     <button 
                       onClick={async () => {
@@ -875,7 +875,7 @@ export default function Markets() {
                         }
                       }}
                       disabled={loadingReplay || !replayForm.startTime}
-                      className="w-full bg-mint text-void font-bold rounded-xl py-3 text-sm hover:bg-mint-400 transition-colors disabled:opacity-50 mt-2"
+                      className="w-full bg-primary-container text-on-primary-container font-button font-bold rounded-md py-3 text-sm hover:bg-primary-active transition-colors disabled:opacity-50 mt-2 shadow-sm"
                     >
                       {loadingReplay ? 'Starting...' : 'Start Virtual Trading'}
                     </button>
@@ -883,17 +883,17 @@ export default function Markets() {
                 ) : (
                   <div className="space-y-3">
                     {replaySessions.length === 0 ? (
-                      <div className="text-center py-8 text-ink-faint text-sm">No saved sessions found.</div>
+                      <div className="text-center py-8 text-muted-strong text-sm">No saved sessions found.</div>
                     ) : (
                       replaySessions.map(session => (
-                        <div key={session.id} className="bg-void-800 border border-white/5 rounded-xl p-3 flex items-center justify-between group hover:border-white/10 transition-colors">
+                        <div key={session.id} className="bg-surface-container-low border border-outline-variant rounded-md p-3 flex items-center justify-between group hover:border-outline transition-colors">
                           <div className="min-w-0 pr-4">
-                            <div className="font-semibold text-sm truncate">{session.name}</div>
-                            <div className="text-xs text-ink-faint mt-0.5 flex items-center gap-1.5">
+                            <div className="font-bold text-sm truncate text-on-surface">{session.name}</div>
+                            <div className="text-xs text-muted-strong mt-0.5 flex items-center gap-1.5 font-plex">
                               <span>{session.symbol}</span>
-                              <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                              <span className="w-1 h-1 rounded-full bg-outline-variant"></span>
                               <span>{session.timeframe}</span>
-                              <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                              <span className="w-1 h-1 rounded-full bg-outline-variant"></span>
                               <span className="flex items-center gap-1"><Clock size={10} /> {new Date(session.currentTime).toLocaleDateString()}</span>
                             </div>
                           </div>
@@ -907,7 +907,7 @@ export default function Markets() {
                                   push('Failed to load session', 'error');
                                 }
                               }}
-                              className="px-3 py-1.5 bg-mint/10 text-mint hover:bg-mint/20 rounded-lg text-xs font-semibold transition-colors"
+                              className="px-3 py-1.5 bg-primary-container/10 text-primary-container hover:bg-primary-container/20 rounded text-xs font-bold transition-colors"
                             >
                               Resume
                             </button>
@@ -922,7 +922,7 @@ export default function Markets() {
                                   push('Failed to delete', 'error');
                                 }
                               }}
-                              className="p-1.5 text-ink-faint hover:text-carmine hover:bg-carmine/10 rounded-lg transition-colors"
+                              className="p-1.5 text-muted-strong hover:text-error hover:bg-error/10 rounded transition-colors"
                             >
                               <Trash2 size={14} />
                             </button>

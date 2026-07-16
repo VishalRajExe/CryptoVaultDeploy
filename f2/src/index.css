@@ -12,16 +12,16 @@ html {
 
 body {
   margin: 0;
-  background: #0A0A0B;
-  color: #F2F2F0;
-  font-family: 'Inter', sans-serif;
+  background: #0b0e11;
+  color: #e1e2e7;
+  font-family: 'Hanken Grotesk', sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 ::selection {
-  background: #D7FF4F;
-  color: #0A0A0B;
+  background: #FCD535;
+  color: #181A20;
 }
 
 ::-webkit-scrollbar {
@@ -29,26 +29,28 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #101012;
+  background: #0b0e11;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1D1D20;
+  background: #1e2329;
   border-radius: 999px;
-  border: 2px solid #101012;
+  border: 2px solid #0b0e11;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2E2E32;
+  background: #2b3139;
 }
 
 /* visible keyboard focus, kept consistent across the app */
 :focus-visible {
-  outline: 2px solid #D7FF4F;
+  outline: 2px solid #FCD535;
   outline-offset: 3px;
   border-radius: 4px;
 }
 
-.font-display { font-family: 'Space Grotesk', sans-serif; }
-.font-mono-tab { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+.font-display { font-family: 'Hanken Grotesk', sans-serif; }
+.font-mono-tab { font-family: 'IBM Plex Sans', sans-serif; font-variant-numeric: tabular-nums; }
+.font-number { font-family: 'IBM Plex Sans', sans-serif; }
+.font-ui { font-family: 'Hanken Grotesk', sans-serif; }
 
 .tabular-nums-mono {
   font-family: 'JetBrains Mono', monospace;

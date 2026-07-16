@@ -29,18 +29,17 @@ export default function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-void-950/85 backdrop-blur-xl border-b border-white/[0.06]' : 'bg-transparent'
+        scrolled ? 'bg-[#0b0e11]/90 backdrop-blur-xl border-b border-[#2b3139]' : 'bg-transparent'
       }`}
     >
       <nav className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 group">
-          <span className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-mint to-violet flex items-center justify-center">
-            <span className="absolute inset-0 rounded-lg bg-mint blur-md opacity-40 group-hover:opacity-70 transition-opacity" />
-            <svg viewBox="0 0 24 24" className="w-4 h-4 relative z-10" fill="none">
-              <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" fill="#05070D" />
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-8 h-8 bg-primary-container rounded flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 24 24" className="w-4 h-4 text-on-primary-container" fill="currentColor">
+              <path d="M12 2L4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4z" />
             </svg>
-          </span>
-          <span className="font-display text-lg font-semibold tracking-tight text-ink">
+          </div>
+          <span className="font-display text-lg font-bold tracking-tight text-[#fff4d7]">
             CryptoVault
           </span>
         </Link>
@@ -61,7 +60,7 @@ export default function Navbar() {
                   }
                 }
               }}
-              className="text-sm text-ink-muted hover:text-ink transition-colors bg-transparent border-none cursor-pointer p-0"
+              className="text-sm font-medium text-muted-tertiary hover:text-on-dark transition-colors bg-transparent border-none cursor-pointer p-0"
             >
               {l.label}
             </button>
@@ -72,7 +71,7 @@ export default function Navbar() {
           {user ? (
             <button
               onClick={() => navigate('/app')}
-              className="px-4 py-2 rounded-lg bg-mint text-void font-display text-sm font-semibold hover:bg-mint-400 transition-colors shadow-mint"
+              className="px-4 py-2 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors h-10"
             >
               Open Terminal
             </button>
@@ -80,13 +79,13 @@ export default function Navbar() {
             <>
               <button
                 onClick={() => navigate('/auth?mode=login')}
-                className="px-4 py-2 text-sm text-ink-muted hover:text-ink transition-colors"
+                className="px-4 py-2 text-sm font-medium text-muted-tertiary hover:text-on-dark transition-colors"
               >
                 Log in
               </button>
               <button
                 onClick={() => navigate('/auth?mode=register')}
-                className="px-4 py-2 rounded-lg bg-mint text-void font-display text-sm font-semibold hover:bg-mint-400 transition-colors shadow-mint"
+                className="px-4 py-2 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors h-10"
               >
                 Get started
               </button>
@@ -95,7 +94,7 @@ export default function Navbar() {
         </div>
 
         <button
-          className="md:hidden text-ink p-2"
+          className="md:hidden text-on-surface p-2"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >
@@ -108,7 +107,7 @@ export default function Navbar() {
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          className="md:hidden bg-void-950/98 backdrop-blur-xl border-t border-white/[0.06] px-5 py-4 flex flex-col gap-4"
+          className="md:hidden bg-[#0b0e11] border-t border-[#2b3139] px-5 py-4 flex flex-col gap-4"
         >
           {links.map((l) => (
             <button
@@ -126,7 +125,7 @@ export default function Navbar() {
                   }
                 }
               }}
-              className="text-sm text-ink-muted hover:text-ink text-left bg-transparent border-none cursor-pointer p-0"
+              className="text-sm text-muted-tertiary hover:text-on-dark text-left bg-transparent border-none cursor-pointer p-0"
             >
               {l.label}
             </button>
@@ -134,13 +133,13 @@ export default function Navbar() {
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => navigate('/auth?mode=login')}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-white/10 text-sm text-ink"
+              className="flex-1 px-4 py-2.5 rounded-md border border-outline-variant text-sm text-on-surface hover:bg-surface-variant transition-colors"
             >
               Log in
             </button>
             <button
               onClick={() => navigate('/auth?mode=register')}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-mint text-void font-display text-sm font-semibold"
+              className="flex-1 px-4 py-2.5 rounded-md bg-primary-container text-on-primary font-button hover:bg-primary-active transition-colors"
             >
               Get started
             </button>

@@ -11,7 +11,7 @@ import { formatCurrency, formatPercent, generateCandles } from '../../utils/char
 import { normalizeCoin } from '../../utils/normalizeCoin';
 import { useReplay } from '../../context/ReplayContext';
 
-const palette = ['#D7FF4F', '#7C5CFF', '#FF3B69', '#4DFFC1', '#9A82FF', '#FF6B8C'];
+const palette = ['#FCD535', '#02C076', '#E84158', '#4285F4', '#9C27B0', '#FF9800'];
 
 export default function Portfolio() {
   const { isReplayMode, replayPortfolio, replayWallet, activeSession } = useReplay();
@@ -94,7 +94,7 @@ export default function Portfolio() {
   }
 
   return (
-    <PageTransition className="pb-16">
+    <PageTransition className="pb-16 font-hanken">
       <PageHeader
         eyebrow="Holdings"
         title="Portfolio"
@@ -103,9 +103,9 @@ export default function Portfolio() {
 
       <div className="px-4 sm:px-8 space-y-6">
         {isReplayMode && (
-          <div className="bg-mint/10 border border-mint/30 rounded-xl p-4 text-center">
-            <div className="text-mint font-display font-semibold text-sm">Viewing Virtual Replay Portfolio</div>
-            <div className="text-mint/70 text-xs">Session: {activeSession?.name}</div>
+          <div className="bg-surface-card border border-outline-variant rounded-lg p-4 text-center">
+            <div className="text-primary-container font-bold text-sm">Viewing Virtual Replay Portfolio</div>
+            <div className="text-muted-tertiary text-xs">Session: {activeSession?.name}</div>
           </div>
         )}
         {/* Stat cards */}
@@ -114,20 +114,20 @@ export default function Portfolio() {
           animate={{ opacity: 1, y: 0 }}
           className="grid sm:grid-cols-3 gap-4"
         >
-          <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6 backdrop-blur-xl relative overflow-hidden">
-            <div className="text-[10px] text-ink-faint uppercase tracking-wider font-mono-tab mb-2">Total value</div>
-            <div className="font-display text-2xl font-bold tracking-tight text-ink">{formatCurrency(totalValue)}</div>
+          <div className="rounded-lg border border-outline-variant bg-surface-card p-6 relative overflow-hidden">
+            <div className="text-[10px] text-muted-strong uppercase tracking-widest font-plex mb-2 font-semibold">Total value</div>
+            <div className="font-hanken text-2xl font-bold tracking-tight text-on-surface">{formatCurrency(totalValue)}</div>
           </div>
-          <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6 backdrop-blur-xl relative overflow-hidden">
-            <div className="text-[10px] text-ink-faint uppercase tracking-wider font-mono-tab mb-2">Unrealized P&amp;L</div>
-            <div className={`font-display text-2xl font-bold tracking-tight flex items-center gap-1.5 ${totalPnl >= 0 ? 'text-mint' : 'text-carmine'}`}>
+          <div className="rounded-lg border border-outline-variant bg-surface-card p-6 relative overflow-hidden">
+            <div className="text-[10px] text-muted-strong uppercase tracking-widest font-plex mb-2 font-semibold">Unrealized P&amp;L</div>
+            <div className={`font-hanken text-2xl font-bold tracking-tight flex items-center gap-1.5 ${totalPnl >= 0 ? 'text-secondary' : 'text-error'}`}>
               {totalPnl >= 0 ? <ArrowUpRight size={20} /> : <ArrowDownRight size={20} />}
               {formatCurrency(Math.abs(totalPnl))}
             </div>
           </div>
-          <div className="rounded-2xl border border-white/[0.07] bg-void-800/60 p-6 backdrop-blur-xl relative overflow-hidden">
-            <div className="text-[10px] text-ink-faint uppercase tracking-wider font-mono-tab mb-2">Total return</div>
-            <div className={`font-display text-2xl font-bold tracking-tight ${pnlPct >= 0 ? 'text-mint' : 'text-carmine'}`}>
+          <div className="rounded-lg border border-outline-variant bg-surface-card p-6 relative overflow-hidden">
+            <div className="text-[10px] text-muted-strong uppercase tracking-widest font-plex mb-2 font-semibold">Total return</div>
+            <div className={`font-hanken text-2xl font-bold tracking-tight ${pnlPct >= 0 ? 'text-secondary' : 'text-error'}`}>
               {formatPercent(pnlPct)}
             </div>
           </div>
@@ -146,21 +146,21 @@ export default function Portfolio() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 overflow-hidden backdrop-blur-xl"
+          className="rounded-lg border border-outline-variant bg-surface-card overflow-hidden"
         >
           {error && !isReplayMode ? (
-            <div className="p-10 text-center text-sm text-ink-muted">{error}</div>
+            <div className="p-10 text-center text-sm text-error bg-error-container/10 border border-error/20 m-4 rounded">{error}</div>
           ) : displayAssets.length === 0 ? (
             <div className="p-12 text-center">
-              <Briefcase size={32} className="mx-auto text-ink-faint mb-3" />
-              <p className="text-sm text-ink-muted mb-1 font-semibold">Your portfolio is empty</p>
-              <p className="text-xs text-ink-faint">Buy your first asset from {isReplayMode ? 'Virtual' : 'live'} Markets to see it tracked here.</p>
+              <Briefcase size={32} className="mx-auto text-muted-strong mb-3" />
+              <p className="text-sm text-on-surface mb-1 font-bold">Your portfolio is empty</p>
+              <p className="text-xs text-muted-tertiary">Buy your first asset from {isReplayMode ? 'Virtual' : 'live'} Markets to see it tracked here.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-ink-faint text-[10px] uppercase tracking-wider font-mono-tab border-b border-white/[0.04]">
+                  <tr className="text-left text-muted-strong text-[10px] uppercase tracking-wider font-plex border-b border-outline-variant">
                     <th className="px-5 sm:px-6 py-3.5 font-normal">Asset</th>
                     <th className="px-4 py-3.5 font-normal">Holdings</th>
                     <th className="px-4 py-3.5 font-normal">Avg. cost</th>
@@ -168,31 +168,31 @@ export default function Portfolio() {
                     <th className="px-5 sm:px-6 py-3.5 font-normal text-right">Value &amp; P&amp;L</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.04]">
+                <tbody className="divide-y divide-outline-variant">
                   {displayAssets.map((a, idx) => {
                     const value = (a.quantity || 0) * (a.coin?.currentPrice || 0);
                     const pnl = value - (a.quantity || 0) * (a.buyPrice || 0);
                     const up = pnl >= 0;
                     const spark = sparklinesRef.current[a.id] || [];
                     return (
-                      <tr key={a.id} className="hover:bg-white/[0.01] transition-colors">
+                      <tr key={a.id} className="hover:bg-surface-variant/30 transition-colors">
                         <td className="px-5 sm:px-6 py-4">
                           <div className="flex items-center gap-2.5">
                             {a.coin?.image && <img src={a.coin.image} alt="" className="w-7 h-7 rounded-full" />}
                             <div>
-                              <div className="text-ink font-semibold">{a.coin?.symbol?.toUpperCase()}</div>
-                              <div className="text-xs text-ink-faint">{a.coin?.name}</div>
+                              <div className="text-on-surface font-bold">{a.coin?.symbol?.toUpperCase()}</div>
+                              <div className="text-xs text-muted-strong">{a.coin?.name}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-4 font-mono-tab text-ink-muted">{a.quantity}</td>
-                        <td className="px-4 py-4 font-mono-tab text-ink-muted">{formatCurrency(a.buyPrice)}</td>
+                        <td className="px-4 py-4 font-plex text-muted-tertiary">{a.quantity}</td>
+                        <td className="px-4 py-4 font-plex text-muted-tertiary">{formatCurrency(a.buyPrice)}</td>
                         <td className="px-4 py-4 hidden sm:table-cell">
                           <Sparkline data={spark} width={100} height={32} color={palette[idx % palette.length]} />
                         </td>
                         <td className="px-5 sm:px-6 py-4 text-right">
-                          <div className="font-mono-tab text-ink font-semibold">{formatCurrency(value)}</div>
-                          <div className={`text-xs font-mono-tab flex items-center justify-end gap-0.5 mt-0.5 ${up ? 'text-mint' : 'text-carmine'}`}>
+                          <div className="font-plex text-on-surface font-bold">{formatCurrency(value)}</div>
+                          <div className={`text-xs font-plex flex items-center justify-end gap-0.5 mt-0.5 ${up ? 'text-secondary' : 'text-error'}`}>
                             {up ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
                             {formatCurrency(Math.abs(pnl))}
                           </div>

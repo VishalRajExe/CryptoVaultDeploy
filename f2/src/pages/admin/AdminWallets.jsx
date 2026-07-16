@@ -26,7 +26,7 @@ export default function AdminWallets() {
   const total = wallets.reduce((s, w) => s + (w.balance || 0), 0);
 
   return (
-    <div className="pb-16">
+    <div className="pb-16 font-hanken">
       <PageHeader
         eyebrow="Funds"
         title="All wallets"
@@ -37,40 +37,40 @@ export default function AdminWallets() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-white/[0.07] bg-void-800/60 overflow-hidden"
+          className="rounded-lg border border-outline-variant bg-surface-card overflow-hidden"
         >
           {loading ? (
             <div className="p-6 space-y-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-12 rounded-lg bg-white/5 animate-pulse" />
+                <div key={i} className="h-12 rounded-lg bg-surface-container-low border border-outline-variant animate-pulse" />
               ))}
             </div>
           ) : error ? (
-            <div className="p-10 text-center text-sm text-ink-muted">{error}</div>
+            <div className="p-10 text-center text-sm text-error">{error}</div>
           ) : wallets.length === 0 ? (
             <div className="p-12 text-center">
-              <WalletIcon size={28} className="mx-auto text-ink-faint mb-3" />
-              <p className="text-sm text-ink-muted">No wallets found.</p>
+              <WalletIcon size={28} className="mx-auto text-muted-strong mb-3" />
+              <p className="text-sm text-muted-tertiary font-bold">No wallets found.</p>
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="text-left text-ink-faint text-xs uppercase tracking-wide font-mono-tab">
-                    <th className="px-5 sm:px-6 py-3 font-normal">Wallet ID</th>
-                    <th className="px-4 py-3 font-normal">Owner</th>
-                    <th className="px-5 sm:px-6 py-3 font-normal text-right">Balance</th>
+                  <tr className="text-left bg-surface-container-low border-b border-outline-variant text-muted-strong text-[10px] uppercase tracking-wider font-plex font-bold">
+                    <th className="px-5 sm:px-6 py-3 font-bold">Wallet ID</th>
+                    <th className="px-4 py-3 font-bold">Owner</th>
+                    <th className="px-5 sm:px-6 py-3 font-bold text-right">Balance</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-outline-variant/40">
                   {currentWallets.map((w) => (
-                    <tr key={w.id} className="border-t border-white/[0.05]">
-                      <td className="px-5 sm:px-6 py-3.5 font-mono-tab text-ink">#{w.id}</td>
-                      <td className="px-4 py-3.5 text-ink-muted text-xs">
+                    <tr key={w.id} className="hover:bg-surface-variant/20 transition-colors">
+                      <td className="px-5 sm:px-6 py-3.5 font-plex text-on-surface text-xs font-bold">#{w.id}</td>
+                      <td className="px-4 py-3.5 text-muted-strong text-xs font-semibold">
                         {w.user?.fullName || w.user?.email || '—'}
                       </td>
-                      <td className="px-5 sm:px-6 py-3.5 text-right font-mono-tab text-ink font-medium">
+                      <td className="px-5 sm:px-6 py-3.5 text-right font-plex text-on-surface font-bold">
                         {formatCurrency(w.balance)}
                       </td>
                     </tr>
