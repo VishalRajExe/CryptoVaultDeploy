@@ -35,6 +35,9 @@ public class ReplaySessionServiceImpl implements ReplaySessionService {
 
     @Override
     public ReplaySession createSession(Long userId, String name, String description, String symbol, String timeframe, Long startTime, Long endTime, Double initialBalance, Double replaySpeed) {
+        if (symbol != null) {
+            symbol = symbol.toUpperCase();
+        }
         ReplaySession session = new ReplaySession();
         session.setUserId(userId);
         session.setName(name);
@@ -558,6 +561,9 @@ public class ReplaySessionServiceImpl implements ReplaySessionService {
     @Override
     @org.springframework.transaction.annotation.Transactional
     public com.vishal.replay.model.ReplayOrder placeOrder(Long sessionId, Long userId, String symbol, Double quantity, String orderSideStr, Double price) {
+        if (symbol != null) {
+            symbol = symbol.toUpperCase();
+        }
         ReplaySession session = replaySessionRepository.findByIdAndUserId(sessionId, userId);
         if (session == null) {
             throw new IllegalArgumentException("Session not found");

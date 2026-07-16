@@ -29,7 +29,7 @@ public class NotificationHistory {
 
     private String status; // "SUCCESS" or "FAILED"
 
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private java.time.Instant timestamp = java.time.Instant.now();
 
     @Column(length = 2000)
     private String errorMessage;

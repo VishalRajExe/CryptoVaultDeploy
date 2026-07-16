@@ -40,7 +40,7 @@ public class Notification {
     /** Optional dollar amount associated with the event, for display formatting. */
     private java.math.BigDecimal amount;
 
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private java.time.Instant timestamp = java.time.Instant.now();
 
     private boolean isRead = false;
 

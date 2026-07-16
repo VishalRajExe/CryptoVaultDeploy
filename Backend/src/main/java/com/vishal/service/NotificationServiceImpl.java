@@ -25,7 +25,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setType(type);
         notification.setMessage(message);
         notification.setAmount(amount);
-        notification.setTimestamp(LocalDateTime.now());
+        notification.setTimestamp(java.time.Instant.now());
         notification.setRead(false);
         return notificationRepository.save(notification);
     }
@@ -61,7 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setType(type);
         notification.setMessage(message);
         notification.setAmount(amount);
-        notification.setTimestamp(LocalDateTime.now());
+        notification.setTimestamp(java.time.Instant.now());
         notification.setRead(false);
         notification.setScheduledTime(scheduledTime);
         return notificationRepository.save(notification);
@@ -78,7 +78,7 @@ public class NotificationServiceImpl implements NotificationService {
                 n.setType(type);
                 n.setMessage(message);
                 n.setAmount(amount);
-                n.setTimestamp(LocalDateTime.now());
+                n.setTimestamp(java.time.Instant.now());
                 n.setRead(false);
                 n.setScheduledTime(scheduledTime);
                 list.add(n);
@@ -97,7 +97,7 @@ public class NotificationServiceImpl implements NotificationService {
             n.setType(type);
             n.setMessage(message);
             n.setAmount(amount);
-            n.setTimestamp(LocalDateTime.now());
+            n.setTimestamp(java.time.Instant.now());
             n.setRead(false);
             n.setScheduledTime(scheduledTime);
             list.add(n);

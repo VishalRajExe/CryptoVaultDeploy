@@ -15,9 +15,20 @@ const typeIcon = {
   ORDER_SELL: { icon: ArrowDownLeft, color: 'text-mint bg-mint-900/50' },
 };
 
+function parseUtcDate(iso) {
+  if (!iso) return null;
+  if (iso instanceof Date) return iso;
+  let s = String(iso);
+  if (!s.endsWith('Z') && !s.includes('+') && !/-\d{2}:\d{2}$/.test(s)) {
+    s += 'Z';
+  }
+  return new Date(s);
+}
+
 function timeAgo(iso) {
-  if (!iso) return '';
-  const diffMs = Date.now() - new Date(iso).getTime();
+  const d = parseUtcDate(iso);
+  if (!d) return '';
+  const diffMs = Date.now() - d.getTime();
   const mins = Math.floor(diffMs / 60000);
   if (mins < 1) return 'just now';
   if (mins < 60) return `${mins}m ago`;

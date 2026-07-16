@@ -17,6 +17,16 @@ const typeIcon = {
   ORDER_SELL: { icon: ArrowDownLeft, color: 'text-secondary bg-secondary/10 border border-secondary/20' },
 };
 
+function parseUtcDate(iso) {
+  if (!iso) return null;
+  if (iso instanceof Date) return iso;
+  let s = String(iso);
+  if (!s.endsWith('Z') && !s.includes('+') && !/-\d{2}:\d{2}$/.test(s)) {
+    s += 'Z';
+  }
+  return new Date(s);
+}
+
 export default function AdminActivity() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -101,7 +111,7 @@ export default function AdminActivity() {
                             {n.user?.fullName || n.user?.email || 'Unknown user'}
                           </span>
                           <span className="text-xs text-muted-strong font-plex shrink-0 font-semibold">
-                            {n.timestamp ? new Date(n.timestamp).toLocaleString() : ''}
+                            {n.timestamp ? parseUtcDate(n.timestamp).toLocaleString() : ''}
                           </span>
                         </div>
                         <p className="text-xs text-muted-tertiary mt-0.5 font-medium">{n.message}</p>

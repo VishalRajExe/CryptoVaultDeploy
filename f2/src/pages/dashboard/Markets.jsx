@@ -566,6 +566,7 @@ export default function Markets() {
                   defaultType="candlestick"
                   hideTimeRanges={true}
                   timeVisible={isReplayMode}
+                  disableSimulation={isReplayMode}
                   className="w-full h-full"
                 />
               ) : (

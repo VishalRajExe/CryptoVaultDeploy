@@ -93,7 +93,7 @@ public class CentralNotificationServiceImpl implements CentralNotificationServic
         history.setNotificationType(type);
         history.setSubject(subject);
         history.setRecipient(user.getEmail());
-        history.setTimestamp(LocalDateTime.now());
+        history.setTimestamp(java.time.Instant.now());
 
         try {
             String htmlBody = emailTemplateService.buildHtmlEmail(
@@ -126,7 +126,7 @@ public class CentralNotificationServiceImpl implements CentralNotificationServic
         history.setNotificationType(type);
         history.setSubject(subject);
         history.setRecipient(defaultAdminEmail);
-        history.setTimestamp(LocalDateTime.now());
+        history.setTimestamp(java.time.Instant.now());
 
         try {
             String htmlBody = emailTemplateService.buildHtmlEmail(

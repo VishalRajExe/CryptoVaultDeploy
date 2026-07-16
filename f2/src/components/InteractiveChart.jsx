@@ -72,7 +72,8 @@ function InteractiveChartInner({
   hideTimeRanges = false,
   timeVisible = false,
   isFullscreen = false,
-  onFullscreenToggle
+  onFullscreenToggle,
+  disableSimulation = false
 }) {
   const containerRef = useRef(null);
   const chartRef = useRef(null);
@@ -237,6 +238,8 @@ function InteractiveChartInner({
     seriesRef.current.setData(formatted);
     chartRef.current?.timeScale().fitContent();
 
+    if (disableSimulation) return;
+
     // Live simulation
     let lastPoint = { ...formatted[formatted.length - 1] };
     const volatility = 0.0015;
@@ -286,7 +289,7 @@ function InteractiveChartInner({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [data, chartType]);
+  }, [data, chartType, disableSimulation]);
 
   const formatPrice = (v) => {
     if (v == null) return '—';

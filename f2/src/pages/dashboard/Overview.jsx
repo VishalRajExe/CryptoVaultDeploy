@@ -343,6 +343,7 @@ export default function Overview() {
                   selectedRange={chartDays}
                   onRangeChange={setChartDays}
                   defaultType="area"
+                  disableSimulation={isReplayMode}
                 />
               )}
 
