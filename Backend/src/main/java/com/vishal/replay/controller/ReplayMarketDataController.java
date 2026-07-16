@@ -44,9 +44,9 @@ public class ReplayMarketDataController {
      * @param offset Number of candles to skip (optional, default 0)
      * @return List of candlestick data ordered by open time ascending
      */
-    @GetMapping("/{symbol}/klines")
+    @GetMapping("/klines")
     public ResponseEntity<List<ReplayKlineDTO>> getKlines(
-            @PathVariable String symbol,
+            @RequestParam String symbol,
             @RequestParam String interval,
             @RequestParam(required = false) Long startTime,
             @RequestParam(required = false) Long endTime,

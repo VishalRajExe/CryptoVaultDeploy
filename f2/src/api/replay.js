@@ -7,10 +7,10 @@ export const getReplaySymbols = async () => {
 };
 
 export const getReplayKlines = async (symbol, interval, startTime, endTime, limit = 500, offset = 0) => {
-  const params = { interval, limit, offset };
+  const params = { symbol, interval, limit, offset };
   if (startTime) params.startTime = startTime;
   if (endTime) params.endTime = endTime;
-  const { data } = await api.get(`/api/replay/m/${symbol}/klines`, { params });
+  const { data } = await api.get('/api/replay/m/klines', { params });
   return data;
 };
 
