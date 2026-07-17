@@ -19,6 +19,9 @@ public class SessionController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.vishal.repository.UserSessionRepository userSessionRepository;
+
     @GetMapping
     public ResponseEntity<List<UserSession>> getSessions(
             @RequestHeader("Authorization") String jwt) throws Exception {
@@ -45,5 +48,24 @@ public class SessionController {
         User user = userService.findUserProfileByJwt(jwt);
         userSessionService.revokeSession(sessionId, user.getId());
         return ResponseEntity.ok("Session revoked successfully");
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<UserSession>> getAllSessions(
+            @RequestHeader("Authorization") String jwt) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+        List<UserSession> sessions = userSessionRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        
+        String currentToken = jwt;
+        if (currentToken != null && currentToken.startsWith("Bearer ")) {
+            currentToken = currentToken.substring(7);
+        }
+        
+        for (UserSession s : sessions) {
+            if (s.getJwtToken() != null && s.getJwtToken().equals(currentToken)) {
+                s.setCurrent(true);
+            }
+        }
+        return ResponseEntity.ok(sessions);
     }
 }

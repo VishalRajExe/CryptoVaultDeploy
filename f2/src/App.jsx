@@ -23,6 +23,7 @@ import WalletPage from './pages/dashboard/Wallet';
 import Security from './pages/dashboard/Security';
 import SubscriptionPage from './pages/dashboard/Subscription';
 import AiAssistants from './pages/dashboard/AiAssistants';
+import Profile from './pages/dashboard/Profile';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminOverview from './pages/admin/AdminOverview';
@@ -76,6 +77,7 @@ export default function App() {
                 <Route path="security" element={<Security />} />
                 <Route path="subscription" element={<SubscriptionPage />} />
                 <Route path="ai-assistants" element={<AiAssistants />} />
+                <Route path="profile" element={<Profile />} />
 
                 <Route
                   path="admin"

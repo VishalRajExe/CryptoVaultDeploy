@@ -22,6 +22,10 @@ public class User {
 	private String fullName;
 	private String email;
 	private String mobile;
+	private String username;
+	private boolean mobileVerified = false;
+	private String kycStatus = "NOT_SUBMITTED"; // NOT_SUBMITTED, PENDING, APPROVED
+	private java.time.LocalDate joinedDate = java.time.LocalDate.now();
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;

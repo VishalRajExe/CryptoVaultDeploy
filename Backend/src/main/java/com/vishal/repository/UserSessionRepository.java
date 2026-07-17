@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface UserSessionRepository extends JpaRepository<UserSession, Long> {
     List<UserSession> findByUserIdAndActiveTrue(Long userId);
     Optional<UserSession> findByJwtToken(String jwtToken);
+    List<UserSession> findByUserIdOrderByCreatedAtDesc(Long userId);
 }

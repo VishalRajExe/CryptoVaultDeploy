@@ -102,4 +102,18 @@ public class ChatBotController {
                 res,
                 HttpStatus.OK);
     }
+
+    @GetMapping("/usage")
+    public ResponseEntity<ChatBotUsage> getChatBotUsage(
+            @RequestHeader("Authorization") String jwt) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+        ChatBotUsage usage = chatBotUsageRepository.findByUserIdAndDate(user.getId(), LocalDate.now());
+        if (usage == null) {
+            usage = new ChatBotUsage();
+            usage.setUser(user);
+            usage.setDate(LocalDate.now());
+            usage.setMessageCount(0);
+        }
+        return ResponseEntity.ok(usage);
+    }
 }

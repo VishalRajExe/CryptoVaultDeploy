@@ -97,21 +97,34 @@ public class VerificationController {
             // Delete used verification code
             verificationService.deleteVerification(verificationCode);
 
-            // Update user verification status
-            User verifiedUser = userService.verifyUser(user);
-            verifiedUser.setStatus(com.vishal.domain.UserStatus.VERIFIED);
-            verifiedUser = userRepository.save(verifiedUser);
-            verifiedUser.setPassword(null);
+            if (verificationCode.getVerificationType().equals(VerificationType.MOBILE)) {
+                user.setMobileVerified(true);
+                user = userRepository.save(user);
+                user.setPassword(null);
 
-            // Send notification
-            centralNotificationService.sendNotification(
-                    verifiedUser,
-                    NotificationType.AUTHENTICATION,
-                    "Email Verified Successfully",
-                    "Your email address has been verified successfully. Welcome to CryptoVault!"
-            );
+                centralNotificationService.sendNotification(
+                        user,
+                        NotificationType.AUTHENTICATION,
+                        "Phone Verified Successfully",
+                        "Your phone number has been verified successfully on CryptoVault!"
+                );
+                return ResponseEntity.ok(user);
+            } else {
+                // Update user verification status
+                User verifiedUser = userService.verifyUser(user);
+                verifiedUser.setStatus(com.vishal.domain.UserStatus.VERIFIED);
+                verifiedUser = userRepository.save(verifiedUser);
+                verifiedUser.setPassword(null);
 
-            return ResponseEntity.ok(verifiedUser);
+                // Send notification
+                centralNotificationService.sendNotification(
+                        verifiedUser,
+                        NotificationType.AUTHENTICATION,
+                        "Email Verified Successfully",
+                        "Your email address has been verified successfully. Welcome to CryptoVault!"
+                );
+                return ResponseEntity.ok(verifiedUser);
+            }
         } else if (result == OtpVerificationResult.EXPIRED) {
             verificationService.deleteVerification(verificationCode);
             throw new Exception("OTP has expired. Please request a one.");

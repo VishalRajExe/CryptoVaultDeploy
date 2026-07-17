@@ -402,4 +402,123 @@ public class UserController {
 			throw new UserException("Invalid OTP. Remaining attempts: " + (3 - verificationCode.getAttempts()));
 		}
 	}
+
+	@PutMapping("/api/users/profile")
+	public ResponseEntity<User> updateUserProfile(
+			@RequestHeader("Authorization") String jwt,
+			@RequestBody User profileUpdates) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+		
+		if (profileUpdates.getFullName() != null && !profileUpdates.getFullName().trim().isEmpty()) {
+			String cleanName = profileUpdates.getFullName().trim();
+			if (!cleanName.matches("^[a-zA-Z]+[a-zA-Z\\s'.-]*[a-zA-Z.]+$") || cleanName.replaceAll("[^a-zA-Z]", "").length() < 2) {
+				throw new Exception("Please enter a valid name (at least 2 letters, no numbers or special symbols).");
+			}
+			user.setFullName(cleanName);
+		}
+		
+		if (profileUpdates.getMobile() != null && !profileUpdates.getMobile().trim().isEmpty()) {
+			String cleanMobile = profileUpdates.getMobile().trim();
+			if (!cleanMobile.matches("^\\+?[0-9]{10,15}$")) {
+				throw new Exception("Invalid mobile number format.");
+			}
+			user.setMobile(cleanMobile);
+		}
+		
+		if (profileUpdates.getPicture() != null) {
+			user.setPicture(profileUpdates.getPicture());
+		}
+		
+		if (profileUpdates.getUsername() != null && !profileUpdates.getUsername().trim().isEmpty()) {
+			String username = profileUpdates.getUsername().trim();
+			if (!username.startsWith("@")) {
+				username = "@" + username;
+			}
+			// Check if username is already taken by another user
+			User existing = userRepository.findByUsername(username);
+			if (existing != null && !existing.getId().equals(user.getId())) {
+				throw new Exception("Username is already taken.");
+			}
+			user.setUsername(username);
+		}
+
+		User updated = userRepository.save(user);
+		updated.setPassword(null);
+		return ResponseEntity.ok(updated);
+	}
+
+	@PostMapping("/api/users/change-password")
+	public ResponseEntity<ApiResponse> changePassword(
+			@RequestHeader("Authorization") String jwt,
+			@RequestParam String currentPassword,
+			@RequestParam String newPassword) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+		
+		if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+			throw new Exception("Incorrect current password.");
+		}
+		
+		if (newPassword == null || newPassword.length() < 8 || !newPassword.matches(".*[a-zA-Z].*") || !newPassword.matches(".*[0-9!@#$%^&*()_+={}\\[\\]|\\\\:;\"'<>,.?/~`-].*")) {
+			throw new Exception("New password must be at least 8 characters long and contain both letters and numbers/symbols.");
+		}
+		
+		userService.updatePassword(user, newPassword);
+		
+		centralNotificationService.sendNotification(
+				user,
+				NotificationType.SECURITY,
+				"Password Changed Successfully",
+				"The password for your CryptoVault account has been successfully changed from the profile settings."
+		);
+		
+		ApiResponse res = new ApiResponse();
+		res.setMessage("Password changed successfully.");
+		return ResponseEntity.ok(res);
+	}
+
+	@PostMapping("/api/users/kyc")
+	public ResponseEntity<User> submitKyc(
+			@RequestHeader("Authorization") String jwt,
+			@RequestBody java.util.Map<String, String> body) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+		
+		String docType = body.get("documentType");
+		String docNumber = body.get("documentNumber");
+		
+		if (docType == null || docNumber == null || docType.trim().isEmpty() || docNumber.trim().isEmpty()) {
+			throw new Exception("Document type and document number are required.");
+		}
+		
+		user.setKycStatus("PENDING");
+		User updated = userRepository.save(user);
+		updated.setPassword(null);
+		
+		centralNotificationService.sendNotification(
+				user,
+				NotificationType.SECURITY,
+				"KYC Documents Submitted",
+				"Your KYC verification documents have been received and are currently under review."
+		);
+		
+		return ResponseEntity.ok(updated);
+	}
+	
+	@PostMapping("/api/users/kyc/approve")
+	public ResponseEntity<User> approveKyc(
+			@RequestHeader("Authorization") String jwt) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+		
+		user.setKycStatus("APPROVED");
+		User updated = userRepository.save(user);
+		updated.setPassword(null);
+		
+		centralNotificationService.sendNotification(
+				user,
+				NotificationType.SECURITY,
+				"KYC Verification Approved",
+				"Congratulations! Your identity verification (KYC) has been approved successfully."
+		);
+		
+		return ResponseEntity.ok(updated);
+	}
 }

@@ -20,6 +20,7 @@ import {
   Sparkles,
   CreditCard,
   Bell,
+  User as UserIcon,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -39,6 +40,7 @@ const userNavItems = [
   { to: '/app/security', label: 'Security', icon: ShieldCheck },
   { to: '/app/subscription', label: 'Subscription', icon: CreditCard },
   { to: '/app/ai-assistants', label: 'AI Assistants', icon: Sparkles },
+  { to: '/app/profile', label: 'Profile', icon: UserIcon },
 ];
 
 const adminNavItems = [
