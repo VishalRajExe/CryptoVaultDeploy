@@ -63,6 +63,7 @@ public class UserServiceImplementation implements UserService {
 	@Override
 	public User verifyUser(User user) throws UserException {
 		user.setVerified(true);
+		user.setStatus(com.vishal.domain.UserStatus.VERIFIED);
 		return userRepository.save(user);
 	}
 

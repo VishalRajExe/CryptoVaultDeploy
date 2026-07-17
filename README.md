@@ -1,116 +1,167 @@
-# 🚀 CryptoVault — Full Stack Cryptocurrency Trading Platform
+# 🚀 CryptoVault — Full Stack Cryptocurrency Trading & Backtesting Sandbox Platform
 
-Designed and developed as a **production-oriented Full Stack Cryptocurrency Trading Platform** inspired by modern fintech applications. CryptoVault enables secure cryptocurrency trading, digital wallet management, payment processing, portfolio tracking, AI-powered assistance, and administrative management, all built upon a scalable architecture with secure coding practices.
+CryptoVault is a production-oriented, full-stack fintech platform designed to enable secure cryptocurrency trading, simulated historical market replay backtesting, digital wallet and portfolio management, payment processing, AI-powered trading assistance, and multi-user administrative dashboards. 
+
+Engineered with secure coding practices matching OWASP Top 10 recommendations, the system consists of a robust **Java Spring Boot backend** and a premium, responsive **React (Vite) frontend**.
 
 ---
 
-## 🏗️ Tech Stack
+## 🏗️ Architecture & System Design
 
-### Frontend
-- **Frameworks & Libraries:** React 19, Vite, React Router, Context API
-- **Styling & UI:** Tailwind CSS, Framer Motion, Responsive Component-Based Architecture
-- **Data & Charts:** Axios, Recharts, Lightweight Charts
+CryptoVault is designed on a decoupled client-server architecture:
+
+```mermaid
+graph TD
+    Client[React Frontend - Vite/Tailwind] <-->|REST API + JWT Bearer Auth| API[Spring Boot REST Controllers]
+    API <-->|Spring Security & JWT Filter| Security[Auth Service & RBAC]
+    API <-->|Spring Data JPA / Hibernate| DB[(MySQL Database)]
+    API <-->|CoinGecko API| CoinGecko[External Market Data]
+    API <-->|Binance API| Binance[Historical Replay Candle Data]
+    API <-->|Brevo HTTP Mail API| Brevo[Transactional Email Provider]
+    API <-->|Google Gemini API| Gemini[Gemini-2.5-Flash Chatbot]
+    API <-->|Razorpay / Stripe| Payments[Payment Gateways]
+```
+
+- **Authentication Protocol:** JWT stateless authentication. Role claims (`ROLE_USER` and `ROLE_ADMIN`) are validated on each request.
+- **Data Synchronization:** CoinGecko feeds live token valuations to the user interface, while local transactions and operations are stored in MySQL.
+- **Fail-Safe Scheduling:** A simulated playback scheduler drives the historical market replay charts, switching details seamlessly into an isolated, database-backed virtual environment.
+
+---
+
+## ⚙️ Technology Stack
 
 ### Backend
 - **Core Engine:** Java 17, Spring Boot 3.2, Maven
-- **Security:** Spring Security, JWT (Stateless Authentication), Role-Based Access Control (RBAC)
-- **Data & ORM:** Spring Data JPA, Hibernate, MySQL
-- **Validation & Utilities:** Jakarta Bean Validation, Java Mail Sender, Lombok
+- **Security:** Spring Security, JWT (Json Web Tokens), BCrypt Password Hashing, Role-Based Access Control (RBAC)
+- **Data Persistence:** Spring Data JPA, Hibernate ORM, MySQL Connector
+- **Communications:** Brevo HTTP Mail API integration, Jakarta Mail / Angus Mail
+- **Dependencies & Tools:** Lombok, Jakarta Bean Validation, JSON Java library (`org.json`)
 
-### Integrations
-- **Payments:** Razorpay Payment Gateway (& Stripe)
-- **Market Data:** CoinGecko API
-- **AI Assistant:** Google Gemini AI API
-
----
-
-## 🔥 Core Features
-
-- **Authentication & Security:** User Registration & Login, JWT Auth, Email Verification, Two-Factor Authentication (2FA), Role-Based Access Control (RBAC).
-- **Trading & Market:** Buy & Sell Cryptocurrency, Live Cryptocurrency Prices, Interactive Trading Charts, Watchlist.
-- **Wallet & Portfolio:** Wallet Management, Deposit & Withdrawal, Wallet-to-Wallet Transfer, Portfolio Dashboard, Trading & Transaction History.
-- **AI Integration:** Integrated Google Gemini AI for real-time crypto assistance and market insights.
-- **Admin Panel:** Complete Administrative Dashboard for User, Wallet, and Order Management.
-- **Market Replay Mode (Backtesting Sandbox):** Create, save, and resume historical trading sessions with an interactive player, step-by-step candle navigation, isolated virtual portfolio & wallets, and real-time performance analytics (ROI, Drawdown, Win Rate).
+### Frontend
+- **Framework & Build:** React 19, Vite, React Router v7
+- **Aesthetics & Motion:** Tailwind CSS v3, Framer Motion (smooth page transitions, animations)
+- **Charting & Data Viz:** Lightweight Charts (trading charts), Recharts (equity curve plotting)
+- **Icons & Fonts:** Lucide React icons, Space Grotesk, Inter, and JetBrains Mono fonts
 
 ---
 
-## ⏳ Interactive Market Replay Mode (Backtesting Sandbox)
+## 🔥 Core Features & Implementation Details
 
-The **Market Replay Mode** is a powerful fintech feature that allows traders to backtest strategies using historical candle data. It swaps the application data source from live markets to an isolated, simulated environment.
+### 1. Interactive Market Replay Mode (Backtesting Sandbox)
+An advanced trading sandbox that isolates simulated trading sessions from the live production wallet:
+*   **Flexible Setup:** Launch sessions for any supported trading pair (e.g., BTC/USDT, ETH/USDT) across multiple timeframes (`1m`, `5m`, `15m`, `1h`, `1d`) with custom virtual starting balances.
+*   **Player Controls:** Play, Pause, and Resume controls driven by a reactive scheduler. Replay speeds can be adjusted dynamically (`0.5x`, `1x`, `2x`, `5x`), or users can step through candles manually.
+*   **Isolated Order Engine:** Place simulated MARKET orders. The engine tracks holdings, updates virtual wallets, calculates base/quote constraints, and maintains a distinct order ledger.
+*   **Binance Seed Fallback:** Automatically fetches up to 1,000 candles from the public Binance API. If rate limits are reached or an unsupported coin is requested, a synthetic candle generator takes over to ensure chart continuity.
+*   **Real-time Analytics:** Computes performance metrics on the fly, including Win Rate, Return on Investment (ROI), average Risk-to-Reward ratio, and plots an interactive equity curve showing Maximum Drawdown.
+*   **Data Persistence:** Sessions, wallets, simulated orders, and playback time-states are fully persisted in the MySQL database so users can resume backtests anytime.
 
-### Key Capabilities:
-- **Flexible Configurations:** Create sessions for any supported trading pair (e.g., BTC/USDT, ETH/USDT), timeframe (1m, 5m, 15m, 1h, 1d), starting date, and custom virtual starting balance.
-- **Interactive Player Controls:** 
-  - **Auto-Play / Pause / Resume:** Automatically advance candles over time with a reactive scheduler.
-  - **Adjustable Speeds:** Speed up or slow down replay rates (0.5x, 1x, 2x, 5x).
-  - **Manual Navigation:** Step forward or backward candle-by-candle for precise chart analysis.
-- **Isolated Virtual Trading Engine:** Place virtual MARKET orders that execute against the historical candle's closing price. The system automatically computes weighted average purchase costs, updates holding balances, and validates quote/base currency constraints.
-- **Resilient Seed Fallback:** Automatically fetches up to 1,000 candles from the public Binance API. In case of unsupported pairs or API rate limits, a **synthetic candle engine** takes over, generating realistic price wicks and wiggles to keep the chart functional.
-- **Performance & Equity Analytics:** Track trades in real-time. Selling assets logs trades to compute win rates, ROI, average risk-to-reward ratios, and plot an equity curve with maximum drawdown.
-- **Safe Persistence:** Session parameters, current playback times, wallets, orders, and trade histories are fully persisted in the MySQL database, enabling users to stop, delete, or resume sessions later.
+### 2. Premium Security tab & Account Integrity
+Designed with defense-in-depth protocols to protect user profiles and financial assets:
+*   **Two-Factor Authentication (2FA):** Secure verification via email OTP during sensitive activities.
+*   **Active Device Tracking:** Displays a structured list of logged-in sessions with device identifiers and a Security Help & Tips guideline block.
+*   **Secure Pin Operations:** Withdrawal and asset transfer operations are protected by a secure Transfer PIN flow, which requires email OTP confirmation to edit or set.
+*   **Account Deletion:** Users can permanently delete their accounts, which requires entering a fresh OTP sent to their verified email address.
+*   **Self-Healing Admin Seeding:** Generates default administrator accounts on startup (`admin@vishal.com`) while automatically bypassing verification screens for admin roles.
+
+### 3. Unified Admin Panel
+A platform control center accessible strictly to users possessing the `ROLE_ADMIN` authority:
+*   **Statistics Reporting:** Tracks aggregate metrics including total registered users, transaction quantities, processed orders, active wallets, and pending withdrawal amounts.
+*   **Master Lists:** Access lists of all registered users, wallets, global order histories, and platform-wide notification logs.
+*   **Withdrawal Approvals:** Approve or decline user withdrawal requests. Funds from rejected withdrawals are safely refunded back to the original request owner's wallet.
+
+### 4. Centralized Notification & Communication Hub
+An event-driven messaging service coordinating in-app updates and transactional emails:
+*   **Centralized Dispatch:** Triggers in-app cards and emails for key events: registration, instant deposits, payment completions, withdrawal actions, wallet transfers, and order placements.
+*   **Dual-Party Logging:** On wallet-to-wallet transfers, both the sender and the recipient receive individual logs and notifications.
+*   **Brevo Email API Integration:** Migrated from standard SMTP to the Brevo HTTP API to bypass email-sending port blocks on cloud hosting platforms (e.g. Railway).
+*   **Branded Templates:** Emails feature customized HTML styles, asynchronous delivery queues, and transparent brand styling.
+
+### 5. Wallets, Orders, & Payment Gateways
+*   **Instant & Gateways Deposits:** Support for fast developer deposits and official checkouts powered by Razorpay (and Stripe). Payment updates trigger backend state synchronization, preventing duplicate credits.
+*   **Limit Enforcement:** Transaction limitations are applied to payment requests (e.g. Razorpay capped at 200,000 INR).
+*   **Coin-to-Coin Exchange:** Trade one digital asset directly for another with backend verification of quantity constraints.
+*   **Transaction Rollbacks:** Financial and order methods are wrapped in `@Transactional(rollbackOn = Exception.class)` block annotations to guarantee database consistency under failed operations.
+
+### 6. Contextual Gemini AI Assistant
+*   **Chatbot Integration:** An interactive chat bubble powered by Google Gemini API (`gemini-2.5-flash`).
+*   **Request Hardening:** Request payloads are escaped using `JSONObject.quote()` to prevent JSON-injection attacks. Includes null-safety checks and rate-limiting blocks.
+
+### 7. Subscription & Membership Systems
+*   **Billing Gating:** Restricts premium feature access based on membership tiers purchased via Razorpay or using existing wallet balances.
+*   **UI Intelligence:** Dynamically hides upgrade options for membership levels below the user's currently active status.
 
 ---
 
-## 🔐 Security & Data Integrity
+## 🔐 Security Audits & Code Integrity Patches
 
-CryptoVault is engineered with production-ready security practices adhering to **OWASP Top 10** recommendations.
+A chronological look at critical vulnerability fixes implemented in this project:
 
-- **Backend Security Hardening:** SQL Injection Prevention, Secure Authentication Filters, Protected REST APIs, Token Expiration, Request Sanitization.
-- **Comprehensive DTO & Financial Validation:** Strict server-side validation using Jakarta Bean Validation (`@NotBlank`, `@Positive`, etc.) combined with regex and business rule validation for all financial data (Bank details, Wallet IDs, Trading quantities).
-- **Transaction Integrity:** Database consistency and race condition prevention ensured via `@Transactional` operations for all trading, wallet transfers, and deposits/withdrawals.
-- **Rate Limiting:** Strategic rate limiting implemented on sensitive endpoints (Login, Trading APIs, AI Chatbot) to prevent abuse.
-- **Global Exception Handling:** Centralized `@ControllerAdvice` handling for validation, authentication, and financial exceptions with standardized API error responses.
+1.  **RBAC and Admin Endpoints Hardening:** Fixed security configurations where Spring Security roles were missing from JWT claims. Blocked open `/api/admin/**` endpoints, ensuring access is strictly restricted to `ROLE_ADMIN` users.
+2.  **Withdrawal Refund Correctness:** Replaced faulty controller logic that routed rejected withdrawal funds to the admin's wallet, ensuring refunds are returned to the correct user.
+3.  **Order Balance Checks:** Corrected insufficient-funds validation logic that checked the balance *after* subtraction, blocking unauthorized purchases.
+4.  **Razorpay Duplicate Prevention:** Fixed an order state issue by invoking explicit JPA `save()` updates on successful checkout callbacks, preventing multiple credits from a single transaction ID.
+5.  **Checked Exceptions Rollbacks:** Configured transaction boundaries to roll back on checked exceptions, eliminating orphaned database rows.
+6.  **OTP Replay Prevention:** Configured the authentication engine to delete verification code records immediately upon validation.
+7.  **OTP Re-Send Reliability:** Replaced stale code reuse in verification routes by purging existing records before generating and sending a new OTP.
+8.  **Snake_Case Response Normalization:** Resolved camelCase vs snake_case data model formatting differences by applying a custom frontend normalization helper (`normalizeCoin`), fixing blank charts and coin data pages.
+9.  **User Verification Status Inconsistency:** Fixed an issue where verified users (e.g., registered/authenticated via Google OAuth2 or manually verified via OTP) retained their status field as `PENDING`. Ensured that `verifyUser`, Google OAuth handlers, and startup admin seed scripts correctly sync both `isVerified = true` and `status = UserStatus.VERIFIED` fields.
 
 ---
 
-## 🚀 Getting Started
+## ⚙️ Getting Started & Setup
 
-Follow the instructions below to get both the backend and frontend running locally.
+### Prerequisites
+- Java Development Kit (JDK) 17
+- Node.js (v18 or above) & npm
+- MySQL Server
 
-### 1. Backend Setup
+### 1. Database Configuration
+1. Create a MySQL database named `crypto_trading_platform`.
+2. Open `Backend/src/main/resources/application.properties` and verify details. You can override properties using local environment variables:
+   - `SPRING_DATASOURCE_URL` (Default: `jdbc:mysql://localhost:3306/crypto_trading_platform`)
+   - `SPRING_DATASOURCE_USERNAME` (Default: `root`)
+   - `SPRING_DATASOURCE_PASSWORD` (Default: `admin` or your DB password)
 
-**Prerequisites:** Java 17, MySQL Server, Maven (or included `mvnw` wrapper)
+### 2. External API Configuration
+Configure the following API keys in `application.properties` or set them as environment variables:
+- `GEMINI_API_KEY`: Google Gemini API Key
+- `RAZORPAY_API_KEY` & `RAZORPAY_API_SECRET`: Razorpay Gateway credentials
+- `STRIPE_API_KEY`: Stripe payment API key
+- `COINGECKO_API_KEY`: CoinGecko market API key
+- `MAIL_USERNAME` & `MAIL_PASSWORD`: SMTP credentials (if not utilizing the Brevo integration)
+- `FRONTEND_URL`: URL of the running frontend (Default: `http://localhost:5173`)
 
-1. Navigate to the backend directory:
+### 3. Running the Backend
+1. Open a terminal and navigate to the backend folder:
    ```bash
    cd Backend
    ```
-2. Configure the database:
-   - Default configuration is in `Backend/src/main/resources/application.properties`.
-   - Ensure a MySQL instance is running on `localhost:3306` with user `root` and password `admin` (or override via environment variables like `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`).
-3. Run the application:
+2. Build and run the Spring Boot server:
    ```bash
    ./mvnw spring-boot:run
    ```
-   The backend will start on **http://localhost:5454**.
+   The API server will launch at **http://localhost:5454**.
 
-### 2. Frontend Setup
-
-**Prerequisites:** Node.js (v18+), npm
-
-1. Navigate to the frontend directory:
+### 4. Running the Frontend
+1. Open a new terminal and navigate to the frontend folder:
    ```bash
    cd f2
    ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Environment Configuration:
+2. Copy the sample environment file and check the API URL:
    ```bash
    cp .env.example .env
    ```
-4. Start the Vite development server:
+3. Install dependencies and start the Vite development server:
+   ```bash
+   npm install
+   ```
    ```bash
    npm run dev
    ```
-   The frontend will be accessible at **http://localhost:5173**.
+   The frontend will launch at **http://localhost:5173**.
 
 ---
 
-## 🚀 Skills & Practices Demonstrated
-
-- **FinTech Engineering:** Secure Financial Transactions, Payment Gateway Integration, Cryptocurrency Trading Workflows, Wallet Management.
-- **Software Engineering:** Layered Architecture, RESTful API Design, Clean Code Principles, Separation of Concerns, DTO/Repository/Service Patterns.
-- **Full Stack Development:** Seamless API Integration, Protected Routing, Responsive Dashboard Development, Scalable System Design.
+## 📄 License & Demonstrate
+This project is licensed under the MIT License - see the `LICENSE` file for details. Built to demonstrate advanced full-stack software engineering practices, secure finance transaction architectures, and interactive client workflows.

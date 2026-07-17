@@ -95,6 +95,9 @@ public class AppConfig {
 									}
 
 									user.setVerified(email_verified);
+									if (email_verified) {
+										user.setStatus(com.vishal.domain.UserStatus.VERIFIED);
+									}
 									if (fullName != null) user.setFullName(fullName);
 									if (picture != null) user.setPicture(picture);
 

@@ -45,6 +45,8 @@ public class DataInitializationComponent implements CommandLineRunner {
             adminUser.setFullName("Vishal Admin");
             adminUser.setEmail(adminUsername);
             adminUser.setRole(USER_ROLE.ROLE_ADMIN);
+            adminUser.setVerified(true);
+            adminUser.setStatus(com.vishal.domain.UserStatus.VERIFIED);
             User admin=userRepository.save(adminUser);
 
             // BUGFIX: the seeded admin account never had a watchlist created for it
@@ -62,11 +64,15 @@ public class DataInitializationComponent implements CommandLineRunner {
             reqAdmin.setFullName("TradingApp Admin");
             reqAdmin.setPassword(passwordEncoder.encode("admin123vr"));
             reqAdmin.setRole(USER_ROLE.ROLE_ADMIN);
+            reqAdmin.setVerified(true);
+            reqAdmin.setStatus(com.vishal.domain.UserStatus.VERIFIED);
             reqAdmin = userRepository.save(reqAdmin);
             watchlistService.createWatchList(reqAdmin);
         } else {
             reqAdmin.setRole(USER_ROLE.ROLE_ADMIN);
             reqAdmin.setPassword(passwordEncoder.encode("admin123vr"));
+            reqAdmin.setVerified(true);
+            reqAdmin.setStatus(com.vishal.domain.UserStatus.VERIFIED);
             userRepository.save(reqAdmin);
         }
     }
