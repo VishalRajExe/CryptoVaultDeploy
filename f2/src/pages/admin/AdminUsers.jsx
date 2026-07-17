@@ -125,11 +125,11 @@ export default function AdminUsers() {
                       </td>
                       <td className="px-4 py-3.5">
                         <span className={`text-[10px] font-plex font-bold px-2 py-0.5 rounded border ${
-                          u.status === 'VERIFIED'
+                          (u.status === 'VERIFIED' || u.isVerified || u.verified)
                             ? 'text-secondary bg-secondary/10 border-secondary/20'
                             : 'text-muted-strong bg-surface-container-low border-outline-variant'
                         }`}>
-                          {u.status}
+                          {(u.status === 'VERIFIED' || u.isVerified || u.verified) ? 'VERIFIED' : u.status}
                         </span>
                       </td>
                       <td className="px-5 sm:px-6 py-3.5 text-right">

@@ -33,6 +33,7 @@ public class DataInitializationComponent implements CommandLineRunner {
     @Override
     public void run(String... args) {
         initializeAdminUser();
+        syncVerifiedUserStatus();
     }
 
     private void initializeAdminUser() {
@@ -77,4 +78,17 @@ public class DataInitializationComponent implements CommandLineRunner {
         }
     }
 
+    private void syncVerifiedUserStatus() {
+        try {
+            java.util.List<User> users = userRepository.findAll();
+            for (User u : users) {
+                if (u.isVerified() && u.getStatus() == com.vishal.domain.UserStatus.PENDING) {
+                    u.setStatus(com.vishal.domain.UserStatus.VERIFIED);
+                    userRepository.save(u);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Could not synchronize verified users status: " + e.getMessage());
+        }
+    }
 }
