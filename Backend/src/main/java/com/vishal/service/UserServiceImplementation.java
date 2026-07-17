@@ -143,10 +143,10 @@ public class UserServiceImplementation implements UserService {
 
 		// Replay Entities (they use Long userId directly)
 		entityManager.createQuery("DELETE FROM ReplayTrade rt WHERE rt.replaySession.id IN (SELECT rs.id FROM ReplaySession rs WHERE rs.userId = :userId)").setParameter("userId", userId).executeUpdate();
+		entityManager.createQuery("DELETE FROM ReplayOrderItem roi WHERE roi.replayOrder.id IN (SELECT ro.id FROM ReplayOrder ro WHERE ro.userId = :userId)").setParameter("userId", userId).executeUpdate();
 		entityManager.createQuery("DELETE FROM ReplayOrder ro WHERE ro.userId = :userId").setParameter("userId", userId).executeUpdate();
 		entityManager.createQuery("DELETE FROM ReplayWallet rw WHERE rw.replaySession.id IN (SELECT rs.id FROM ReplaySession rs WHERE rs.userId = :userId)").setParameter("userId", userId).executeUpdate();
 		entityManager.createQuery("DELETE FROM ReplayPortfolio rp WHERE rp.replaySession.id IN (SELECT rs.id FROM ReplaySession rs WHERE rs.userId = :userId)").setParameter("userId", userId).executeUpdate();
-		entityManager.createQuery("DELETE FROM ReplayPerformance rp WHERE rp.replaySession.id IN (SELECT rs.id FROM ReplaySession rs WHERE rs.userId = :userId)").setParameter("userId", userId).executeUpdate();
 		entityManager.createQuery("DELETE FROM ReplaySession rs WHERE rs.userId = :userId").setParameter("userId", userId).executeUpdate();
 
 		// Finally, delete the User
