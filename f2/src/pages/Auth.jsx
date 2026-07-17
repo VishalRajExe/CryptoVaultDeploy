@@ -274,12 +274,32 @@ function RegisterForm({ onSwitch }) {
 
   const validate = () => {
     const e = {};
-    if (!form.fullName.trim()) e.fullName = 'Full name is required';
-    if (!form.email.trim()) e.email = 'Email is required';
-    else if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = 'Enter a valid email';
-    if (!form.mobile.trim()) e.mobile = 'Mobile number is required';
-    if (!form.password) e.password = 'Password is required';
-    else if (form.password.length < 6) e.password = 'Use at least 6 characters';
+    const trimmedName = form.fullName.trim();
+    if (!trimmedName) {
+      e.fullName = 'Full name is required';
+    } else if (!/^[a-zA-Z]+[a-zA-Z\s'.-]*[a-zA-Z.]+$/.test(trimmedName) || trimmedName.replace(/[^a-zA-Z]/g, '').length < 2) {
+      e.fullName = 'Enter a valid name (at least 2 letters, no numbers/symbols)';
+    }
+
+    if (!form.email.trim()) {
+      e.email = 'Email is required';
+    } else if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(form.email.trim())) {
+      e.email = 'Enter a valid email address';
+    }
+
+    const trimmedMobile = form.mobile.trim();
+    if (!trimmedMobile) {
+      e.mobile = 'Mobile number is required';
+    } else if (!/^\+?[0-9]{10,15}$/.test(trimmedMobile)) {
+      e.mobile = 'Enter a valid mobile number (e.g. +919876543210)';
+    }
+
+    if (!form.password) {
+      e.password = 'Password is required';
+    } else if (form.password.length < 8 || !/[a-zA-Z]/.test(form.password) || !/[0-9!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`-]/.test(form.password)) {
+      e.password = 'Must be at least 8 characters with letters and numbers/symbols';
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };

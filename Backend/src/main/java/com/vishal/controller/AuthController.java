@@ -82,7 +82,42 @@ public class AuthController {
 		String mobile=user.getMobile();
 
 
-		User isEmailExist = userRepository.findByEmail(email);
+		// 1. Validate Full Name
+		if (fullName == null || fullName.trim().isEmpty()) {
+			throw new UserException("Full name cannot be empty.");
+		}
+		String cleanName = fullName.trim();
+		if (!cleanName.matches("^[a-zA-Z]+[a-zA-Z\\s'.-]*[a-zA-Z.]+$") || cleanName.replaceAll("[^a-zA-Z]", "").length() < 2) {
+			throw new UserException("Please enter a valid full name (at least 2 letters, no numbers or special symbols).");
+		}
+
+		// 2. Validate Email
+		if (email == null || email.trim().isEmpty()) {
+			throw new UserException("Email cannot be empty.");
+		}
+		String cleanEmail = email.trim();
+		if (!cleanEmail.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+			throw new UserException("Please enter a valid email address.");
+		}
+
+		// 3. Validate Password
+		if (password == null || password.isEmpty()) {
+			throw new UserException("Password cannot be empty.");
+		}
+		if (password.length() < 8 || !password.matches(".*[a-zA-Z].*") || !password.matches(".*[0-9!@#$%^&*()_+={}\\[\\]|\\\\:;\"'<>,.?/~`-].*")) {
+			throw new UserException("Password must be at least 8 characters long and contain both letters and numbers/symbols.");
+		}
+
+		// 4. Validate Mobile
+		if (mobile == null || mobile.trim().isEmpty()) {
+			throw new UserException("Mobile number is required.");
+		}
+		String cleanMobile = mobile.trim();
+		if (!cleanMobile.matches("^\\+?[0-9]{10,15}$")) {
+			throw new UserException("Invalid mobile number format. Please enter a valid number (e.g., +919876543210 or 9876543210).");
+		}
+
+		User isEmailExist = userRepository.findByEmail(cleanEmail);
 
 		if (isEmailExist!=null) {
 
@@ -91,9 +126,9 @@ public class AuthController {
 
 		// Create new user
 		User createdUser = new User();
-		createdUser.setEmail(email);
-		createdUser.setFullName(fullName);
-		createdUser.setMobile(mobile);
+		createdUser.setEmail(cleanEmail);
+		createdUser.setFullName(cleanName);
+		createdUser.setMobile(cleanMobile);
 		createdUser.setPassword(passwordEncoder.encode(password));
 
 		// See AdminConfig - the one designated admin email gets ROLE_ADMIN at signup.
