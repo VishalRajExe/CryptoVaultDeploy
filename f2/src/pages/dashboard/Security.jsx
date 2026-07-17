@@ -941,32 +941,33 @@ export default function Security() {
             </motion.div>
           )}
 
-          {/* Danger Zone */}
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.24 }}
-            className="rounded-lg border border-error/20 bg-surface-card p-6 space-y-4 font-hanken"
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-md bg-error/10 text-error flex items-center justify-center shrink-0 border border-error/20">
-                <Trash2 size={17} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-sm font-bold text-error block mb-1">Danger Zone</span>
-                <p className="text-xs text-muted-tertiary">
-                  Permanently delete your CryptoVault account and all associated assets, transaction history, and trading data. This action is irreversible.
-                </p>
-                <button
-                  onClick={() => setConfirmDeleteOpen(true)}
-                  className="mt-3.5 px-4 py-2 rounded-md bg-error/10 border border-error/20 text-error text-xs font-button font-bold hover:bg-error/20 transition-colors"
-                >
-                  Delete Account
-                </button>
-              </div>
-            </div>
-          </motion.div>
         </div>
+
+        {/* Danger Zone */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24 }}
+          className="lg:col-span-12 rounded-lg border border-error/20 bg-surface-card p-6 space-y-4 font-hanken"
+        >
+          <div className="flex items-start gap-4 max-w-2xl mx-auto">
+            <div className="w-10 h-10 rounded-md bg-error/10 text-error flex items-center justify-center shrink-0 border border-error/20">
+              <Trash2 size={17} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-sm font-bold text-error block mb-1">Danger Zone</span>
+              <p className="text-xs text-muted-tertiary">
+                Permanently delete your CryptoVault account and all associated assets, transaction history, and trading data. This action is irreversible.
+              </p>
+              <button
+                onClick={() => setConfirmDeleteOpen(true)}
+                className="mt-3.5 px-4 py-2 rounded-md bg-error/10 border border-error/20 text-error text-xs font-button font-bold hover:bg-error/20 transition-colors"
+              >
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Confirm Account Deletion Modal */}
