@@ -98,7 +98,7 @@ public class UserServiceImplementation implements UserService {
 		}
 		String cleanMobile = mobile.trim();
 		if (!cleanMobile.matches("^\\+?[0-9]{10,15}$")) {
-			throw new UserException("Invalid mobile number format. Please enter a valid number (e.g., +917321015054 or 7321015054).");
+			throw new UserException("Invalid mobile number format. Please enter a valid number (e.g., +919876543210 or 9876543210).");
 		}
 		user.setMobile(cleanMobile);
 		return userRepository.save(user);

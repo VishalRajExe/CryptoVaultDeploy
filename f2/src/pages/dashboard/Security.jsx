@@ -56,7 +56,7 @@ function MobileNumberCard({ mobile, onSaved }) {
       return;
     }
     if (!/^\+?[0-9]{10,15}$/.test(cleanValue)) {
-      setError('Invalid mobile number format. Please enter a valid number (e.g., +917321015054 or 7321015054).');
+      setError('Invalid mobile number format. Please enter a valid number (e.g., +919876543210 or 9876543210).');
       return;
     }
     setLoading(true);
