@@ -8,7 +8,7 @@ Engineered with secure coding practices matching OWASP Top 10 recommendations, t
 
 ## 🏗️ Architecture & System Design
 
-CryptoVault is designed on a decoupled client-server architecture:
+CryptoVault is built on a decoupled client-server architecture:
 
 ```mermaid
 graph TD
@@ -22,74 +22,128 @@ graph TD
     API <-->|Razorpay / Stripe| Payments[Payment Gateways]
 ```
 
-- **Authentication Protocol:** JWT stateless authentication. Role claims (`ROLE_USER` and `ROLE_ADMIN`) are validated on each request.
-- **Data Synchronization:** CoinGecko feeds live token valuations to the user interface, while local transactions and operations are stored in MySQL.
-- **Fail-Safe Scheduling:** A simulated playback scheduler drives the historical market replay charts, switching details seamlessly into an isolated, database-backed virtual environment.
+### Key Architectural Concepts
+*   **Authentication Protocol:** JWT stateless authentication. Role claims (`ROLE_USER` and `ROLE_ADMIN`) are validated on each request.
+*   **Data Synchronization:** CoinGecko feeds live token valuations to the user interface, while local transactions and operations are stored in MySQL.
+*   **Fail-Safe Scheduling:** A simulated playback scheduler drives the historical market replay charts, switching details seamlessly into an isolated, database-backed virtual environment.
 
 ---
 
 ## ⚙️ Technology Stack
 
 ### Backend
-- **Core Engine:** Java 17, Spring Boot 3.2, Maven
-- **Security:** Spring Security, JWT (Json Web Tokens), BCrypt Password Hashing, Role-Based Access Control (RBAC)
-- **Data Persistence:** Spring Data JPA, Hibernate ORM, MySQL Connector
-- **Communications:** Brevo HTTP Mail API integration, Jakarta Mail / Angus Mail
-- **Dependencies & Tools:** Lombok, Jakarta Bean Validation, JSON Java library (`org.json`)
+*   **Core Engine:** Java 17, Spring Boot 3.2, Maven
+*   **Security:** Spring Security, JWT (Json Web Tokens), BCrypt Password Hashing, Role-Based Access Control (RBAC)
+*   **Data Persistence:** Spring Data JPA, Hibernate ORM, MySQL Connector
+*   **Communications:** Brevo HTTP Mail API integration, Jakarta Mail / Angus Mail
+*   **Dependencies & Tools:** Lombok, Jakarta Bean Validation, JSON Java library (`org.json`)
 
 ### Frontend
-- **Framework & Build:** React 19, Vite, React Router v7
-- **Aesthetics & Motion:** Tailwind CSS v3, Framer Motion (smooth page transitions, animations)
-- **Charting & Data Viz:** Lightweight Charts (trading charts), Recharts (equity curve plotting)
-- **Icons & Fonts:** Lucide React icons, Space Grotesk, Inter, and JetBrains Mono fonts
+*   **Framework & Build:** React 19, Vite, React Router v7
+*   **Aesthetics & Motion:** Tailwind CSS v3, Framer Motion (smooth page transitions, animations)
+*   **Charting & Data Viz:** Lightweight Charts (trading charts), Recharts (equity curve plotting)
+*   **Icons & Fonts:** Lucide React icons, Hanken Grotesk, Inter, and JetBrains Mono fonts
 
 ---
 
-## 🔥 Core Features & Implementation Details
+## 🔥 Deep Dive: Core Features & Working Principles
 
 ### 1. Interactive Market Replay Mode (Backtesting Sandbox)
-An advanced trading sandbox that isolates simulated trading sessions from the live production wallet:
-*   **Flexible Setup:** Launch sessions for any supported trading pair (e.g., BTC/USDT, ETH/USDT) across multiple timeframes (`1m`, `5m`, `15m`, `1h`, `1d`) with custom virtual starting balances.
-*   **Player Controls:** Play, Pause, and Resume controls driven by a reactive scheduler. Replay speeds can be adjusted dynamically (`0.5x`, `1x`, `2x`, `5x`), or users can step through candles manually.
-*   **Isolated Order Engine:** Place simulated MARKET orders. The engine tracks holdings, updates virtual wallets, calculates base/quote constraints, and maintains a distinct order ledger.
-*   **Binance Seed Fallback:** Automatically fetches up to 1,000 candles from the public Binance API. If rate limits are reached or an unsupported coin is requested, a synthetic candle generator takes over to ensure chart continuity.
-*   **Real-time Analytics:** Computes performance metrics on the fly, including Win Rate, Return on Investment (ROI), average Risk-to-Reward ratio, and plots an interactive equity curve showing Maximum Drawdown.
-*   **Data Persistence:** Sessions, wallets, simulated orders, and playback time-states are fully persisted in the MySQL database so users can resume backtests anytime.
+An advanced trading sandbox that isolates simulated trading sessions from the live production wallet.
 
-### 2. Premium Security tab & Account Integrity
-Designed with defense-in-depth protocols to protect user profiles and financial assets:
-*   **Two-Factor Authentication (2FA):** Secure verification via email OTP during sensitive activities.
-*   **Active Device Tracking:** Displays a structured list of logged-in sessions with device identifiers and a Security Help & Tips guideline block.
-*   **Secure Pin Operations:** Withdrawal and asset transfer operations are protected by a secure Transfer PIN flow, which requires email OTP confirmation to edit or set.
-*   **Account Deletion:** Users can permanently delete their accounts, which requires entering a fresh OTP sent to their verified email address.
-*   **Self-Healing Admin Seeding:** Generates default administrator accounts on startup (`admin@vishal.com`) while automatically bypassing verification screens for admin roles.
+#### ⚙️ How it Works under the Hood:
+1.  **Session Creation & Storage:** When a user initiates a replay session, the backend persists a new `ReplaySession` instance with configuration parameters (symbol, interval, virtual starting balance, and time range). It initializes an isolated `ReplayWallet` and `ReplayPortfolio` linked strictly to this session.
+2.  **Binance Historical Seeding:** The system connects to the public Binance API `klines` endpoint to pull up to 1,000 candle elements starting from the selected timestamp.
+    *   *Fallback Generator:* If the external API fails (rate limits, network issues, or request for an unsupported token), a synthetic candle generator (`generateSyntheticCandles`) kicks in. It applies a random-walk simulation adjusted by realistic historical price scales for each asset class (e.g. starting around $60,000 for BTC, $3,000 for ETH, etc.) to guarantee continuous playback.
+3.  **Playback Control & Scheduler:** Driven by client-side event loops, ticks advance the `currentTime` pointer of the active session. This determines which candles are visible to the UI chart. Users can Play, Pause, speed up (`0.5x`, `1x`, `2x`, `5x`), or step through candles manually.
+4.  **Isolated Virtual Order Engine:**
+    *   When a user clicks BUY, the engine validates that the session's quote currency (e.g., USDT) wallet has sufficient funds. It deducts the `totalCost` (`quantity * price`) and recalculates the average base price using the weighted formula:
+        $$\text{newAvg} = \frac{(\text{currentQty} \times \text{avgPrice}) + \text{totalCost}}{\text{currentQty} + \text{quantity}}$$
+    *   When selling, the engine verifies base currency holdings, credits the quote currency, and logs the closed transaction's Profit and Loss (PnL):
+        $$\text{PnL} = \text{totalCost} - (\text{quantity} \times \text{avgPrice})$$
+5.  **Backtest Analytics Dashboard:**
+    *   Calculates key metrics including **Win/Loss Rates**, **Profit Factor** ($\frac{\text{totalProfit}}{\text{totalLoss}}$), **Average Risk-to-Reward Ratio**, and **ROI**.
+    *   **Maximum Drawdown** is computed by tracking peak equity values sequentially:
+        $$\text{Drawdown} = \frac{\text{Peak Equity} - \text{Running Equity}}{\text{Peak Equity}} \times 100$$
+    *   Generates an equity curve array mapping dates to active portfolio values, rendered as an interactive Recharts area chart.
 
-### 3. Unified Admin Panel
-A platform control center accessible strictly to users possessing the `ROLE_ADMIN` authority:
-*   **Statistics Reporting:** Tracks aggregate metrics including total registered users, transaction quantities, processed orders, active wallets, and pending withdrawal amounts.
-*   **Master Lists:** Access lists of all registered users, wallets, global order histories, and platform-wide notification logs.
-*   **Withdrawal Approvals:** Approve or decline user withdrawal requests. Funds from rejected withdrawals are safely refunded back to the original request owner's wallet.
+---
+
+### 2. Premium Security, Session Control & Multi-Device Audits
+Designed with defense-in-depth protocols to protect user profiles and financial assets.
+
+#### ⚙️ How it Works under the Hood:
+1.  **Stateful Session Tracking:** Standard JWTs are stateless, but CryptoVault implements a hybrid architecture. The backend records each login device configuration in a `UserSession` table (logging device type, IP address, operating system, and login location).
+2.  **Remote Session Revocation:** Users can audit active sessions from the Security tab. Clicking the revoke action removes that session from the database. The security filter (`JwtTokenValidator.java`) cross-references incoming JWT session claims against database records; if a session is revoked, the request is immediately rejected.
+3.  **2FA OTP Security Flow:** When sensitive operations occur (changing password, deleting account, setting transfer PIN), a one-time OTP is generated, hashed, and dispatched via email.
+    *   *Replay Prevention:* To prevent multiple submissions, the OTP is deleted from the database immediately upon the first verification attempt.
+    *   *OTP Purging:* Before dispatching a new OTP, the system purges any existing code records for that user, solving reliability bugs where old codes blocked new delivery.
+4.  **Structural Document Validators (India KYC):**
+    The backend uses custom Jakarta annotation constraints to validate critical Indian financial formats before saving records to database:
+    *   **PAN Validator:** Matches the formatting regex: `^[A-Z]{5}[0-9]{4}[A-Z]{1}$`.
+    *   **IFSC Code Validator:** Verifies bank branch formatting: `^[A-Z]{4}0[A-Z0-9]{6}$`.
+    *   **UPI Address Validator:** Validates virtual payment address strings: `^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$`.
+    *   **Aadhaar UIDAI Verhoeff Checksum:** Validation uses the mathematical **Verhoeff algorithm** (a base-10 dihedral group $D_5$ check) to prevent typos. It runs input digits through permutation matrices (`p`) and multiplication tables (`d`) to verify that the final checksum equals `0`.
+
+---
+
+### 3. Digital Wallets & Payment Processing
+Manages fiat deposits, wallet balances, coin exchanges, and withdrawals.
+
+#### ⚙️ How it Works under the Hood:
+1.  **Gateway Integration:** Deposits are supported via Stripe (Credit Card) and Razorpay (UPI, Netbanking, Cards).
+2.  **Razorpay Duplicate Prevention:**
+    *   When a user completes a payment, Razorpay sends a webhook or callback with the transaction ID.
+    *   The backend verifies the captured status. Crucially, the system locks the `PaymentOrder` record, updates its state to `SUCCESS`, and executes an immediate JPA `save()` to prevent double-deposit replay attacks.
+3.  **Strict Balance Validation:**
+    Before executing asset purchases or wallet-to-wallet transfers, the system enforces pre-allocation validation checks. If a user's wallet balance is insufficient, the system throws an exception immediately *before* executing database mutations.
+4.  **Transactional Integrity:**
+    All wallet mutation services are annotated with Spring's `@Transactional(rollbackFor = Exception.class)`. This guarantees that if any step of a transfer or trade fails, the database automatically rolls back, preventing orphaned credits or debits.
+
+---
 
 ### 4. Centralized Notification & Communication Hub
-An event-driven messaging service coordinating in-app updates and transactional emails:
-*   **Centralized Dispatch:** Triggers in-app cards and emails for key events: registration, instant deposits, payment completions, withdrawal actions, wallet transfers, and order placements.
-*   **Dual-Party Logging:** On wallet-to-wallet transfers, both the sender and the recipient receive individual logs and notifications.
-*   **Brevo Email API Integration:** Migrated from standard SMTP to the Brevo HTTP API to bypass email-sending port blocks on cloud hosting platforms (e.g. Railway).
-*   **Branded Templates:** Emails feature customized HTML styles, asynchronous delivery queues, and transparent brand styling.
+An event-driven messaging service coordinating in-app updates and transactional emails.
 
-### 5. Wallets, Orders, & Payment Gateways
-*   **Instant & Gateways Deposits:** Support for fast developer deposits and official checkouts powered by Razorpay (and Stripe). Payment updates trigger backend state synchronization, preventing duplicate credits.
-*   **Limit Enforcement:** Transaction limitations are applied to payment requests (e.g. Razorpay capped at 200,000 INR).
-*   **Coin-to-Coin Exchange:** Trade one digital asset directly for another with backend verification of quantity constraints.
-*   **Transaction Rollbacks:** Financial and order methods are wrapped in `@Transactional(rollbackOn = Exception.class)` block annotations to guarantee database consistency under failed operations.
+#### ⚙️ How it Works under the Hood:
+1.  **Dual-Party Messaging:** For actions involving two users (e.g., wallet-to-wallet transfers), the system dispatches distinct notifications to both the sender (debit log) and the recipient (credit log).
+2.  **Brevo HTTP API Integration:**
+    *   Traditional SMTP triggers port blocks (e.g., port 587) on server environments like Railway.
+    *   CryptoVault overrides standard JavaMailSender behaviors to route transactional emails via Brevo's HTTP API. This encapsulates payload elements inside a JSON structure and sends them over HTTPS (`POST https://api.brevo.com/v3/smtp/email`), ensuring delivery.
+3.  **HTML Templating Engine:** Transactional messages are injected into HTML templates containing responsive styles and action links.
 
-### 6. Contextual Gemini AI Assistant
-*   **Chatbot Integration:** An interactive chat bubble powered by Google Gemini API (`gemini-2.5-flash`).
-*   **Request Hardening:** Request payloads are escaped using `JSONObject.quote()` to prevent JSON-injection attacks. Includes null-safety checks and rate-limiting blocks.
+---
 
-### 7. Subscription & Membership Systems
-*   **Billing Gating:** Restricts premium feature access based on membership tiers purchased via Razorpay or using existing wallet balances.
-*   **UI Intelligence:** Dynamically hides upgrade options for membership levels below the user's currently active status.
+### 5. Contextual Gemini AI Assistant
+Provides real-time AI assistance for trading queries directly from the workspace.
+
+#### ⚙️ How it Works under the Hood:
+1.  **API Integration:** Queries are routed to Google's Gemini API (`gemini-2.5-flash`).
+2.  **JSON Payload Hardening:** To block JSON injection attacks from user inputs, prompts are sanitized and enclosed using `JSONObject.quote()` before being dispatched.
+3.  **Plan-Based Rate Limiting:**
+    *   Free users are capped at 10 AI queries per day.
+    *   Premium users have unlimited assistant access. Limits are enforced at the API layer based on the user's `Subscription` status.
+
+---
+
+### 6. Subscription & Membership Systems
+Enables users to unlock premium features and access lower fee tiers.
+
+#### ⚙️ How it Works under the Hood:
+1.  **Upgrade Path:** Users can purchase subscription tiers (Free, Gold, Platinum, VIP) using either linked payment gateways or directly deducting from their existing wallet balance.
+2.  **Dynamic UI Adaptation:** The frontend parses subscription claims from the decrypted JWT payload and dynamically hides lower-tier upgrade prompts.
+
+---
+
+### 7. Unified Admin Dashboard
+Gives platform administrators control over transactions, users, and compliance.
+
+#### ⚙️ How it Works under the Hood:
+1.  **Endpoint Gating:** Admin endpoints are secured using Spring Security role checks (`hasRole('ADMIN')`). JWT claims are verified at the server gate.
+2.  **Compliance Auditing:** Admins can view submitted KYC documents and approve/deny identities.
+3.  **Withdrawal Processing:**
+    *   Approved withdrawals mark the request as `SUCCESS` and schedule the payout.
+    *   Denied withdrawals trigger an automatic refund that returns the locked withdrawal amount back to the user's wallet.
 
 ---
 
@@ -163,5 +217,5 @@ Configure the following API keys in `application.properties` or set them as envi
 
 ---
 
-## 📄 License & Demonstrate
+## 📄 License & Demonstration
 This project is licensed under the MIT License - see the `LICENSE` file for details. Built to demonstrate advanced full-stack software engineering practices, secure finance transaction architectures, and interactive client workflows.
