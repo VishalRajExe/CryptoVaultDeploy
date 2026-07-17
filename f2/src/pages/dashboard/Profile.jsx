@@ -315,7 +315,7 @@ export default function Profile() {
         description="Configure your personal settings, security, and verification details."
       />
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <div className="px-4 sm:px-8 space-y-6">
         {/* Navigation Tabs */}
         <div className="flex gap-2 p-1 bg-surface-container-low border border-outline-variant rounded-lg w-fit">
           {[
@@ -496,9 +496,9 @@ export default function Profile() {
                     <span className="text-[10px] bg-secondary/10 border border-secondary/20 text-secondary font-bold px-2 py-0.5 rounded">SYSTEM SECURE</span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 divide-y md:divide-y-0 md:divide-x divide-outline-variant/30">
                     {/* Security controls */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 pr-0 md:pr-6">
                       <div className="flex items-center justify-between p-3.5 rounded-lg bg-surface-container-low border border-outline-variant/40">
                         <div>
                           <div className="text-xs font-bold text-on-surface">Two-Factor Authentication</div>
@@ -529,14 +529,14 @@ export default function Profile() {
                     </div>
 
                     {/* Quick Session List */}
-                    <div className="space-y-3">
+                    <div className="space-y-3 pt-6 md:pt-0 pl-0 md:pl-6">
                       <div className="text-xs font-bold text-muted-strong uppercase tracking-wider">Recent Login Activity</div>
                       {sessions.length === 0 ? (
                         <div className="text-xs text-muted-tertiary">No logins found.</div>
                       ) : (
-                        <div className="space-y-2">
+                        <div className="divide-y divide-outline-variant/30">
                           {sessions.slice(0, 3).map((s) => (
-                            <div key={s.id} className="flex justify-between items-center text-xs p-2 rounded bg-surface-container-high/40">
+                            <div key={s.id} className="flex justify-between items-center text-xs py-2.5 first:pt-0">
                               <div className="flex items-center gap-2">
                                 {s.deviceType === 'iOS' || s.deviceType === 'Android' ? (
                                   <Smartphone size={12} className="text-muted-tertiary" />
@@ -561,9 +561,9 @@ export default function Profile() {
                 <div className="rounded-xl border border-outline-variant bg-surface-card p-6 space-y-6">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-muted-strong">Verification Status</h3>
                   
-                  <div className="space-y-4">
+                  <div className="divide-y divide-outline-variant/30">
                     {/* Email Verification */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between pb-3.5">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${user?.verified || user?.isVerified ? 'bg-secondary/10 text-secondary' : 'bg-carmine/10 text-carmine'}`}>
                           <CheckCircle2 size={16} />
@@ -576,7 +576,7 @@ export default function Profile() {
                     </div>
 
                     {/* Phone Verification */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between py-3.5">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${user?.mobileVerified ? 'bg-secondary/10 text-secondary' : 'bg-carmine/10 text-carmine'}`}>
                           <CheckCircle2 size={16} />
@@ -596,7 +596,7 @@ export default function Profile() {
                     </div>
 
                     {/* KYC Verification */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between py-3.5">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${user?.kycStatus === 'APPROVED' ? 'bg-secondary/10 text-secondary' : user?.kycStatus === 'PENDING' ? 'bg-amber-400/10 text-amber-400' : 'bg-carmine/10 text-carmine'}`}>
                           <CheckCircle2 size={16} />
@@ -618,7 +618,7 @@ export default function Profile() {
                     </div>
 
                     {/* Bank account details */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between pt-3.5">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${bankDetails ? 'bg-secondary/10 text-secondary' : 'bg-carmine/10 text-carmine'}`}>
                           <CheckCircle2 size={16} />
