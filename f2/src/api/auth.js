@@ -68,5 +68,8 @@ export const resetWithdrawalPin = (otp, newPin) =>
 export const changeWithdrawalPin = (currentPin, newPin) =>
   client.post('/api/users/withdrawal-pin/change', null, { params: { currentPin, newPin } }).then((r) => r.data);
 
-export const deleteAccount = () =>
-  client.delete('/api/users').then((r) => r.data);
+export const requestDeleteAccountOtp = () =>
+  client.post('/api/users/delete/request-otp').then((r) => r.data);
+
+export const deleteAccount = (otp) =>
+  client.delete('/api/users', { params: { otp } }).then((r) => r.data);

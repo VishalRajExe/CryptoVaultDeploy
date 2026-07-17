@@ -213,14 +213,62 @@ public class UserController {
 		return ResponseEntity.ok(updated);
 	}
 
-	@DeleteMapping("/api/users")
-	public ResponseEntity<ApiResponse> deleteOwnAccount(
+	@PostMapping("/api/users/delete/request-otp")
+	public ResponseEntity<ApiResponse> requestAccountDeleteOtp(
 			@RequestHeader("Authorization") String jwt) throws Exception {
 		User user = userService.findUserProfileByJwt(jwt);
-		userService.deleteUser(user.getId());
+
+		VerificationCode existingCode = verificationService.findUsersVerification(user);
+		if (existingCode != null) {
+			verificationService.deleteVerification(existingCode);
+		}
+
+		VerificationCode verificationCode = verificationService.sendVerificationOTP(user, VerificationType.EMAIL);
+
+		centralNotificationService.sendNotification(
+				user,
+				NotificationType.SECURITY,
+				"Account Deletion OTP Request",
+				"Your OTP for deleting your CryptoVault account is: <strong>" + verificationCode.getOtp() + "</strong>. This code will expire in 10 minutes."
+		);
+
 		ApiResponse res = new ApiResponse();
-		res.setMessage("Your account and all associated data have been permanently deleted.");
+		res.setMessage("OTP sent to registered email.");
 		return ResponseEntity.ok(res);
+	}
+
+	@DeleteMapping("/api/users")
+	public ResponseEntity<ApiResponse> deleteOwnAccount(
+			@RequestHeader("Authorization") String jwt,
+			@RequestParam String otp) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+
+		VerificationCode verificationCode = verificationService.findUsersVerification(user);
+		if (verificationCode == null) {
+			throw new UserException("No verification code found. Please request a new OTP first.");
+		}
+
+		if (verificationCode.getAttempts() >= 3) {
+			verificationService.deleteVerification(verificationCode);
+			throw new UserException("Too many failed attempts. OTP has been invalidated.");
+		}
+
+		OtpVerificationResult result = verificationService.verifyOtp(otp, verificationCode);
+		if (result == OtpVerificationResult.SUCCESS) {
+			verificationService.deleteVerification(verificationCode);
+			userService.deleteUser(user.getId());
+			ApiResponse res = new ApiResponse();
+			res.setMessage("Your account and all associated data have been permanently deleted.");
+			return ResponseEntity.ok(res);
+		} else {
+			verificationCode.setAttempts(verificationCode.getAttempts() + 1);
+			verificationRepository.save(verificationCode);
+			if (result == OtpVerificationResult.EXPIRED) {
+				verificationService.deleteVerification(verificationCode);
+				throw new UserException("OTP has expired. Please request a new one.");
+			}
+			throw new UserException("Invalid OTP. Remaining attempts: " + (3 - verificationCode.getAttempts()));
+		}
 	}
 
 	@PostMapping("/api/users/withdrawal-pin")

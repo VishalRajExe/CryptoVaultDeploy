@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ShieldCheck, ShieldAlert, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell, Lock, MonitorSmartphone, Trash2, LogOut } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import { useAuth } from '../../context/AuthContext';
-import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences, updateWithdrawalPin, forgotWithdrawalPin, resetWithdrawalPin, changeWithdrawalPin, deleteAccount } from '../../api/auth';
+import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences, updateWithdrawalPin, forgotWithdrawalPin, resetWithdrawalPin, changeWithdrawalPin, deleteAccount, requestDeleteAccountOtp } from '../../api/auth';
 import { getActiveSessions, revokeSession } from '../../api/sessions';
 import { useToast } from '../../context/ToastContext';
 
@@ -534,16 +534,36 @@ export default function Security() {
 
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
+  const [deleteStep, setDeleteStep] = useState('CONFIRM'); // 'CONFIRM' | 'OTP'
+  const [deleteOtp, setDeleteOtp] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
-  const handleDeleteAccount = async () => {
+  const handleRequestDeleteOtp = async () => {
     if (deleteInput !== 'DELETE') return;
     setDeleteLoading(true);
     setDeleteError('');
     try {
-      await deleteAccount();
-      push('Your account has been deleted.', 'info');
+      await requestDeleteAccountOtp();
+      push('Verification OTP sent to your registered email.', 'success');
+      setDeleteStep('OTP');
+    } catch (err) {
+      setDeleteError(err.friendlyMessage || err.response?.data?.message || 'Failed to request verification code.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deleteOtp || deleteOtp.length < 6) {
+      setDeleteError('Please enter the 6-digit OTP sent to your email.');
+      return;
+    }
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      await deleteAccount(deleteOtp);
+      push('Your account has been permanently deleted.', 'info');
       logout();
     } catch (err) {
       setDeleteError(err.friendlyMessage || err.response?.data?.message || 'Failed to delete account.');
@@ -954,50 +974,100 @@ export default function Security() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0b0e11]/85 backdrop-blur-sm">
           <div className="w-full max-w-md bg-surface-card border border-outline-variant rounded-lg shadow-md overflow-hidden flex flex-col font-hanken">
             <div className="px-6 py-4 border-b border-outline-variant shrink-0">
-              <h3 className="font-bold text-lg text-error">Delete Account</h3>
+              <h3 className="font-bold text-lg text-error">
+                {deleteStep === 'CONFIRM' ? 'Delete Account Request' : 'Verify Account Deletion OTP'}
+              </h3>
             </div>
-            <div className="p-6 space-y-4 font-medium">
-              <p className="text-sm text-on-surface">
-                Are you sure you want to permanently delete your CryptoVault account? This will erase all your wallets, assets, transaction logs, and profile data. <strong>This action cannot be undone.</strong>
-              </p>
-              <div>
-                <label className="text-xs text-muted-strong mb-1.5 block font-bold">Please type <span className="text-error font-mono font-bold">DELETE</span> to confirm:</label>
-                <input
-                  type="text"
-                  value={deleteInput}
-                  onChange={(e) => setDeleteInput(e.target.value)}
-                  placeholder="DELETE"
-                  className="w-full rounded-md border border-outline-variant bg-surface-container-low px-4 py-2.5 text-sm text-on-surface outline-none focus:border-error/50 font-bold placeholder:text-muted-tertiary"
-                  autoFocus
-                />
-              </div>
-              {deleteError && (
-                <div className="text-xs text-error bg-error/10 border border-error/20 rounded-md px-3 py-2">
-                  {deleteError}
+            
+            {deleteStep === 'CONFIRM' ? (
+              <div className="p-6 space-y-4 font-medium">
+                <p className="text-sm text-on-surface">
+                  Are you sure you want to permanently delete your CryptoVault account? This will erase all your wallets, assets, transaction logs, and profile data. <strong>This action cannot be undone.</strong>
+                </p>
+                <div>
+                  <label className="text-xs text-muted-strong mb-1.5 block font-bold">Please type <span className="text-error font-mono font-bold">DELETE</span> to confirm:</label>
+                  <input
+                    type="text"
+                    value={deleteInput}
+                    onChange={(e) => setDeleteInput(e.target.value)}
+                    placeholder="DELETE"
+                    className="w-full rounded-md border border-outline-variant bg-surface-container-low px-4 py-2.5 text-sm text-on-surface outline-none focus:border-error/50 font-bold placeholder:text-muted-tertiary"
+                    autoFocus
+                  />
                 </div>
-              )}
-            </div>
-            <div className="px-6 py-4 border-t border-outline-variant bg-surface-container-low flex justify-end gap-2.5 shrink-0">
-              <button
-                onClick={() => {
-                  setConfirmDeleteOpen(false);
-                  setDeleteInput('');
-                  setDeleteError('');
-                }}
-                disabled={deleteLoading}
-                className="px-4 py-2 rounded-md border border-outline-variant bg-surface-card text-on-surface text-xs font-button font-bold hover:bg-surface-variant transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deleteInput !== 'DELETE' || deleteLoading}
-                className="px-4 py-2 rounded-md bg-error text-white text-xs font-button font-bold hover:bg-error-active transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
-              >
-                {deleteLoading && <Loader2 size={13} className="animate-spin" />}
-                Confirm Delete
-              </button>
-            </div>
+                {deleteError && (
+                  <div className="text-xs text-error bg-error/10 border border-error/20 rounded-md px-3 py-2">
+                    {deleteError}
+                  </div>
+                )}
+                <div className="pt-2 flex justify-end gap-2.5 shrink-0">
+                  <button
+                    onClick={() => {
+                      setConfirmDeleteOpen(false);
+                      setDeleteInput('');
+                      setDeleteError('');
+                    }}
+                    disabled={deleteLoading}
+                    className="px-4 py-2 rounded-md border border-outline-variant bg-surface-card text-on-surface text-xs font-button font-bold hover:bg-surface-variant transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleRequestDeleteOtp}
+                    disabled={deleteInput !== 'DELETE' || deleteLoading}
+                    className="px-4 py-2 rounded-md bg-error text-white text-xs font-button font-bold hover:bg-error-active transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                  >
+                    {deleteLoading && <Loader2 size={13} className="animate-spin" />}
+                    Send Deletion OTP
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 space-y-4 font-medium">
+                <p className="text-sm text-on-surface">
+                  A 6-digit verification code has been sent to your email to authorize the deletion of your account.
+                </p>
+                <div>
+                  <label className="text-xs text-muted-strong mb-1.5 block font-bold">Email OTP</label>
+                  <input
+                    type="text"
+                    value={deleteOtp}
+                    onChange={(e) => setDeleteOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="000000"
+                    className="w-full rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface font-plex outline-none focus:border-error/50 transition-colors text-center tracking-widest text-lg font-bold placeholder:text-muted-tertiary"
+                    autoFocus
+                  />
+                </div>
+                {deleteError && (
+                  <div className="text-xs text-error bg-error/10 border border-error/20 rounded-md px-3 py-2">
+                    {deleteError}
+                  </div>
+                )}
+                <div className="pt-2 flex justify-end gap-2.5 shrink-0">
+                  <button
+                    onClick={() => {
+                      setDeleteStep('CONFIRM');
+                      setDeleteOtp('');
+                      setDeleteError('');
+                    }}
+                    disabled={deleteLoading}
+                    className="px-4 py-2 rounded-md border border-outline-variant bg-surface-card text-on-surface text-xs font-button font-bold hover:bg-surface-variant transition-colors disabled:opacity-50"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={deleteOtp.length !== 6 || deleteLoading}
+                    className="px-4 py-2 rounded-md bg-error text-white text-xs font-button font-bold hover:bg-error-active transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                  >
+                    {deleteLoading && <Loader2 size={13} className="animate-spin" />}
+                    Permanently Delete Account
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
