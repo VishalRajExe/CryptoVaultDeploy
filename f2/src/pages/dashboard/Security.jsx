@@ -906,14 +906,7 @@ export default function Security() {
         </div>
 
         {/* Danger Zone */}
-        <div className="lg:col-span-12 mt-6 bg-surface-container rounded-lg p-6 border border-error/20 flex items-center gap-6 font-hanken">
-          <div className="bg-error/10 p-3 rounded-lg text-error shrink-0 border border-error/25">
-            <Trash2 size={20} />
-          </div>
-          <div className="flex-1">
-            <h4 className="text-sm font-bold text-error">Danger Zone</h4>
-            <p className="text-xs text-muted-strong font-medium mt-0.5">Permanently delete your CryptoVault account and all associated assets, transaction history, and trading data. This action is irreversible.</p>
-          </div>
+        <div className="lg:col-span-12 flex justify-center mt-8 pb-4">
           <button
             onClick={() => setConfirmDeleteOpen(true)}
             className="bg-error/10 text-error border border-error/20 px-6 py-2.5 rounded font-button text-xs font-bold hover:bg-error hover:text-white transition-all shrink-0 shadow-sm"
