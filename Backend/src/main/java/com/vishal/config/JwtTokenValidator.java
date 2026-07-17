@@ -44,8 +44,20 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 						org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
 				if (webApplicationContext != null) {
 					com.vishal.service.UserSessionService userSessionService = webApplicationContext.getBean(com.vishal.service.UserSessionService.class);
-					if (userSessionService != null && !userSessionService.isSessionActive(jwt)) {
-						throw new RuntimeException("Session has been revoked");
+					if (userSessionService != null) {
+						if (!userSessionService.isSessionActive(jwt)) {
+							throw new RuntimeException("Session has been revoked");
+						}
+						// If the session record is missing in the database, auto-create it
+						com.vishal.repository.UserSessionRepository sessionRepo = webApplicationContext.getBean(com.vishal.repository.UserSessionRepository.class);
+						if (sessionRepo != null && sessionRepo.findByJwtToken(jwt).isEmpty()) {
+							com.vishal.repository.UserRepository userRepo = webApplicationContext.getBean(com.vishal.repository.UserRepository.class);
+							String email = String.valueOf(claims.get("email"));
+							com.vishal.model.User user = userRepo.findByEmail(email);
+							if (user != null) {
+								userSessionService.createSession(user, jwt, request.getHeader("User-Agent"), request.getRemoteAddr());
+							}
+						}
 					}
 				}
 

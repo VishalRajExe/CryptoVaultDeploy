@@ -30,4 +30,21 @@ public class UserSession {
     private LocalDateTime lastActive = LocalDateTime.now();
 
     private boolean active = true;
+
+    private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
+
+    @Transient
+    private boolean current;
+
+    public String getDeviceInfo() {
+        return deviceType;
+    }
+
+    public boolean isCurrent() {
+        return current;
+    }
+
+    public void setCurrent(boolean current) {
+        this.current = current;
+    }
 }

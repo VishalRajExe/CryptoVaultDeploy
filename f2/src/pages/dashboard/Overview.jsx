@@ -74,7 +74,7 @@ function StatCard({ icon: Icon, label, value, sub, accent = 'mint', loading }) {
 
 export default function Overview() {
   const { user } = useAuth();
-  const { isReplayMode, activeSession, replayPerformance, replayWallet, replayPortfolio } = useReplay();
+  const { isReplayMode, activeSession, replayPerformance, replayWallet, replayPortfolio, pollSessionData } = useReplay();
   const [wallet, setWallet] = useState(null);
   const [assets, setAssets] = useState([]);
   const [trending, setTrending] = useState([]);
@@ -154,9 +154,22 @@ export default function Overview() {
   // Initial load & Polling
   useEffect(() => {
     fetchData();
-    const interval = setInterval(() => fetchData(true), 30000);
+
+    // Poll overview data every 10s to keep prices fresh
+    const interval = setInterval(() => fetchData(true), 10000);
     return () => clearInterval(interval);
   }, []);
+
+  // Sync virtual portfolio and wallet balance when in replay mode
+  useEffect(() => {
+    if (isReplayMode && activeSession) {
+      pollSessionData();
+      const interval = setInterval(() => {
+        pollSessionData();
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [isReplayMode, activeSession, pollSessionData]);
 
   // Real-time tick effect for portfolio values
   useEffect(() => {
@@ -475,18 +488,18 @@ export default function Overview() {
                 <PieChartIcon size={14} className="text-primary-container" />
                 <span className="font-hanken text-sm font-bold text-on-surface">Vault Allocation</span>
               </div>
-              {totalValue <= 0 ? (
+              {totalValue <= 0 || Number.isNaN(totalValue) ? (
                 <p className="text-xs text-muted-strong font-hanken">Fund your wallet to see an allocation breakdown.</p>
               ) : (
                 (() => {
                   const palette = ['#FCD535', '#02C076', '#E84158', '#4285F4', '#9C27B0', '#FF9800'];
                   const slices = [
-                    { name: 'Cash (wallet)', value: currentWalletBalance },
+                    { name: 'Cash (wallet)', value: currentWalletBalance || 0 },
                     ...(isReplayMode ? replayPortfolio : assets).map((a) => ({
                       name: a.coin?.symbol?.toUpperCase() || 'Asset',
                       value: (a.quantity || 0) * (a.coin?.currentPrice || 0),
                     })),
-                  ].filter((s) => s.value > 0);
+                  ].filter((s) => s.value > 0 && !Number.isNaN(s.value));
                   return (
                     <>
                       <div className="h-[150px]">

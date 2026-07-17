@@ -29,5 +29,7 @@ public interface UserService {
 	 *  number - previously there was no backend support for this at all. */
 	User updateMobile(User user, String mobile) throws UserException;
 
+	void deleteUser(Long userId) throws UserException;
+
 //	void sendPasswordResetEmail(User user);
 }

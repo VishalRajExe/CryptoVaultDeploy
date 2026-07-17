@@ -28,3 +28,6 @@ export const sendGlobalNotification = (type, message, scheduledTime) =>
 
 export const sendUsersNotification = (userIds, type, message, scheduledTime) =>
   client.post('/api/admin/notifications/users', userIds, { params: { type, message, scheduledTime } }).then((r) => r.data);
+
+export const deleteUserAdmin = (userId) =>
+  client.delete(`/api/admin/users/${userId}`).then((r) => r.data);

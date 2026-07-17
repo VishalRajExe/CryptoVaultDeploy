@@ -24,6 +24,17 @@ public class SessionController {
             @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserProfileByJwt(jwt);
         List<UserSession> sessions = userSessionService.getActiveSessions(user.getId());
+        
+        String currentToken = jwt;
+        if (currentToken != null && currentToken.startsWith("Bearer ")) {
+            currentToken = currentToken.substring(7);
+        }
+        
+        for (UserSession s : sessions) {
+            if (s.getJwtToken() != null && s.getJwtToken().equals(currentToken)) {
+                s.setCurrent(true);
+            }
+        }
         return ResponseEntity.ok(sessions);
     }
 

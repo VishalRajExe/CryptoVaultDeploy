@@ -23,6 +23,9 @@ public class WalletController {
     private WalletService walleteService;
 
     @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -155,12 +158,20 @@ public class WalletController {
     public ResponseEntity<Wallet> walletToWalletTransfer(
             @RequestHeader("Authorization") String jwt,
             @PathVariable Long walletId,
-            @RequestBody WalletTransaction req
+            @RequestBody WalletTransaction req,
+            @RequestHeader(value = "X-Withdrawal-Pin", required = false) String pin
     ) throws Exception {
         User senderUser = userService.findUserProfileByJwt(jwt);
 
         if (senderUser.getRole() != USER_ROLE.ROLE_ADMIN && !senderUser.isVerified()) {
             throw new UserException("Email verification required before transferring funds. Please verify your account.");
+        }
+
+        // Check Withdrawal PIN if set
+        if (senderUser.getWithdrawalPin() != null) {
+            if (pin == null || !passwordEncoder.matches(pin, senderUser.getWithdrawalPin())) {
+                throw new UserException("Incorrect withdrawal PIN. Please try again.");
+            }
         }
 
         Wallet reciverWallet = walleteService.findWalletById(walletId);

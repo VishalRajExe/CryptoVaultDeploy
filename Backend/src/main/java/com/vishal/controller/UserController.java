@@ -213,6 +213,16 @@ public class UserController {
 		return ResponseEntity.ok(updated);
 	}
 
+	@DeleteMapping("/api/users")
+	public ResponseEntity<ApiResponse> deleteOwnAccount(
+			@RequestHeader("Authorization") String jwt) throws Exception {
+		User user = userService.findUserProfileByJwt(jwt);
+		userService.deleteUser(user.getId());
+		ApiResponse res = new ApiResponse();
+		res.setMessage("Your account and all associated data have been permanently deleted.");
+		return ResponseEntity.ok(res);
+	}
+
 	@PostMapping("/api/users/withdrawal-pin")
 	public ResponseEntity<ApiResponse> setWithdrawalPin(
 			@RequestHeader("Authorization") String jwt,
@@ -220,7 +230,7 @@ public class UserController {
 		User user = userService.findUserProfileByJwt(jwt);
 		
 		if (pin == null || pin.length() != 4 || !pin.matches("\\d{4}")) {
-			throw new IllegalArgumentException("PIN must be exactly 4 digits.");
+			throw new UserException("PIN must be exactly 4 digits.");
 		}
 		
 		user.setWithdrawalPin(passwordEncoder.encode(pin));
@@ -246,15 +256,15 @@ public class UserController {
 		User user = userService.findUserProfileByJwt(jwt);
 		
 		if (user.getWithdrawalPin() == null) {
-			throw new Exception("Withdrawal PIN is not set yet. Please set it first.");
+			throw new UserException("Withdrawal PIN is not set yet. Please set it first.");
 		}
 		
 		if (!passwordEncoder.matches(currentPin, user.getWithdrawalPin())) {
-			throw new Exception("Incorrect current withdrawal PIN.");
+			throw new UserException("Incorrect current withdrawal PIN.");
 		}
 		
 		if (newPin == null || newPin.length() != 4 || !newPin.matches("\\d{4}")) {
-			throw new IllegalArgumentException("New PIN must be exactly 4 digits.");
+			throw new UserException("New PIN must be exactly 4 digits.");
 		}
 		
 		user.setWithdrawalPin(passwordEncoder.encode(newPin));
@@ -304,17 +314,17 @@ public class UserController {
 		User user = userService.findUserProfileByJwt(jwt);
 		
 		if (newPin == null || newPin.length() != 4 || !newPin.matches("\\d{4}")) {
-			throw new IllegalArgumentException("PIN must be exactly 4 digits.");
+			throw new UserException("PIN must be exactly 4 digits.");
 		}
 		
 		VerificationCode verificationCode = verificationService.findUsersVerification(user);
 		if (verificationCode == null) {
-			throw new Exception("No verification code found. Please request a new OTP first.");
+			throw new UserException("No verification code found. Please request a new OTP first.");
 		}
 		
 		if (verificationCode.getAttempts() >= 3) {
 			verificationService.deleteVerification(verificationCode);
-			throw new Exception("Too many failed attempts. OTP has been invalidated.");
+			throw new UserException("Too many failed attempts. OTP has been invalidated.");
 		}
 		
 		OtpVerificationResult result = verificationService.verifyOtp(otp, verificationCode);
@@ -339,9 +349,9 @@ public class UserController {
 			verificationRepository.save(verificationCode);
 			if (result == OtpVerificationResult.EXPIRED) {
 				verificationService.deleteVerification(verificationCode);
-				throw new Exception("OTP has expired. Please request a new one.");
+				throw new UserException("OTP has expired. Please request a new one.");
 			}
-			throw new Exception("Invalid OTP. Remaining attempts: " + (3 - verificationCode.getAttempts()));
+			throw new UserException("Invalid OTP. Remaining attempts: " + (3 - verificationCode.getAttempts()));
 		}
 	}
 }

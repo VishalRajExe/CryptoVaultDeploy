@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ShieldCheck, ShieldAlert, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell, Lock, MonitorSmartphone, Trash2, LogOut } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import { useAuth } from '../../context/AuthContext';
-import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences, updateWithdrawalPin, forgotWithdrawalPin, resetWithdrawalPin, changeWithdrawalPin } from '../../api/auth';
+import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences, updateWithdrawalPin, forgotWithdrawalPin, resetWithdrawalPin, changeWithdrawalPin, deleteAccount } from '../../api/auth';
 import { getActiveSessions, revokeSession } from '../../api/sessions';
 import { useToast } from '../../context/ToastContext';
 
@@ -50,18 +50,23 @@ function MobileNumberCard({ mobile, onSaved }) {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!value.trim()) {
+    const cleanValue = value.trim();
+    if (!cleanValue) {
       setError('Enter a mobile number.');
+      return;
+    }
+    if (!/^\+?[0-9]{10,15}$/.test(cleanValue)) {
+      setError('Invalid mobile number format. Please enter a valid number (e.g., +917321015054 or 7321015054).');
       return;
     }
     setLoading(true);
     try {
-      await updateMobile(value.trim());
+      await updateMobile(cleanValue);
       push('Mobile number updated.', 'success');
-      onSaved(value.trim());
+      onSaved(cleanValue);
       setEditing(false);
     } catch (err) {
-      setError(err.friendlyMessage || 'Could not update mobile number.');
+      setError(err.friendlyMessage || err.response?.data?.message || 'Could not update mobile number.');
     } finally {
       setLoading(false);
     }
@@ -521,11 +526,31 @@ function ActiveDevicesCard() {
 }
 
 export default function Security() {
-  const { user, refresh, setUser } = useAuth();
+  const { user, refresh, setUser, logout } = useAuth();
   const { push } = useToast();
   const [sendingVerify, setSendingVerify] = useState(false);
   const [verifyStep, setVerifyStep] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
+
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteInput, setDeleteInput] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const handleDeleteAccount = async () => {
+    if (deleteInput !== 'DELETE') return;
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      await deleteAccount();
+      push('Your account has been deleted.', 'info');
+      logout();
+    } catch (err) {
+      setDeleteError(err.friendlyMessage || err.response?.data?.message || 'Failed to delete account.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const [sending2fa, setSending2fa] = useState(false);
   const [twoFaStep, setTwoFaStep] = useState(false);
@@ -895,8 +920,87 @@ export default function Security() {
               <WithdrawalPinCard />
             </motion.div>
           )}
+
+          {/* Danger Zone */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.24 }}
+            className="rounded-lg border border-error/20 bg-surface-card p-6 space-y-4 font-hanken"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-md bg-error/10 text-error flex items-center justify-center shrink-0 border border-error/20">
+                <Trash2 size={17} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-bold text-error block mb-1">Danger Zone</span>
+                <p className="text-xs text-muted-tertiary">
+                  Permanently delete your CryptoVault account and all associated assets, transaction history, and trading data. This action is irreversible.
+                </p>
+                <button
+                  onClick={() => setConfirmDeleteOpen(true)}
+                  className="mt-3.5 px-4 py-2 rounded-md bg-error/10 border border-error/20 text-error text-xs font-button font-bold hover:bg-error/20 transition-colors"
+                >
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
+
+      {/* Confirm Account Deletion Modal */}
+      {confirmDeleteOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0b0e11]/85 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-surface-card border border-outline-variant rounded-lg shadow-md overflow-hidden flex flex-col font-hanken">
+            <div className="px-6 py-4 border-b border-outline-variant shrink-0">
+              <h3 className="font-bold text-lg text-error">Delete Account</h3>
+            </div>
+            <div className="p-6 space-y-4 font-medium">
+              <p className="text-sm text-on-surface">
+                Are you sure you want to permanently delete your CryptoVault account? This will erase all your wallets, assets, transaction logs, and profile data. <strong>This action cannot be undone.</strong>
+              </p>
+              <div>
+                <label className="text-xs text-muted-strong mb-1.5 block font-bold">Please type <span className="text-error font-mono font-bold">DELETE</span> to confirm:</label>
+                <input
+                  type="text"
+                  value={deleteInput}
+                  onChange={(e) => setDeleteInput(e.target.value)}
+                  placeholder="DELETE"
+                  className="w-full rounded-md border border-outline-variant bg-surface-container-low px-4 py-2.5 text-sm text-on-surface outline-none focus:border-error/50 font-bold placeholder:text-muted-tertiary"
+                  autoFocus
+                />
+              </div>
+              {deleteError && (
+                <div className="text-xs text-error bg-error/10 border border-error/20 rounded-md px-3 py-2">
+                  {deleteError}
+                </div>
+              )}
+            </div>
+            <div className="px-6 py-4 border-t border-outline-variant bg-surface-container-low flex justify-end gap-2.5 shrink-0">
+              <button
+                onClick={() => {
+                  setConfirmDeleteOpen(false);
+                  setDeleteInput('');
+                  setDeleteError('');
+                }}
+                disabled={deleteLoading}
+                className="px-4 py-2 rounded-md border border-outline-variant bg-surface-card text-on-surface text-xs font-button font-bold hover:bg-surface-variant transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteInput !== 'DELETE' || deleteLoading}
+                className="px-4 py-2 rounded-md bg-error text-white text-xs font-button font-bold hover:bg-error-active transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+              >
+                {deleteLoading && <Loader2 size={13} className="animate-spin" />}
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

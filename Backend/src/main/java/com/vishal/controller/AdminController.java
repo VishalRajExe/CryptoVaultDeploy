@@ -53,9 +53,20 @@ public class AdminController {
         return new ResponseEntity<>(adminService.getStats(), HttpStatus.OK);
     }
 
+    @Autowired
+    private com.vishal.service.UserService userService;
+
     /** Full "who did what" activity feed across every user on the platform. */
     @GetMapping("/api/admin/activity")
     public ResponseEntity<List<Notification>> getAllActivity() {
         return new ResponseEntity<>(notificationService.getAll(), HttpStatus.OK);
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/api/admin/users/{userId}")
+    public ResponseEntity<com.vishal.response.ApiResponse> deleteUser(@PathVariable Long userId) throws Exception {
+        userService.deleteUser(userId);
+        com.vishal.response.ApiResponse res = new com.vishal.response.ApiResponse();
+        res.setMessage("User and all associated data deleted successfully.");
+        return ResponseEntity.ok(res);
     }
 }

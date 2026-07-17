@@ -9,9 +9,14 @@ export const getWalletTransactions = () =>
 export const depositMoney = (amount) =>
   client.put(`/api/wallet/deposit/amount/${amount}`).then((r) => r.data);
 
-export const transferToWallet = (walletId, payload) =>
+export const transferToWallet = (walletId, payload, pin) => {
   // payload: { amount, purpose }
-  client.put(`/api/wallet/${walletId}/transfer`, payload).then((r) => r.data);
+  const config = {};
+  if (pin) {
+    config.headers = { 'X-Withdrawal-Pin': pin };
+  }
+  return client.put(`/api/wallet/${walletId}/transfer`, payload, config).then((r) => r.data);
+};
 
 export const payOrder = (orderId) =>
   client.put(`/api/wallet/order/${orderId}/pay`).then((r) => r.data);

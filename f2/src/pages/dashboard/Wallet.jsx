@@ -13,6 +13,7 @@ import {
   Check,
 } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
+import { useAuth } from '../../context/AuthContext';
 import {
   getWallet,
   getWalletTransactions,
@@ -462,10 +463,11 @@ function BankDetailsModal({ onClose, onDone, existing }) {
   );
 }
 
-function TransferModal({ onClose, onDone, myWalletId }) {
+function TransferModal({ onClose, onDone, myWalletId, user }) {
   const [amount, setAmount] = useState('');
   const [walletId, setWalletId] = useState('');
   const [purpose, setPurpose] = useState('');
+  const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
@@ -500,10 +502,14 @@ function TransferModal({ onClose, onDone, myWalletId }) {
       setError('You cannot transfer to your own wallet.');
       return;
     }
+    if (user?.hasWithdrawalPin && (!pin || pin.length !== 4)) {
+      setError('Please enter your 4-digit withdrawal PIN.');
+      return;
+    }
     submittingRef.current = true;
     setLoading(true);
     try {
-      await transferToWallet(targetId, { amount: amt, purpose: purpose || 'Wallet transfer' });
+      await transferToWallet(targetId, { amount: amt, purpose: purpose || 'Wallet transfer' }, pin || undefined);
       push(`${formatCurrency(amt)} sent to wallet #${targetId}.`, 'success');
       onDone();
       onClose();
@@ -572,6 +578,21 @@ function TransferModal({ onClose, onDone, myWalletId }) {
             className="w-full rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none focus:border-primary-container placeholder:text-muted-tertiary"
           />
         </div>
+        {user?.hasWithdrawalPin && (
+          <div>
+            <label className="text-xs text-muted-strong mb-1.5 block">Withdrawal PIN</label>
+            <input
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="••••"
+              className="w-full rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface font-plex outline-none focus:border-primary-container transition-colors"
+              required
+            />
+          </div>
+        )}
 
         {error && (
           <div className="text-sm text-error bg-error/10 border border-error/20 rounded-lg px-3.5 py-2.5">
@@ -591,6 +612,7 @@ function TransferModal({ onClose, onDone, myWalletId }) {
 }
 
 export default function Wallet() {
+  const { user } = useAuth();
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [withdrawals, setWithdrawals] = useState([]);
@@ -820,7 +842,7 @@ export default function Wallet() {
         <WithdrawModal onClose={() => setModal(null)} onDone={loadAll} hasPaymentDetails={!!paymentDetails} />
       )}
       {modal === 'transfer' && (
-        <TransferModal onClose={() => setModal(null)} onDone={loadAll} myWalletId={wallet?.id} />
+        <TransferModal onClose={() => setModal(null)} onDone={loadAll} myWalletId={wallet?.id} user={user} />
       )}
       {modal === 'bank' && (
         <BankDetailsModal onClose={() => setModal(null)} onDone={loadAll} existing={paymentDetails} />

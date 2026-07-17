@@ -156,7 +156,8 @@ export const ReplayProvider = ({ children }) => {
     loadSession,
     exitReplayMode,
     executeControl,
-    placeVirtualOrder
+    placeVirtualOrder,
+    pollSessionData
   };
 
   return <ReplayContext.Provider value={value}>{children}</ReplayContext.Provider>;
