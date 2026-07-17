@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, ShieldAlert, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell, Lock, MonitorSmartphone, Trash2, LogOut } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Mail, Loader2, CheckCircle2, KeyRound, Smartphone, Pencil, Bell, Lock, MonitorSmartphone, Trash2, LogOut, ChevronRight } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import { useAuth } from '../../context/AuthContext';
 import { sendVerificationOtp, verifyAccountOtp, enableTwoFactor, updateMobile, getNotificationPreferences, updateNotificationPreferences, updateWithdrawalPin, forgotWithdrawalPin, resetWithdrawalPin, changeWithdrawalPin, deleteAccount, requestDeleteAccountOtp } from '../../api/auth';
@@ -74,25 +74,25 @@ function MobileNumberCard({ mobile, onSaved }) {
 
   if (editing) {
     return (
-      <div className="rounded-lg border border-outline-variant bg-surface-card p-5 font-hanken">
-        <div className="flex items-start gap-3 mb-3">
-          <Smartphone size={16} className="text-muted-strong mt-0.5 shrink-0" />
-          <div className="text-sm text-on-surface font-bold">Mobile number</div>
+      <div className="bg-surface-card rounded-xl p-4 border border-surface-container-highest font-hanken">
+        <div className="flex items-center gap-2 mb-2">
+          <Smartphone size={16} className="text-muted-strong shrink-0" />
+          <div className="text-[11px] font-bold text-muted-strong">Mobile number</div>
         </div>
-        <form onSubmit={submit} className="flex items-center gap-2">
+        <form onSubmit={submit} className="flex items-center gap-1.5">
           <input
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder="+1 555 123 4567"
             autoFocus
-            className="flex-1 min-w-0 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface outline-none focus:border-primary-container placeholder:text-muted-tertiary"
+            className="flex-1 min-w-0 rounded-md border border-outline-variant bg-surface-container-low px-2.5 py-1.5 text-xs text-on-surface outline-none focus:border-primary-container placeholder:text-muted-tertiary"
           />
           <button
             type="submit"
             disabled={loading}
-            className="px-3.5 py-2 rounded-md bg-primary-container text-on-primary-container text-xs font-button font-bold hover:bg-primary-active transition-colors disabled:opacity-60 shrink-0"
+            className="px-2.5 py-1.5 rounded-md bg-primary-container text-on-primary-container text-[11px] font-button font-bold hover:bg-primary-active transition-colors disabled:opacity-60 shrink-0"
           >
-            {loading ? <Loader2 size={14} className="animate-spin" /> : 'Save'}
+            {loading ? <Loader2 size={12} className="animate-spin" /> : 'Save'}
           </button>
           <button
             type="button"
@@ -101,26 +101,26 @@ function MobileNumberCard({ mobile, onSaved }) {
               setValue(mobile || '');
               setError('');
             }}
-            className="text-xs text-muted-strong hover:text-muted-tertiary shrink-0 font-bold"
+            className="text-[11px] text-muted-strong hover:text-muted-tertiary shrink-0 font-bold px-1"
           >
             Cancel
           </button>
         </form>
-        {error && <p className="text-xs text-error mt-2 font-semibold">{error}</p>}
+        {error && <p className="text-[10px] text-error mt-1.5 font-semibold">{error}</p>}
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-outline-variant bg-surface-card p-5 flex items-start gap-3 font-hanken">
-      <Smartphone size={16} className="text-muted-strong mt-0.5 shrink-0" />
+    <div className="bg-surface-card rounded-xl p-4 border border-surface-container-highest flex items-center gap-3 font-hanken">
+      <Smartphone size={18} className="text-muted-strong shrink-0" />
       <div className="flex-1 min-w-0">
-        <div className="text-sm text-on-surface font-bold mb-0.5">Mobile number</div>
-        <p className="text-xs text-muted-tertiary">{mobile || 'Not added yet'}</p>
+        <p className="text-[11px] font-bold text-muted-strong truncate">Mobile number</p>
+        <p className="font-mono text-[10px] text-muted-tertiary truncate">{mobile || 'Not added yet'}</p>
       </div>
       <button
         onClick={() => setEditing(true)}
-        className="shrink-0 text-muted-strong hover:text-on-surface p-1"
+        className="shrink-0 text-muted-strong hover:text-on-surface p-1 transition-colors"
         aria-label="Edit mobile number"
       >
         <Pencil size={14} />
@@ -237,221 +237,221 @@ function WithdrawalPinCard() {
   const isPinSet = !!user?.hasWithdrawalPin;
 
   return (
-    <div className="rounded-lg border border-outline-variant bg-surface-card p-6 font-hanken">
+    <div className="bg-surface-container rounded-lg p-6 border border-on-surface/10 space-y-6 flex-1 font-hanken">
       <div className="flex items-start gap-4">
-        <div className="w-10 h-10 rounded-md bg-primary-container/10 text-primary-container flex items-center justify-center shrink-0">
-          <Lock size={17} />
+        <div className="bg-surface-container-highest p-3 rounded-lg text-primary-active shrink-0">
+          <Lock size={18} />
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-bold text-on-surface block">Withdrawal PIN</span>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-bold text-on-surface">Withdrawal PIN</h4>
             {isPinSet && (
-              <span className="flex items-center gap-1 text-[11px] text-secondary bg-secondary/10 px-2.5 py-0.5 rounded border border-secondary/20 font-bold">
-                <CheckCircle2 size={11} /> Active
+              <span className="px-2 py-[2px] bg-secondary/10 border border-secondary/20 rounded-full text-[10px] font-bold text-secondary uppercase flex items-center gap-1">
+                <CheckCircle2 size={12} className="fill-secondary/10" /> Active
               </span>
             )}
           </div>
-          <p className="text-xs text-muted-tertiary mb-4">
+          <p className="text-[11px] text-muted-strong font-medium mt-1">
             {isPinSet 
               ? 'Your account is secured with a withdrawal PIN. This PIN is required for all withdrawals.' 
               : 'Set a 4-digit PIN that will be required for every withdrawal request.'}
           </p>
-          
-          {resetStep === 'NORMAL' && (
-            <div className="space-y-3">
-              {isPinSet ? (
-                <div className="flex flex-wrap gap-2.5 font-button font-bold">
-                  <button
-                    type="button"
-                    onClick={() => setResetStep('CHANGE_PIN_FORM')}
-                    className="px-4 py-2 rounded-md bg-surface-container-low border border-outline-variant text-on-surface text-xs hover:bg-surface-variant transition-colors"
-                  >
-                    Change PIN
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleForgotPin}
-                    disabled={loading}
-                    className="px-4 py-2 rounded-md bg-primary-container/10 border border-primary-container/20 text-primary-container text-xs hover:bg-primary-container/20 transition-colors disabled:opacity-60 inline-flex items-center gap-1.5"
-                  >
-                    {loading && <Loader2 size={12} className="animate-spin" />}
-                    Forgot PIN?
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSet} className="flex flex-col sm:flex-row gap-2 max-w-sm">
-                  <input
-                    type="password"
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    inputMode="numeric"
-                    maxLength={4}
-                    placeholder="New PIN"
-                    className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
-                  />
-                  <input
-                    type="password"
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    inputMode="numeric"
-                    maxLength={4}
-                    placeholder="Confirm PIN"
-                    className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
-                  />
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-4 py-2 rounded-md bg-primary-container/20 border border-primary-container/30 text-primary-container text-xs font-button font-bold hover:bg-primary-container/30 transition-colors disabled:opacity-60 inline-flex items-center gap-2 shrink-0 shadow-sm"
-                  >
-                    {loading ? <Loader2 size={13} className="animate-spin" /> : 'Set PIN'}
-                  </button>
-                </form>
-              )}
-            </div>
-          )}
-
-          {resetStep === 'CHANGE_PIN_FORM' && (
-            <form onSubmit={handleChangePin} className="space-y-3 max-w-sm">
-              <input
-                type="password"
-                value={currentPin}
-                onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                inputMode="numeric"
-                maxLength={4}
-                placeholder="Current PIN"
-                className="w-full rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
-                autoFocus
-              />
-              <div className="flex gap-2">
-                <input
-                  type="password"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  inputMode="numeric"
-                  maxLength={4}
-                  placeholder="New PIN"
-                  className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
-                />
-                <input
-                  type="password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  inputMode="numeric"
-                  maxLength={4}
-                  placeholder="Confirm New PIN"
-                  className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
-                />
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-md bg-primary-container/20 border border-primary-container/30 text-primary-container text-xs font-button font-bold hover:bg-primary-container/30 transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
-                >
-                  {loading && <Loader2 size={13} className="animate-spin" />}
-                  Change PIN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setResetStep('NORMAL');
-                    setPin('');
-                    setConfirm('');
-                    setCurrentPin('');
-                  }}
-                  className="px-4 py-2 rounded-md bg-surface-container-low border border-outline-variant text-on-surface text-xs font-button font-bold hover:bg-surface-variant transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
-
-          {resetStep === 'FORGOT_OTP' && (
-            <form onSubmit={handleVerifyOtp} className="space-y-3 max-w-sm">
-              <p className="text-xs text-muted-tertiary font-medium font-hanken">Enter the 6-digit OTP sent to your registered email to reset your PIN.</p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder="Enter OTP"
-                  className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
-                  autoFocus
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-4 py-2 rounded-md bg-primary-container/20 border border-primary-container/30 text-primary-container text-xs font-button font-bold hover:bg-primary-container/30 transition-colors disabled:opacity-60 inline-flex items-center gap-2 shrink-0"
-                >
-                  {loading ? <Loader2 size={13} className="animate-spin" /> : 'Verify OTP'}
-                </button>
-              </div>
+        </div>
+      </div>
+      
+      {resetStep === 'NORMAL' && (
+        <div className="space-y-3">
+          {isPinSet ? (
+            <div className="flex gap-4">
               <button
                 type="button"
-                onClick={() => {
-                  setResetStep('NORMAL');
-                  setOtp('');
-                }}
-                className="text-xs text-muted-strong hover:text-on-surface transition-colors font-bold block"
+                onClick={() => setResetStep('CHANGE_PIN_FORM')}
+                className="flex-1 bg-surface-container-highest text-on-surface px-4 py-2.5 rounded font-button text-xs font-bold hover:bg-surface-bright transition-all border border-outline-variant"
               >
-                Cancel
+                Change PIN
+              </button>
+              <button
+                type="button"
+                onClick={handleForgotPin}
+                disabled={loading}
+                className="flex-1 bg-primary-container/10 text-primary-container border border-primary-container/20 px-4 py-2.5 rounded font-button text-xs font-bold hover:bg-primary-container hover:text-on-primary transition-all inline-flex items-center justify-center gap-1.5"
+              >
+                {loading && <Loader2 size={12} className="animate-spin" />}
+                Forgot PIN?
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSet} className="flex gap-2 w-full">
+              <input
+                type="password"
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="New PIN"
+                className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
+              />
+              <input
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="Confirm PIN"
+                className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 rounded-md bg-primary-container/20 border border-primary-container/30 text-primary-container text-xs font-button font-bold hover:bg-primary-container/30 transition-colors disabled:opacity-60 inline-flex items-center gap-2 shrink-0 shadow-sm"
+              >
+                {loading ? <Loader2 size={13} className="animate-spin" /> : 'Set PIN'}
               </button>
             </form>
           )}
-
-          {resetStep === 'RESET_FORM' && (
-            <form onSubmit={handleResetPin} className="space-y-3 max-w-sm">
-              <p className="text-xs text-muted-tertiary font-medium font-hanken">Verification successful. Set your new 4-digit PIN.</p>
-              <div className="flex gap-2">
-                <input
-                  type="password"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  inputMode="numeric"
-                  maxLength={4}
-                  placeholder="New PIN"
-                  className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
-                  autoFocus
-                />
-                <input
-                  type="password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  inputMode="numeric"
-                  maxLength={4}
-                  placeholder="Confirm PIN"
-                  className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
-                />
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-md bg-primary-container/20 border border-primary-container/30 text-primary-container text-xs font-button font-bold hover:bg-primary-container/30 transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
-                >
-                  {loading && <Loader2 size={13} className="animate-spin" />}
-                  Reset PIN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setResetStep('NORMAL');
-                    setPin('');
-                    setConfirm('');
-                    setOtp('');
-                  }}
-                  className="px-4 py-2 rounded-md bg-surface-container-low border border-outline-variant text-on-surface text-xs font-button font-bold hover:bg-surface-variant transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
         </div>
-      </div>
+      )}
+
+      {resetStep === 'CHANGE_PIN_FORM' && (
+        <form onSubmit={handleChangePin} className="space-y-3 w-full">
+          <input
+            type="password"
+            value={currentPin}
+            onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            inputMode="numeric"
+            maxLength={4}
+            placeholder="Current PIN"
+            className="w-full rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
+            autoFocus
+          />
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="New PIN"
+              className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
+            />
+            <input
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="Confirm New PIN"
+              className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2 rounded-md bg-primary-container/20 border border-primary-container/30 text-primary-container text-xs font-button font-bold hover:bg-primary-container/30 transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
+            >
+              {loading && <Loader2 size={13} className="animate-spin" />}
+              Change PIN
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setResetStep('NORMAL');
+                setPin('');
+                setConfirm('');
+                setCurrentPin('');
+              }}
+              className="px-4 py-2 rounded-md bg-surface-container-low border border-outline-variant text-on-surface text-xs font-button font-bold hover:bg-surface-variant transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {resetStep === 'FORGOT_OTP' && (
+        <form onSubmit={handleVerifyOtp} className="space-y-3 w-full">
+          <p className="text-xs text-muted-tertiary font-medium">Enter the 6-digit OTP sent to your registered email to reset your PIN.</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              inputMode="numeric"
+              maxLength={6}
+              placeholder="Enter OTP"
+              className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
+              autoFocus
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 rounded-md bg-primary-container/20 border border-primary-container/30 text-primary-container text-xs font-button font-bold hover:bg-primary-container/30 transition-colors disabled:opacity-60 inline-flex items-center gap-2 shrink-0"
+            >
+              {loading ? <Loader2 size={13} className="animate-spin" /> : 'Verify OTP'}
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setResetStep('NORMAL');
+              setOtp('');
+            }}
+            className="text-xs text-muted-strong hover:text-on-surface transition-colors font-bold block"
+          >
+            Cancel
+          </button>
+        </form>
+      )}
+
+      {resetStep === 'RESET_FORM' && (
+        <form onSubmit={handleResetPin} className="space-y-3 w-full">
+          <p className="text-xs text-muted-tertiary font-medium">Verification successful. Set your new 4-digit PIN.</p>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="New PIN"
+              className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
+              autoFocus
+            />
+            <input
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="Confirm PIN"
+              className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface font-plex outline-none focus:border-primary-container placeholder:text-muted-tertiary"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2 rounded-md bg-primary-container/20 border border-primary-container/30 text-primary-container text-xs font-button font-bold hover:bg-primary-container/30 transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
+            >
+              {loading && <Loader2 size={13} className="animate-spin" />}
+              Reset PIN
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setResetStep('NORMAL');
+                setPin('');
+                setConfirm('');
+                setOtp('');
+              }}
+              className="px-4 py-2 rounded-md bg-surface-container-low border border-outline-variant text-on-surface text-xs font-button font-bold hover:bg-surface-variant transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
@@ -479,14 +479,14 @@ function ActiveDevicesCard() {
   };
 
   return (
-    <div className="rounded-lg border border-outline-variant bg-surface-card p-6 font-hanken">
+    <div className="bg-surface-container rounded-lg p-6 border border-on-surface/10 font-hanken">
       <div className="flex items-start gap-4">
-        <div className="w-10 h-10 rounded-md bg-primary-container/10 text-primary-container flex items-center justify-center shrink-0">
-          <MonitorSmartphone size={17} />
+        <div className="bg-surface-container-highest p-3 rounded-lg text-info shrink-0">
+          <MonitorSmartphone size={18} />
         </div>
         <div className="flex-1 min-w-0">
           <span className="text-sm font-bold text-on-surface block mb-1">Active Devices</span>
-          <p className="text-xs text-muted-tertiary mb-4">These are your current active login sessions. Revoke any you don't recognise.</p>
+          <p className="text-xs text-muted-strong font-medium mb-4">These are your current active login sessions. Revoke any you don't recognise.</p>
           {loading ? (
             <div className="flex items-center py-4">
               <Loader2 className="animate-spin text-primary-container" size={18} />
@@ -696,55 +696,50 @@ export default function Security() {
 
   return (
     <div className="pb-16 font-hanken">
-      <PageHeader eyebrow="Account" title="Security" description="Verify your identity and harden how you sign in." />
+      <header className="mb-6 px-4 sm:px-8 font-hanken">
+        <span className="text-[10px] uppercase font-bold text-secondary-fixed tracking-wider">Account</span>
+        <h1 className="text-display-md font-bold text-on-surface mt-1">Security</h1>
+        <p className="text-sm text-muted-strong font-medium mt-1">Verify your identity and harden how you sign in.</p>
+      </header>
 
-      <div className="px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column */}
-        <div className="space-y-6">
+        <div className="lg:col-span-6 space-y-6">
           {/* Profile card */}
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-lg border border-outline-variant bg-surface-card p-6 flex items-center gap-4"
-          >
-            <div className="w-14 h-14 rounded-full bg-primary-container/10 text-primary-container flex items-center justify-center font-bold text-lg shrink-0 border border-outline-variant">
+          <div className="bg-surface-container rounded-lg p-6 border border-on-surface/10 flex items-center gap-6">
+            <div className="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-primary-active font-bold text-2xl shrink-0">
               {(user?.fullName || user?.email || 'U').slice(0, 1).toUpperCase()}
             </div>
-            <div>
-              <div className="text-base font-bold text-on-surface">{user?.fullName || 'Trader'}</div>
-              <div className="text-sm text-muted-strong">{user?.email}</div>
-              {user?.mobile && <div className="text-xs text-muted-tertiary mt-0.5 font-plex font-semibold">{user.mobile}</div>}
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-on-surface">{user?.fullName || 'Trader'}</h3>
+              <p className="text-sm text-muted-strong mt-0.5">{user?.email}</p>
+              {user?.mobile && <p className="font-mono text-xs text-muted-strong tracking-wider mt-0.5">{user.mobile}</p>}
             </div>
-          </motion.div>
+          </div>
 
-          {/* Email verification - Hidden for Admin */}
-          {user?.role !== 'ROLE_ADMIN' && (
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.06 }}
-              className="rounded-lg border border-outline-variant bg-surface-card p-6"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-md bg-secondary/10 text-secondary flex items-center justify-center shrink-0 border border-secondary/20">
-                  <Mail size={17} />
+          <div className="space-y-6">
+            {/* Email verification - Hidden for Admin */}
+            {user?.role !== 'ROLE_ADMIN' && (
+              <div className="bg-surface-container rounded-lg p-6 border border-on-surface/10 flex items-start gap-4">
+                <div className="bg-surface-container-highest p-3 rounded-lg text-secondary shrink-0">
+                  <Mail size={20} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 font-hanken">
-                    <span className="text-sm font-bold text-on-surface">Email verification</span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="text-sm font-bold text-on-surface">Email verification</h4>
                     {isEmailVerified && (
-                      <span className="flex items-center gap-1 text-[11px] text-secondary bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20 font-bold">
-                        <CheckCircle2 size={11} /> Verified
+                      <span className="px-2 py-[2px] bg-secondary/10 border border-secondary/20 rounded-full text-[10px] font-bold text-secondary uppercase flex items-center gap-1">
+                        <CheckCircle2 size={12} className="fill-secondary/10" /> Verified
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-muted-tertiary">Confirm ownership of {user?.email} to unlock full account access.</p>
+                  <p className="text-xs text-muted-strong font-medium">Confirm ownership of {user?.email} to unlock full account access.</p>
 
                   {!isEmailVerified && !verifyStep && (
                     <button
                       onClick={handleSendVerify}
                       disabled={sendingVerify}
-                      className="mt-3 px-4 py-2 rounded-md bg-primary-container text-on-primary-container text-xs font-button font-bold hover:bg-primary-active transition-colors disabled:opacity-60 inline-flex items-center gap-2 shadow-sm"
+                      className="mt-3.5 px-4 py-2 rounded-md bg-primary-container text-on-primary-container text-xs font-button font-bold hover:bg-primary-active transition-colors disabled:opacity-60 inline-flex items-center gap-2 shadow-sm"
                     >
                       {sendingVerify ? <Loader2 size={14} className="animate-spin" /> : 'Send verification code'}
                     </button>
@@ -754,31 +749,24 @@ export default function Security() {
                   )}
                 </div>
               </div>
-            </motion.div>
-          )}
+            )}
 
-          {/* 2FA - Hidden for Admin */}
-          {user?.role !== 'ROLE_ADMIN' && (
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.12 }}
-              className="rounded-lg border border-outline-variant bg-surface-card p-6"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-md bg-primary-container/10 text-primary-container flex items-center justify-center shrink-0 border border-outline-variant">
-                  <ShieldCheck size={17} />
+            {/* 2FA - Hidden for Admin */}
+            {user?.role !== 'ROLE_ADMIN' && (
+              <div className="bg-surface-container rounded-lg p-6 border border-on-surface/10 flex items-start gap-4">
+                <div className="bg-surface-container-highest p-3 rounded-lg text-primary-active shrink-0">
+                  <ShieldCheck size={20} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-bold text-on-surface">Two-factor authentication</span>
+                    <h4 className="text-sm font-bold text-on-surface">Two-factor authentication</h4>
                     {is2faEnabled && (
-                      <span className="flex items-center gap-1 text-[11px] text-secondary bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20 font-bold">
-                        <CheckCircle2 size={11} /> Enabled
+                      <span className="px-2 py-[2px] bg-secondary/10 border border-secondary/20 rounded-full text-[10px] font-bold text-secondary uppercase flex items-center gap-1">
+                        <CheckCircle2 size={12} className="fill-secondary/10" /> Enabled
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-muted-tertiary">
+                  <p className="text-xs text-muted-strong font-medium">
                     Require a one-time email code on every sign-in, in addition to your password.
                   </p>
 
@@ -786,7 +774,7 @@ export default function Security() {
                     <button
                       onClick={handleSend2fa}
                       disabled={sending2fa}
-                      className="mt-3 px-4 py-2 rounded-md bg-surface-container-low border border-outline-variant text-primary-container text-xs font-button font-bold hover:bg-surface-variant transition-colors disabled:opacity-60 inline-flex items-center gap-2 shadow-sm"
+                      className="mt-3.5 px-4 py-2 rounded-md bg-surface-container-low border border-outline-variant text-primary-container text-xs font-button font-bold hover:bg-surface-variant transition-colors disabled:opacity-60 inline-flex items-center gap-2 shadow-sm"
                     >
                       {sending2fa ? <Loader2 size={14} className="animate-spin" /> : 'Enable 2FA'}
                     </button>
@@ -796,178 +784,143 @@ export default function Security() {
                   )}
                 </div>
               </div>
-            </motion.div>
-          )}
+            )}
 
-          {/* Active Devices */}
-          <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}>
+            {/* Active Devices */}
             <ActiveDevicesCard />
-          </motion.div>
+          </div>
 
           {/* Security Help & Best Practices Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.28 }}
-            className="rounded-lg border border-outline-variant bg-surface-card p-6 space-y-4 font-hanken"
-          >
+          <div className="rounded-lg border border-on-surface/10 bg-surface-container p-6 space-y-6 font-hanken">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-md bg-secondary/10 text-secondary flex items-center justify-center shrink-0 border border-secondary/20">
-                <ShieldAlert size={17} />
+              <div className="bg-surface-container-highest p-2 rounded text-secondary-fixed shrink-0">
+                <ShieldAlert size={18} />
               </div>
               <div>
-                <span className="text-sm font-bold text-on-surface block">Security Help & Tips</span>
-                <span className="text-[10px] text-muted-strong font-bold">Best practices for keeping your assets safe</span>
+                <h3 className="text-sm font-bold text-on-surface">Security Help & Tips</h3>
+                <span className="text-[10px] text-muted-strong font-bold mt-0.5 block">Best practices for keeping your assets safe</span>
               </div>
             </div>
 
-            <div className="space-y-3.5 divide-y divide-outline-variant/40">
-              <div className="pt-0 flex gap-3">
-                <div className="text-xs font-plex text-secondary mt-0.5 shrink-0 font-bold">01</div>
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-on-surface">Enable 2FA Protection</div>
-                  <p className="text-[10px] text-muted-tertiary leading-relaxed mt-0.5 font-medium">Require an email OTP challenge in addition to your username and password upon signing in.</p>
+            <div className="space-y-4">
+              <div className="flex gap-4 py-2 border-b border-on-surface/5">
+                <span className="font-mono text-sm text-secondary font-bold shrink-0 mt-0.5">01</span>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-on-surface">Enable 2FA Protection</p>
+                  <p className="text-[11px] text-muted-strong mt-0.5">Require an email OTP challenge in addition to your username and password upon signing in.</p>
                 </div>
               </div>
-              <div className="pt-3 flex gap-3">
-                <div className="text-xs font-plex text-secondary mt-0.5 shrink-0 font-bold">02</div>
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-on-surface">Keep PIN Private</div>
-                  <p className="text-[10px] text-muted-tertiary leading-relaxed mt-0.5 font-medium">Your 4-digit withdrawal PIN is encrypted. CryptoVault representatives will never ask you for your PIN.</p>
+              <div className="flex gap-4 py-2 border-b border-on-surface/5">
+                <span className="font-mono text-sm text-secondary font-bold shrink-0 mt-0.5">02</span>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-on-surface">Keep PIN Private</p>
+                  <p className="text-[11px] text-muted-strong mt-0.5">Your 4 digit withdrawal PIN is encrypted. CryptoVault representatives will never ask you for your PIN.</p>
                 </div>
               </div>
-              <div className="pt-3 flex gap-3">
-                <div className="text-xs font-plex text-secondary mt-0.5 shrink-0 font-bold">03</div>
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-on-surface">Audit Device Sessions</div>
-                  <p className="text-[10px] text-muted-tertiary leading-relaxed mt-0.5 font-medium">Regularly check the active devices list. If you see an unrecognized location or device, revoke access immediately.</p>
-                </div>
-              </div>
-              <div className="pt-3 flex gap-3">
-                <div className="text-xs font-plex text-secondary mt-0.5 shrink-0 font-bold">04</div>
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-on-surface">Beware of Phishing</div>
-                  <p className="text-[10px] text-muted-tertiary leading-relaxed mt-0.5 font-medium">Always verify the browser URL is the official site before typing your credentials. We will never ask for passwords via email.</p>
+              <div className="flex gap-4 py-2">
+                <span className="font-mono text-sm text-secondary font-bold shrink-0 mt-0.5">03</span>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-on-surface">Audit Device Sessions</p>
+                  <p className="text-[11px] text-muted-strong mt-0.5">Regularly check the active devices list. If you see an unrecognized location or device, revoke access immediately.</p>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Right Column */}
-        <div className="space-y-6">
+        <div className="lg:col-span-6 space-y-6 flex flex-col h-full">
           {/* Notification Preferences */}
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="rounded-lg border border-outline-variant bg-surface-card p-6"
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-md bg-primary-container/10 text-primary-container flex items-center justify-center shrink-0 border border-outline-variant">
-                <Bell size={17} />
+          <div className="bg-surface-card rounded-xl p-6 border border-surface-container-highest font-hanken">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-surface-elevated p-2 rounded-lg text-secondary-fixed shrink-0">
+                <Bell size={18} className="text-secondary" />
               </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-bold text-on-surface">Email Notifications</h4>
+                <p className="text-[11px] text-muted-strong mt-0.5">Choose the emails you want to receive. Security notifications cannot be disabled.</p>
+              </div>
+            </div>
+
+            {prefLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="animate-spin text-primary-container" size={18} />
+              </div>
+            ) : (
+              <div className="space-y-4 w-full">
+                {[
+                  { key: 'trading', label: 'Trading Notifications', desc: 'Alerts on buy, sell and limit orders.' },
+                  { key: 'wallet', label: 'Wallet Transactions', desc: 'Updates on deposits, withdrawals and transfers.' },
+                  { key: 'replay', label: 'Replay Session Summary', desc: 'Summaries and outcomes of market replay sessions.' },
+                  { key: 'subscription', label: 'Subscription & Billings', desc: 'Inconfirmations and billing history.' },
+                  { key: 'marketing', label: 'Marketing Emails', desc: 'Exclusive offers, updates and digests.' },
+                  { key: 'security', label: 'Security & Auth (Required)', desc: 'Password resets, device logins, and 2FA.', required: true }
+                ].map(({ key, label, desc, required }) => (
+                  <div key={key} className={`flex items-center justify-between gap-4 py-3 border-b border-surface-container-highest ${key === 'security' ? 'opacity-65 border-b-0 pt-4' : ''}`}>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-bold text-on-surface block">{label}</span>
+                      <span className="text-[11px] text-muted-strong font-medium mt-0.5">{desc}</span>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={required}
+                      onClick={() => handleTogglePref(key)}
+                      className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        preferences[key] ? 'bg-[#00c77e]' : 'bg-surface-container-highest border border-outline-variant'
+                      } ${required ? 'opacity-55 cursor-not-allowed' : ''}`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          preferences[key] ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Mini Settings */}
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-surface-card rounded-xl p-4 border border-surface-container-highest flex items-center gap-3">
+              <KeyRound size={16} className="text-muted-strong shrink-0" />
               <div className="flex-1 min-w-0">
-                <span className="text-sm font-bold text-on-surface block mb-1">Email Notifications</span>
-                <p className="text-sm text-muted-tertiary mb-4">
-                  Choose the emails you want to receive. Security notifications cannot be disabled.
-                </p>
-
-                {prefLoading ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="animate-spin text-primary-container" size={18} />
-                  </div>
-                ) : (
-                  <div className="space-y-3.5 w-full">
-                    {[
-                      { key: 'trading', label: 'Trading Notifications', desc: 'Alerts on buy, sell and limit orders.' },
-                      { key: 'wallet', label: 'Wallet Transactions', desc: 'Updates on deposits, withdrawals and transfers.' },
-                      { key: 'replay', label: 'Replay Session Summary', desc: 'Summaries and outcomes of market replay sessions.' },
-                      { key: 'subscription', label: 'Subscription & Billings', desc: 'Inconfirmations and billing history.' },
-                      { key: 'marketing', label: 'Marketing Emails', desc: 'Exclusive offers, updates and digests.' },
-                      { key: 'security', label: 'Security & Auth (Required)', desc: 'Password resets, device logins, and 2FA.', required: true }
-                    ].map(({ key, label, desc, required }) => (
-                      <div key={key} className="flex items-center justify-between gap-4 p-3 rounded-md bg-surface-container-low border border-outline-variant">
-                        <div className="min-w-0 flex-1">
-                          <span className="text-xs font-bold text-on-surface block">{label}</span>
-                          <span className="text-[10px] text-muted-strong font-semibold">{desc}</span>
-                        </div>
-                        <button
-                          type="button"
-                          disabled={required}
-                          onClick={() => handleTogglePref(key)}
-                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            preferences[key] ? 'bg-secondary' : 'bg-surface-elevated border border-outline-variant'
-                          } ${required ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          <span
-                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                              preferences[key] ? 'translate-x-4' : 'translate-x-0'
-                            }`}
-                          />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <p className="text-[11px] font-bold text-muted-strong truncate">Password</p>
+                <p className="text-[10px] text-muted-tertiary mt-0.5">Reset any time</p>
               </div>
+              <ChevronRight size={14} className="text-muted-strong shrink-0" />
             </div>
-          </motion.div>
 
-          {/* Info cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18 }}
-            className="grid sm:grid-cols-2 gap-4"
-          >
-            <div className="rounded-lg border border-outline-variant bg-surface-card p-5 flex items-start gap-3">
-              <KeyRound size={16} className="text-muted-strong mt-0.5 shrink-0" />
-              <div>
-                <div className="text-sm text-on-surface font-bold mb-0.5">Password</div>
-                <p className="text-xs text-muted-tertiary">Reset it any time from the sign-in screen's forgot flow.</p>
-              </div>
-            </div>
             <MobileNumberCard
               mobile={user?.mobile}
               onSaved={(mobile) => setUser((prev) => (prev ? { ...prev, mobile } : prev))}
             />
-          </motion.div>
+          </div>
 
           {/* Withdrawal PIN */}
           {user?.role !== 'ROLE_ADMIN' && (
-            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.21 }}>
-              <WithdrawalPinCard />
-            </motion.div>
+            <WithdrawalPinCard />
           )}
 
         </div>
 
         {/* Danger Zone */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.24 }}
-          className="lg:col-span-12 rounded-lg border border-error/20 bg-surface-card p-6 space-y-4 font-hanken"
-        >
-          <div className="flex items-start gap-4 max-w-2xl mx-auto">
-            <div className="w-10 h-10 rounded-md bg-error/10 text-error flex items-center justify-center shrink-0 border border-error/20">
-              <Trash2 size={17} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <span className="text-sm font-bold text-error block mb-1">Danger Zone</span>
-              <p className="text-xs text-muted-tertiary">
-                Permanently delete your CryptoVault account and all associated assets, transaction history, and trading data. This action is irreversible.
-              </p>
-              <button
-                onClick={() => setConfirmDeleteOpen(true)}
-                className="mt-3.5 px-4 py-2 rounded-md bg-error/10 border border-error/20 text-error text-xs font-button font-bold hover:bg-error/20 transition-colors"
-              >
-                Delete Account
-              </button>
-            </div>
+        <div className="lg:col-span-12 mt-6 bg-surface-container rounded-lg p-6 border border-error/20 flex items-center gap-6 font-hanken">
+          <div className="bg-error/10 p-3 rounded-lg text-error shrink-0 border border-error/25">
+            <Trash2 size={20} />
           </div>
-        </motion.div>
+          <div className="flex-1">
+            <h4 className="text-sm font-bold text-error">Danger Zone</h4>
+            <p className="text-xs text-muted-strong font-medium mt-0.5">Permanently delete your CryptoVault account and all associated assets, transaction history, and trading data. This action is irreversible.</p>
+          </div>
+          <button
+            onClick={() => setConfirmDeleteOpen(true)}
+            className="bg-error/10 text-error border border-error/20 px-6 py-2.5 rounded font-button text-xs font-bold hover:bg-error hover:text-white transition-all shrink-0 shadow-sm"
+          >
+            Delete Account
+          </button>
+        </div>
       </div>
 
       {/* Confirm Account Deletion Modal */}
