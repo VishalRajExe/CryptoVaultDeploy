@@ -110,21 +110,25 @@ export default function AdminUsers() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        {u.isVerified ? (
+                        {(u.isVerified || u.verified) ? (
                           <CheckCircle2 size={15} className="text-secondary" />
                         ) : (
                           <span className="text-xs text-muted-strong">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3.5">
-                        {u.twoFactorAuth?.isEnabled ? (
+                        {(u.twoFactorAuth?.isEnabled || u.twoFactorAuth?.enabled) ? (
                           <ShieldCheck size={15} className="text-secondary" />
                         ) : (
                           <span className="text-xs text-muted-strong">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="text-[10px] font-plex font-bold px-2 py-0.5 rounded border border-outline-variant text-muted-strong bg-surface-container-low">
+                        <span className={`text-[10px] font-plex font-bold px-2 py-0.5 rounded border ${
+                          u.status === 'VERIFIED'
+                            ? 'text-secondary bg-secondary/10 border-secondary/20'
+                            : 'text-muted-strong bg-surface-container-low border-outline-variant'
+                        }`}>
                           {u.status}
                         </span>
                       </td>
