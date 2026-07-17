@@ -702,9 +702,9 @@ export default function Security() {
         <p className="text-sm text-muted-strong font-medium mt-1">Verify your identity and harden how you sign in.</p>
       </header>
 
-      <div className="px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Left Column */}
-        <div className="lg:col-span-6 space-y-6">
+        <div className="lg:col-span-6 space-y-6 flex flex-col">
           {/* Profile card */}
           <div className="bg-surface-container rounded-lg p-6 border border-on-surface/10 flex items-center gap-6">
             <div className="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-primary-active font-bold text-2xl shrink-0">
@@ -791,7 +791,7 @@ export default function Security() {
           </div>
 
           {/* Security Help & Best Practices Card */}
-          <div className="rounded-lg border border-on-surface/10 bg-surface-container p-6 space-y-6 font-hanken">
+          <div className="rounded-lg border border-on-surface/10 bg-surface-container p-6 space-y-6 font-hanken flex-1">
             <div className="flex items-center gap-3">
               <div className="bg-surface-container-highest p-2 rounded text-secondary-fixed shrink-0">
                 <ShieldAlert size={18} />
@@ -829,7 +829,7 @@ export default function Security() {
         </div>
 
         {/* Right Column */}
-        <div className="lg:col-span-6 space-y-6 flex flex-col h-full">
+        <div className="lg:col-span-6 space-y-6 flex flex-col">
           {/* Notification Preferences */}
           <div className="bg-surface-card rounded-xl p-6 border border-surface-container-highest font-hanken">
             <div className="flex items-center gap-3 mb-6">
