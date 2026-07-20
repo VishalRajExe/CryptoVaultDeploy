@@ -27,4 +27,4 @@ COPY --from=build /app/target/trading-plateform-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 5454
 
 # Command to run the application
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=70.0", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java -XX:MaxRAMPercentage=70.0 -Dserver.port=${PORT:-5454} -jar app.jar"]
